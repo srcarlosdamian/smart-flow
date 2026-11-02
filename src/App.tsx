@@ -327,6 +327,7 @@ export default function App() {
   const addTrackingItem = (id: TrackingType) => {
     setActiveTrackings((prev) => (prev.includes(id) ? prev : [...prev, id]))
     setExpandedTrack((prev) => ({ ...prev, [id]: true }))
+    setOpen((prev) => ({ ...prev, track: true }))
     setDdOpen(null)
   }
 
@@ -336,6 +337,7 @@ export default function App() {
 
   const addSimulationItem = (id: SimulationType) => {
     setActiveSimulations((prev) => (prev.includes(id) ? prev : [...prev, id]))
+    setOpen((prev) => ({ ...prev, sim: true }))
     setDdOpen(null)
   }
 
@@ -871,13 +873,26 @@ export default function App() {
             {...showHelp('Tracking', 'Monitoreo y seguimiento en tiempo real de personal, vehículos y activos dentro de la mina.')}
           >
             <div className="section-head">
-              <span onClick={() => setDdOpen((d) => (d === 'addTrack' ? null : 'addTrack'))} style={{ flex: 1, textAlign: 'left' }}>
+              <button
+                className="accordion-chevron-left"
+                onClick={() => toggle('track')}
+                aria-label={open.track !== false ? 'Ocultar Tracking' : 'Mostrar Tracking'}
+              >
+                {open.track !== false ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+              <span
+                onClick={() => toggle('track')}
+                style={{ flex: 1, textAlign: 'left', cursor: 'pointer' }}
+              >
                 Tracking
               </span>
               <button
                 className="plus-trigger"
                 aria-label="Agregar tracking"
-                onClick={() => setDdOpen((d) => (d === 'addTrack' ? null : 'addTrack'))}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setDdOpen((d) => (d === 'addTrack' ? null : 'addTrack'))
+                }}
               >
                 <CirclePlus size={17} />
               </button>
@@ -901,7 +916,7 @@ export default function App() {
             )}
 
             {/* Active Tracking Items List */}
-            {activeTrackings.length > 0 && (
+            {open.track !== false && activeTrackings.length > 0 && (
               <div className="section-body track-body">
                 {activeTrackings.map((id) => {
                   const cfg = TRACKING_CATALOG.find((c) => c.id === id)!
@@ -1093,13 +1108,26 @@ export default function App() {
             {...showHelp('Simulaciones', 'Ejecución de modelos predictivos (flujo de aire, mapas de calor, energía, red, geocercas, vibraciones, etc.).')}
           >
             <div className="section-head">
-              <span onClick={() => setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))} style={{ flex: 1, textAlign: 'left' }}>
+              <button
+                className="accordion-chevron-left"
+                onClick={() => toggle('sim')}
+                aria-label={open.sim !== false ? 'Ocultar Simulaciones' : 'Mostrar Simulaciones'}
+              >
+                {open.sim !== false ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+              <span
+                onClick={() => toggle('sim')}
+                style={{ flex: 1, textAlign: 'left', cursor: 'pointer' }}
+              >
                 Simulaciones
               </span>
               <button
                 className="plus-trigger"
                 aria-label="Agregar simulación"
-                onClick={() => setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))
+                }}
               >
                 <CirclePlus size={17} />
               </button>
@@ -1123,7 +1151,7 @@ export default function App() {
             )}
 
             {/* Active Simulations List (SMF - V2 - 12 / node 8865:305609) */}
-            {activeSimulations.length > 0 && (
+            {open.sim !== false && activeSimulations.length > 0 && (
               <div className="section-body track-body">
                 {activeSimulations.map((id) => {
                   const cfg = SIMULATION_CATALOG.find((c) => c.id === id)!

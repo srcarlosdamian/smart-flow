@@ -370,6 +370,19 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 .search span { flex: 1; font-weight: 600; } .search small { color: var(--caption); font-size: 12px; }
 .section, .vis-block { border-top: 1px solid var(--line); position: relative; }
 .section-head { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; text-transform: uppercase; font-size: 13px; font-weight: 600; letter-spacing: .4px; cursor: pointer; }
+.accordion-chevron-left {
+  padding: 0;
+  margin-right: 6px;
+  color: var(--muted);
+  display: grid; place-items: center;
+  border-radius: 4px;
+  width: 20px; height: 20px;
+  transition: color .15s ease, background .15s ease;
+}
+.accordion-chevron-left:hover {
+  color: var(--text);
+  background: var(--hover-bg);
+}
 .vis-controls { position: relative; padding: 0 4px 12px; }
 
 /* SMF - V2 - 4 Custom Dropdown Triggers & Popover Menu */
@@ -535,18 +548,30 @@ input[type=range] { width: 100%; accent-color: #1976d2; }
 .cta { padding: 10px; border-radius: 12px; font-weight: 600; font-size: 14px; color: #fff; background: linear-gradient(90deg, #1253dd, #08ddf0); box-shadow: 0 4px 14px rgba(24,216,240,.25); }
 
 .seg-row {
-  display: flex; gap: 4px; padding: 4px; border-radius: 8px;
-  background: var(--seg-bg);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  display: flex; gap: 3px; padding: 3px; border-radius: 8px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--glass-border-sutil);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
-.seg-row button { flex: 1; padding: 4px; border-radius: 4px; font-size: 13px; }
+.app[data-theme="dark"] .seg-row {
+  background: rgba(255, 255, 255, 0.05);
+}
+.seg-row button {
+  flex: 1; padding: 4px 6px; border-radius: 6px; font-size: 13px;
+  color: var(--muted);
+  transition: all .15s ease;
+}
 .seg-row button.on {
-  background: var(--seg-on);
+  background: rgba(255, 255, 255, 0.60);
+  color: var(--text);
   font-weight: 600;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.app[data-theme="dark"] .seg-row button.on {
+  background: rgba(255, 255, 255, 0.14);
 }
 .switch-row { cursor: pointer; padding: 2px 0; }
 .sublabel { font-size: 13px; font-weight: 600; margin-top: 2px; }
