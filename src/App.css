@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600&display=swap');
+
+:root { --glass: rgba(18, 30, 46, 0.55); --line: rgba(255, 255, 255, 0.12); --text: #e6edf5; --muted: #8fa3b8; }
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body { font-family: 'Titillium Web', sans-serif; color: var(--text); overflow: hidden; background: #0a1c30; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; display: grid; place-items: center; }
+
+.app { position: relative; height: 100vh; width: 100vw; }
+.scene { position: absolute; inset: 0; cursor: grab; }
+.glass {
+  position: absolute; background: var(--glass); border: 1px solid var(--line);
+  backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 1px 2px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.topbar { top: 8px; left: 8px; right: 8px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+.logo { width: 34px; height: 38px; display: grid; place-items: center; font-weight: 600; font-size: 20px; color: #29b6f6; border: 2px solid #29b6f6; border-radius: 10px; }
+.top-actions { display: flex; align-items: center; gap: 24px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: #607d8b; display: grid; place-items: center; font-weight: 600; font-size: 14px; }
+
+.sidebar { top: 72px; left: 8px; bottom: 8px; width: 64px; border-radius: 16px; padding: 24px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.sidebar hr { width: 32px; border: 0; border-top: 1px solid var(--line); margin: 0; }
+.icon-btn { padding: 8px; border-radius: 12px; color: var(--muted); }
+.icon-btn:hover, .icon-btn.active { background: rgba(255,255,255,.1); color: #fff; }
+.spacer { flex: 1; }
+
+.toolbar { top: 84px; left: 100px; height: 52px; border-radius: 16px; display: flex; align-items: center; gap: 16px; padding: 0 16px; }
+.toolbar > button { color: var(--text); opacity: .85; }
+.toolbar > button:hover { opacity: 1; }
+.vsep { width: 1px; height: 20px; background: var(--line); }
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: 8px; background: rgba(0,0,0,.25); }
+.seg button { padding: 4px; border-radius: 4px; }
+.seg .on { background: rgba(255,255,255,.18); }
+
+.panel { top: 72px; right: 8px; bottom: 8px; width: 332px; border-radius: 16px; padding: 12px; overflow-y: auto; }
+.nexo { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 12px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; background: linear-gradient(257deg, #3f4d69, #6c8fba); }
+.search { display: flex; align-items: center; gap: 8px; padding: 10px 4px; font-size: 13px; }
+.search span { flex: 1; } .search small { color: var(--muted); }
+.section { border-top: 1px solid var(--line); }
+.section-head { width: 100%; display: flex; justify-content: space-between; padding: 12px 4px; text-transform: uppercase; font-size: 13px; font-weight: 600; letter-spacing: .5px; }
+.section-body { display: flex; flex-direction: column; gap: 12px; padding: 0 4px 16px; }
+.section-body h3 { margin: 4px 0 0; font-size: 18px; font-weight: 600; }
+.row { display: flex; gap: 8px; } .row.between { justify-content: space-between; font-size: 13px; } .grow { flex: 1; }
+.field { background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; font-size: 13px; }
+.field option { background: #12202f; } .field.full { width: 100%; resize: none; }
+.hint { margin: 0; font-size: 11px; color: var(--muted); }
+input[type=range] { width: 100%; accent-color: #42a5f5; }
+.cta { padding: 10px; border-radius: 8px; font-weight: 600; font-size: 13px; background: linear-gradient(90deg, #1565e8, #18d8f0); box-shadow: 0 4px 14px rgba(24,216,240,.25); }
+
+.levels { left: 80px; bottom: 16px; list-style: none; margin: 0; padding: 8px 0; border-radius: 12px; width: 150px; }
+.levels li { padding: 7px 16px; font-size: 13px; cursor: pointer; color: var(--muted); }
+.levels li b { color: var(--text); margin-right: 8px; }
+.levels li.on, .levels li:hover { background: rgba(255,255,255,.1); color: #fff; }
