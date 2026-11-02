@@ -112,10 +112,19 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 .logo-btn:hover .logo-img { opacity: 0; transform: scale(0.85); }
 .logo-btn:hover .logo-back { opacity: 1; transform: scale(1); }
 
-.top-actions { display: flex; align-items: center; gap: 20px; }
-.top-actions > button { padding: 6px; border-radius: 8px; color: var(--text); }
-.top-actions > button:hover { background: var(--hover-bg); }
-.avatar { width: 38px; height: 38px; border-radius: 50%; background: #607d8b; color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 14px; }
+.top-actions { display: flex; align-items: center; gap: 24px; }
+.top-actions > button:not(.avatar) { padding: 6px; border-radius: 8px; color: var(--text); }
+.top-actions > button:not(.avatar):hover { background: var(--hover-bg); }
+.top-actions > button.avatar, .avatar {
+  width: 38px; height: 38px; padding: 0; border-radius: 999px;
+  background: #607d8b; color: #ffffff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 14px; line-height: 1.57; letter-spacing: 0.1px;
+  flex-shrink: 0; transition: filter .15s ease;
+}
+.top-actions > button.avatar:hover {
+  background: #607d8b; color: #ffffff; filter: brightness(1.06);
+}
 
 /* SMF - V2 - 3 / 17 compact vertical sidebar (42px wide, gap 16px, p 8px, blur 40px) */
 .sidebar {
