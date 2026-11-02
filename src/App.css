@@ -24,6 +24,8 @@
   --back-icon-color: #ffffff;
   --nexo-pill-bg: rgba(255, 255, 255, 0.09);
   --nexo-input-bg: rgba(22, 32, 46, 0.58);
+  --status-bar-bg: #081524;
+  --status-bar-border: rgba(255, 255, 255, 0.06);
   color: var(--text);
 }
 
@@ -50,6 +52,8 @@
   --back-icon-color: #000000;
   --nexo-pill-bg: rgba(255, 255, 255, 0.58);
   --nexo-input-bg: rgba(255, 255, 255, 0.66);
+  --status-bar-bg: #dde5ee;
+  --status-bar-border: rgba(0, 0, 0, 0.07);
   color: var(--text);
 }
 
@@ -195,9 +199,9 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   font-size: 11.5px; color: var(--muted);
 }
 
-/* SMF - V2 - 20: Nexo IA Right Drawer (340px wide, full height 100vh) */
+/* SMF - V2 - 20: Nexo IA Right Drawer (340px wide, full height above status bar) */
 .nexo-drawer {
-  position: absolute; top: 0; right: 0; bottom: 0; width: 340px; z-index: 20;
+  position: absolute; top: 0; right: 0; bottom: 22px; width: 340px; z-index: 20;
   padding: 16px;
   border-top: 0; border-right: 0; border-bottom: 0;
   border-left: 1.5px solid var(--glass-border-suave);
@@ -558,7 +562,7 @@ input[type=range] { width: 100%; accent-color: #1976d2; }
 .tag-list li span { flex: 1; }
 
 .levels {
-  position: absolute; left: 16px; bottom: 16px; list-style: none; margin: 0; padding: 12px;
+  position: absolute; left: 16px; bottom: 34px; list-style: none; margin: 0; padding: 12px;
   border-radius: 16px; width: 150px; display: flex; flex-direction: column; gap: 8px;
   -webkit-backdrop-filter: blur(36px) saturate(160%);
   backdrop-filter: blur(36px) saturate(160%);
@@ -571,6 +575,32 @@ input[type=range] { width: 100%; accent-color: #1976d2; }
   backdrop-filter: blur(12px);
 }
 .levels li:hover:not(.on) { background: var(--hover-bg); }
+
+/* Ableton-style docked minimalist bottom info bar (no blur, non-floating) */
+.ableton-status-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 22px; z-index: 30;
+  background: var(--status-bar-bg);
+  border-top: 1px solid var(--status-bar-border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0 12px;
+  display: flex; align-items: center;
+  font-size: 11px; line-height: 1; letter-spacing: 0.15px;
+  user-select: none;
+}
+.ableton-status-content {
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.ableton-status-content.idle {
+  opacity: 0.55;
+}
+.ableton-status-title {
+  font-weight: 600; color: var(--text); flex-shrink: 0;
+}
+.ableton-status-desc {
+  color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
 /* Institutional Email Access Modal */
 .auth-backdrop {

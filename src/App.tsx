@@ -206,12 +206,14 @@ const PERSONAL_CHECKLIST = [
 ]
 
 function Section({
-  title, open, onToggle, iconType = 'chevron', children,
+  title, open, onToggle, iconType = 'chevron', onHover, children,
 }: {
-  title: string; open: boolean; onToggle: () => void; iconType?: 'chevron' | 'plus'; children?: React.ReactNode
+  title: string; open: boolean; onToggle: () => void; iconType?: 'chevron' | 'plus'
+  onHover?: { onMouseEnter: () => void; onMouseLeave: () => void }
+  children?: React.ReactNode
 }) {
   return (
-    <div className="section">
+    <div className="section" {...onHover}>
       <button className="section-head" onClick={onToggle}>
         <span>{title}</span>
         {iconType === 'plus'
@@ -249,6 +251,12 @@ export default function App() {
   const [factor, setFactor] = useState(1.3)
   const [level, setLevel] = useState('L1')
   const [activeTool, setActiveTool] = useState<string>('')
+  const [helpInfo, setHelpInfo] = useState<{ title: string; desc: string } | null>(null)
+
+  const showHelp = (title: string, desc: string) => ({
+    onMouseEnter: () => setHelpInfo({ title, desc }),
+    onMouseLeave: () => setHelpInfo(null),
+  })
 
   // TRACKING state (SMF - V2 - 5 / 6 / 7 / 8)
   const [activeTrackings, setActiveTrackings] = useState<TrackingType[]>([])
@@ -340,7 +348,11 @@ export default function App() {
       <Scene3D mode={mode} zoom={zoom} theme={theme} />
 
       <header className="glass topbar">
-        <button className="logo-btn" aria-label="Volver" title="Volver">
+        <button
+          className="logo-btn"
+          aria-label="Volver"
+          {...showHelp('Motor de Gemelo Digital', 'Núcleo de la representación virtual 3D de la infraestructura minera.')}
+        >
           <img src={logoUrl} alt="SmartFlow" className="logo-img" />
           <span className="logo-back">
             <ArrowLeft size={18} />
@@ -348,24 +360,39 @@ export default function App() {
         </button>
 
         <div className="top-actions">
-          <button aria-label="Buscar"><Search size={20} /></button>
-          <button aria-label="Notificaciones"><Bell size={20} /></button>
-          <button aria-label="Idioma"><Globe size={20} /></button>
+          <button
+            aria-label="Buscar"
+            {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema.')}
+          >
+            <Search size={20} />
+          </button>
+          <button
+            aria-label="Notificaciones"
+            {...showHelp('Tableros de comandos', 'Paneles visuales (dashboards) con indicadores clave de desempeño (KPIs) y resúmenes operativos.')}
+          >
+            <Bell size={20} />
+          </button>
+          <button
+            aria-label="Idioma"
+            {...showHelp('Servicios Digitales de Mina', 'Suite de herramientas tecnológicas que integran la plataforma.')}
+          >
+            <Globe size={20} />
+          </button>
           <button
             aria-label="Cambiar tema"
-            title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
             onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+            {...showHelp('Configuración', 'Ajustes generales del sistema, modo claro/oscuro, permisos y parámetros de la plataforma.')}
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
           <button
             className="avatar"
-            title={authEmail ? `Sesión: ${authEmail} (clic para cambiar correo)` : 'Cambiar correo'}
             onClick={() => {
               clearSavedAuthEmail()
               setEmailInput('@lasec.com.mx')
               setAuthEmail(null)
             }}
+            {...showHelp('Operaciones', 'Módulos principales para gestionar las distintas áreas de la empresa minera (HSEC, planeación y producción).')}
           >
             DS
           </button>
@@ -374,26 +401,113 @@ export default function App() {
 
       {/* Left vertical sidebar from SMF - V2 - 3 / 17 */}
       <nav className="glass sidebar">
-        <button className="icon-btn" title="Acercar" onClick={() => setZoom(clamp(zoom + 10))}><ZoomIn size={20} /></button>
-        <button className="icon-btn" title="Alejar" onClick={() => setZoom(clamp(zoom - 10))}><ZoomOut size={20} /></button>
+        <button
+          className="icon-btn"
+          onClick={() => setZoom(clamp(zoom + 10))}
+          {...showHelp('Acercar vista', 'Incrementa la escala de acercamiento sobre el modelo del gemelo digital en 3D/2D.')}
+        >
+          <ZoomIn size={20} />
+        </button>
+        <button
+          className="icon-btn"
+          onClick={() => setZoom(clamp(zoom - 10))}
+          {...showHelp('Alejar vista', 'Reduce la escala de visualización para obtener una vista general del entorno minero.')}
+        >
+          <ZoomOut size={20} />
+        </button>
         <hr />
-        <button className={`icon-btn ${mode === 'top' ? 'active' : ''}`} title="Vista superior" onClick={() => setMode('top')}><SquareArrowUp size={20} /></button>
-        <button className={`icon-btn ${mode === 'perspective' ? 'active' : ''}`} title="Vista 3D" onClick={() => setMode('perspective')}><Box size={20} /></button>
-        <button className={`icon-btn ${mode === 'isometric' ? 'active' : ''}`} title="Vista isométrica" onClick={() => setMode('isometric')}><SquareArrowRight size={20} /></button>
-        <button className={`icon-btn ${activeTool === 'select' ? 'active' : ''}`} title="Seleccionar" onClick={() => setActiveTool('select')}><SquareMousePointer size={20} /></button>
+        <button
+          className={`icon-btn ${mode === 'top' ? 'active' : ''}`}
+          onClick={() => setMode('top')}
+          {...showHelp('Vista (Superior)', 'Permite alternar y configurar las perspectivas y modos de visualización del gemelo digital en 2D/planta.')}
+        >
+          <SquareArrowUp size={20} />
+        </button>
+        <button
+          className={`icon-btn ${mode === 'perspective' ? 'active' : ''}`}
+          onClick={() => setMode('perspective')}
+          {...showHelp('Vista (3D Perspectiva)', 'Permite alternar y configurar las perspectivas y modos de visualización del gemelo digital en 3D/2D.')}
+        >
+          <Box size={20} />
+        </button>
+        <button
+          className={`icon-btn ${mode === 'isometric' ? 'active' : ''}`}
+          onClick={() => setMode('isometric')}
+          {...showHelp('Vista (Isométrica)', 'Proyección técnica isométrica para inspeccionar niveles, rampas y galerías sin distorsión.')}
+        >
+          <SquareArrowRight size={20} />
+        </button>
+        <button
+          className={`icon-btn ${activeTool === 'select' ? 'active' : ''}`}
+          onClick={() => setActiveTool('select')}
+          {...showHelp('Interiores', 'Gestión y visualización detallada de espacios cerrados, refugios y talleres.')}
+        >
+          <SquareMousePointer size={20} />
+        </button>
         <hr />
-        <button className="icon-btn" title="Ajustar vista" onClick={() => { setZoom(50); setMode('perspective') }}><Fullscreen size={20} /></button>
+        <button
+          className="icon-btn"
+          onClick={() => { setZoom(50); setMode('perspective') }}
+          {...showHelp('Motor de Gemelo Digital', 'Restablece la cámara principal del núcleo de representación virtual 3D de la infraestructura minera.')}
+        >
+          <Fullscreen size={20} />
+        </button>
         <hr />
-        <button className="icon-btn" title="Subir / Exportar"><Upload size={20} /></button>
+        <button
+          className="icon-btn"
+          {...showHelp('Motor de Flujo de Datos', 'Gestión y procesamiento en tiempo real de la telemetría e información de sensores.')}
+        >
+          <Upload size={20} />
+        </button>
         <hr />
-        <button className={`icon-btn ${activeTool === 'ruler' ? 'active' : ''}`} title="Medir" onClick={() => setActiveTool('ruler')}><RulerDimensionLine size={20} /></button>
-        <button className={`icon-btn ${activeTool === 'diamond' ? 'active' : ''}`} title="Marcadores" onClick={() => setActiveTool('diamond')}><Diamond size={20} /></button>
-        <button className={`icon-btn ${activeTool === 'cable' ? 'active' : ''}`} title="Conexiones" onClick={() => setActiveTool('cable')}><Cable size={20} /></button>
-        <button className={`icon-btn ${activeTool === 'light' ? 'active' : ''}`} title="Iluminación" onClick={() => setActiveTool('light')}><Lightbulb size={20} /></button>
-        <button className={`icon-btn ${activeTool === 'wrench' ? 'active' : ''}`} title="Herramientas" onClick={() => setActiveTool('wrench')}><Wrench size={20} /></button>
+        <button
+          className={`icon-btn ${activeTool === 'ruler' ? 'active' : ''}`}
+          onClick={() => setActiveTool('ruler')}
+          {...showHelp('Ingeniería', 'Acceso a las capas estructurales, niveles, rampas, cotas y parámetros técnicos del diseño de la mina.')}
+        >
+          <RulerDimensionLine size={20} />
+        </button>
+        <button
+          className={`icon-btn ${activeTool === 'diamond' ? 'active' : ''}`}
+          onClick={() => setActiveTool('diamond')}
+          {...showHelp('Demo de seguimiento', 'Ejercicios o modos demostrativos para pruebas de tracking y puntos de control en interior mina.')}
+        >
+          <Diamond size={20} />
+        </button>
+        <button
+          className={`icon-btn ${activeTool === 'cable' ? 'active' : ''}`}
+          onClick={() => setActiveTool('cable')}
+          {...showHelp('Motor de Blueprints', 'Gestión de planos, esquemas, redes de conexión y diseños técnicos originales.')}
+        >
+          <Cable size={20} />
+        </button>
+        <button
+          className={`icon-btn ${activeTool === 'light' ? 'active' : ''}`}
+          onClick={() => setActiveTool('light')}
+          {...showHelp('Motor de Provisión de Dispositivos', 'Configuración, alta y administración del hardware y luminarias instaladas en terreno.')}
+        >
+          <Lightbulb size={20} />
+        </button>
+        <button
+          className={`icon-btn ${activeTool === 'wrench' ? 'active' : ''}`}
+          onClick={() => setActiveTool('wrench')}
+          {...showHelp('Operaciones', 'Módulos principales para gestionar Exploración, Planificación, Operaciones Mina, Planta, HSEC y Servicios de Sitio.')}
+        >
+          <Wrench size={20} />
+        </button>
         <hr />
-        <button className="icon-btn" title="Deshacer"><Undo2 size={20} /></button>
-        <button className="icon-btn" title="Rehacer"><Redo2 size={20} /></button>
+        <button
+          className="icon-btn"
+          {...showHelp('Deshacer', 'Revierte la última acción realizada sobre la vista o herramientas de ingeniería.')}
+        >
+          <Undo2 size={20} />
+        </button>
+        <button
+          className="icon-btn"
+          {...showHelp('Rehacer', 'Restaura la acción previamente deshecha en el entorno de trabajo.')}
+        >
+          <Redo2 size={20} />
+        </button>
       </nav>
 
       {/* Right column */}
@@ -407,18 +521,19 @@ export default function App() {
                   setDdOpen(null)
                   setNexoOpen(true)
                 }}
+                {...showHelp('Nexo IA', 'Asistente de inteligencia artificial para consultar el estado del turno, ventilación, personal y alertas en tiempo real.')}
               >
                 <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
               </button>
 
               <button
                 className={`nexo-settings-btn ${ddOpen === 'nexoSettings' ? 'active' : ''}`}
-                title="Configuración de Nexo IA"
                 aria-label="Configuración de Nexo IA"
                 onClick={(e) => {
                   e.stopPropagation()
                   setDdOpen((d) => (d === 'nexoSettings' ? null : 'nexoSettings'))
                 }}
+                {...showHelp('Configuración Nexo IA', 'Activa o desactiva el asistente Nexo IA, las sugerencias automáticas de turno y las respuestas por voz.')}
               >
                 <Settings size={17} />
               </button>
@@ -468,10 +583,18 @@ export default function App() {
         )}
 
         <aside className="glass panel">
-          <div className="search"><span>Buscar</span><small>Ctrl + K</small><Search size={14} /></div>
+          <div
+            className="search"
+            {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
+          >
+            <span>Buscar</span><small>Ctrl + K</small><Search size={14} />
+          </div>
 
           {/* 1. MODO DE VISUALIZACIÓN (SMF - V2 - 4) */}
-          <div className="vis-block">
+          <div
+            className="vis-block"
+            {...showHelp('Vista', 'Permite alternar y configurar las perspectivas y modos de visualización del gemelo digital en 3D/2D.')}
+          >
             <button className="section-head" onClick={() => toggle('vis')}>
               <span>Modo de visualización</span>
               {open.vis ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -578,7 +701,12 @@ export default function App() {
           </div>
 
           {/* 2. ESTADÍSTICAS DE RENDIMIENTO (SMF - V2 - 11) */}
-          <Section title="Estadísticas de rendimiento" open={!!open.perf} onToggle={() => toggle('perf')}>
+          <Section
+            title="Estadísticas de rendimiento"
+            open={!!open.perf}
+            onToggle={() => toggle('perf')}
+            onHover={showHelp('Estadísticas de rendimiento', 'Monitoreo de FPS, memoria GPU, llamadas de dibujo, geometrías y perfil de calidad gráfica del visor 3D.')}
+          >
             <div className="seg-row">
               {(['Bajo', 'Medio', 'Alto'] as const).map((lvl) => (
                 <button key={lvl} className={perfLevel === lvl ? 'on' : ''} onClick={() => setPerfLevel(lvl)}>{lvl}</button>
@@ -615,7 +743,10 @@ export default function App() {
           </Section>
 
           {/* 3. TRACKING (SMF - V2 - 5, 6, 7, 8) */}
-          <div className="section track-section">
+          <div
+            className="section track-section"
+            {...showHelp('Tracking', 'Monitoreo y seguimiento en tiempo real de personal, vehículos y activos dentro de la mina.')}
+          >
             <div className="section-head">
               <span onClick={() => setDdOpen((d) => (d === 'addTrack' ? null : 'addTrack'))} style={{ flex: 1, textAlign: 'left' }}>
                 Tracking
@@ -830,7 +961,10 @@ export default function App() {
           </div>
 
           {/* 4. SIMULACIONES (SMF - V2 - 12 & SMF - V2 - 13) */}
-          <div className="section sim-section">
+          <div
+            className="section sim-section"
+            {...showHelp('Simulaciones', 'Ejecución de modelos predictivos (flujo de aire, mapas de calor, energía, red, geocercas, vibraciones, etc.).')}
+          >
             <div className="section-head">
               <span onClick={() => setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))} style={{ flex: 1, textAlign: 'left' }}>
                 Simulaciones
@@ -891,7 +1025,12 @@ export default function App() {
             )}
           </div>
 
-          <Section title="Análisis" open={!!open.ana} onToggle={() => toggle('ana')}>
+          <Section
+            title="Análisis"
+            open={!!open.ana}
+            onToggle={() => toggle('ana')}
+            onHover={showHelp('Análisis', 'Evaluación de datos operativos, métricas de rendimiento y reportes de la mina.')}
+          >
             <select className="field full"><option>Buscar por zona, nivel o equipo</option></select>
             <ul className="tag-list">
               <li><span>L3 - Zona Norte</span><Minus size={16} /></li>
@@ -908,7 +1047,12 @@ export default function App() {
             <button className="cta">Simular escenario</button>
           </Section>
 
-          <Section title="Seguimiento" open={!!open.seg} onToggle={() => toggle('seg')} />
+          <Section
+            title="Seguimiento"
+            open={!!open.seg}
+            onToggle={() => toggle('seg')}
+            onHover={showHelp('Demo de seguimiento', 'Ejercicios o modos demostrativos para pruebas de tracking y seguimiento operativo.')}
+          />
         </aside>
       </div>
 
@@ -1093,11 +1237,29 @@ export default function App() {
         </aside>
       )}
 
-      <ul className="glass levels">
+      <ul
+        className="glass levels"
+        {...showHelp('Ingeniería', 'Acceso a las capas estructurales, niveles (L1 General a L5 Interior), rampas, cotas y parámetros técnicos del diseño de la mina.')}
+      >
         {levels.map(([k, n]) => (
           <li key={k} className={level === k ? 'on' : ''} onClick={() => setLevel(k)}><b>{k}</b> {n}</li>
         ))}
       </ul>
+
+      {/* Ableton-style docked minimalist bottom info bar (no blur, non-floating) */}
+      <footer className="ableton-status-bar" aria-live="polite">
+        {helpInfo ? (
+          <div className="ableton-status-content">
+            <span className="ableton-status-title">{helpInfo.title}:</span>
+            <span className="ableton-status-desc">{helpInfo.desc}</span>
+          </div>
+        ) : (
+          <div className="ableton-status-content idle">
+            <span className="ableton-status-title">SmartFlow:</span>
+            <span className="ableton-status-desc">Pasa el cursor sobre cualquier herramienta para ver su descripción.</span>
+          </div>
+        )}
+      </footer>
 
       {/* Institutional Email Access Gate Modal */}
       {!authEmail && (
