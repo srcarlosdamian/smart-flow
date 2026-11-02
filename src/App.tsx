@@ -58,7 +58,7 @@ export default function App() {
   const [mode, setMode] = useState<ViewMode>('perspective')
   const [zoom, setZoom] = useState(50)
   const [nexoOn, setNexoOn] = useState(true)
-  const [open, setOpen] = useState<Record<string, boolean>>({ vis: true })
+  const [open, setOpen] = useState<Record<string, boolean>>({})
   const [perfLevel, setPerfLevel] = useState<'Bajo' | 'Medio' | 'Alto'>('Bajo')
   const [autoPerf, setAutoPerf] = useState(false)
   const [factor, setFactor] = useState(1.3)
