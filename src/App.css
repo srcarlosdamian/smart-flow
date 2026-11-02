@@ -135,6 +135,9 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   right: 356px;
 }
 
+.nexo-bar-wrap {
+  position: relative; width: 100%;
+}
 .nexo-bar {
   width: 100%;
   background: linear-gradient(90deg, rgba(69, 90, 100, 0.85) 0%, rgba(84, 110, 122, 0.85) 50%, rgba(144, 164, 174, 0.85) 100%);
@@ -143,22 +146,54 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   -webkit-backdrop-filter: blur(32px) saturate(160%);
   backdrop-filter: blur(32px) saturate(160%);
   color: #fff; border-radius: 16px;
-  padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px 6px 16px; display: flex; align-items: center; justify-content: space-between;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
-  transition: transform .15s ease, box-shadow .2s ease;
+  transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.nexo-bar.disabled {
+  opacity: 0.68;
 }
 .nexo-bar:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
 }
+.nexo-open-trigger {
+  flex: 1; display: flex; align-items: center; justify-content: flex-start;
+  padding: 4px 0; color: #fff; text-align: left;
+}
 .nexo-title { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; letter-spacing: 0.15px; }
-.nexo-badge {
-  background: rgba(255, 255, 255, 0.24);
+.nexo-settings-btn {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  padding: 2px 8px; border-radius: 8px;
-  font-size: 12px; font-weight: 600; letter-spacing: .5px;
+  color: #ffffff;
+  display: grid; place-items: center;
+  transition: background .18s ease, transform .18s ease;
 }
-.nexo-badge.on { background: rgba(255, 255, 255, 0.28); }
+.nexo-settings-btn:hover, .nexo-settings-btn.active {
+  background: rgba(255, 255, 255, 0.30);
+}
+.nexo-settings-btn.active svg {
+  transform: rotate(45deg);
+}
+.nexo-settings-menu {
+  top: calc(100% + 6px); left: 0; right: 0;
+}
+.nexo-switch-row {
+  padding: 6px 6px; border-radius: 8px;
+}
+.nexo-switch-row:hover {
+  background: var(--hover-bg);
+}
+.nexo-switch-text {
+  display: flex; flex-direction: column; gap: 1px; line-height: 1.3;
+}
+.nexo-switch-text span {
+  font-size: 13.5px; font-weight: 600; color: var(--text);
+}
+.nexo-switch-text small {
+  font-size: 11.5px; color: var(--muted);
+}
 
 /* SMF - V2 - 20: Nexo IA Right Drawer (340px wide, full height 100vh) */
 .nexo-drawer {

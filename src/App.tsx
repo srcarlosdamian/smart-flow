@@ -6,7 +6,7 @@ import {
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Minus,
-  Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot,
+  Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot, Settings,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import logoUrl from './assets/smartflow-logo.png'
@@ -138,8 +138,11 @@ export default function App() {
   const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
   const [selectedCam, setSelectedCam] = useState<string>('')
   const [zoom, setZoom] = useState(50)
-  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | null>(null)
+  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | null>(null)
   const [nexoOpen, setNexoOpen] = useState(false)
+  const [nexoEnabled, setNexoEnabled] = useState(true)
+  const [nexoAutoAlerts, setNexoAutoAlerts] = useState(true)
+  const [nexoVoice, setNexoVoice] = useState(false)
   const [nexoPrompt, setNexoPrompt] = useState('')
   const [nexoMessages, setNexoMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
   const [open, setOpen] = useState<Record<string, boolean>>({})
@@ -157,14 +160,14 @@ export default function App() {
   // SIMULACIONES state (SMF - V2 - 12 / 13)
   const [activeSimulations, setActiveSimulations] = useState<SimulationType[]>([])
 
-  const panelRef = useRef<HTMLElement>(null)
+  const rightColRef = useRef<HTMLDivElement>(null)
 
   const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }))
   const clamp = (n: number) => Math.max(10, Math.min(200, n))
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+      if (rightColRef.current && !rightColRef.current.contains(e.target as Node)) {
         setDdOpen(null)
       }
     }
@@ -258,15 +261,77 @@ export default function App() {
       </nav>
 
       {/* Right column */}
-      <div className="right-col">
+      <div className="right-col" ref={rightColRef}>
         {!nexoOpen && (
-          <button className="nexo-bar" onClick={() => setNexoOpen(true)}>
-            <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
-            <span className="nexo-badge on">ON</span>
-          </button>
+          <div className="nexo-bar-wrap">
+            <div className={`nexo-bar ${!nexoEnabled ? 'disabled' : ''}`}>
+              <button
+                className="nexo-open-trigger"
+                onClick={() => {
+                  setDdOpen(null)
+                  setNexoOpen(true)
+                }}
+              >
+                <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
+              </button>
+
+              <button
+                className={`nexo-settings-btn ${ddOpen === 'nexoSettings' ? 'active' : ''}`}
+                title="Configuración de Nexo IA"
+                aria-label="Configuración de Nexo IA"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setDdOpen((d) => (d === 'nexoSettings' ? null : 'nexoSettings'))
+                }}
+              >
+                <Settings size={17} />
+              </button>
+            </div>
+
+            {ddOpen === 'nexoSettings' && (
+              <div className="dd-menu nexo-settings-menu">
+                <div className="dd-group-title">CONFIGURACIÓN NEXO IA</div>
+
+                <div className="row between switch-row nexo-switch-row" onClick={() => setNexoEnabled((v) => !v)}>
+                  <div className="nexo-switch-text">
+                    <span>Asistente Nexo IA</span>
+                    <small>{nexoEnabled ? 'Activo en el entorno' : 'Desactivado'}</small>
+                  </div>
+                  <span className={`mui-switch ${nexoEnabled ? 'checked' : ''}`}>
+                    <span className="mui-switch-track" />
+                    <span className="mui-switch-thumb" />
+                  </span>
+                </div>
+
+                <div className="dd-divider" />
+
+                <div className="row between switch-row nexo-switch-row" onClick={() => setNexoAutoAlerts((v) => !v)}>
+                  <div className="nexo-switch-text">
+                    <span>Sugerencias automáticas</span>
+                    <small>Alertas proactivas del turno</small>
+                  </div>
+                  <span className={`mui-switch ${nexoAutoAlerts ? 'checked' : ''}`}>
+                    <span className="mui-switch-track" />
+                    <span className="mui-switch-thumb" />
+                  </span>
+                </div>
+
+                <div className="row between switch-row nexo-switch-row" onClick={() => setNexoVoice((v) => !v)}>
+                  <div className="nexo-switch-text">
+                    <span>Respuestas por voz</span>
+                    <small>Lectura de avisos críticos</small>
+                  </div>
+                  <span className={`mui-switch ${nexoVoice ? 'checked' : ''}`}>
+                    <span className="mui-switch-track" />
+                    <span className="mui-switch-thumb" />
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
-        <aside className="glass panel" ref={panelRef}>
+        <aside className="glass panel">
           <div className="search"><span>Buscar</span><small>Ctrl + K</small><Search size={14} /></div>
 
           {/* 1. MODO DE VISUALIZACIÓN (SMF - V2 - 4) */}
