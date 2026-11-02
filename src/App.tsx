@@ -51,11 +51,21 @@ const NEXO_MORE_CHATS = [
   'Bitácora de incidentes y telemetría L2',
 ]
 
-const AUTH_STORAGE_KEY = 'smartflow_auth_email_v1'
-const AUTH_COOKIE_KEY = 'smartflow_auth_email'
+const AUTH_STORAGE_KEY = 'smartflow_auth_email_v2'
+const AUTH_COOKIE_KEY = 'smartflow_auth_email_v2'
+
+function normalizeInstitutionalEmail(raw: string): string {
+  const clean = raw.trim().toLowerCase()
+  if (!clean) return ''
+  // If user typed only the username (without @), append @lasec.com.mx automatically
+  if (!clean.includes('@')) {
+    return `${clean}@lasec.com.mx`
+  }
+  return clean
+}
 
 function isAllowedInstitutionalEmail(raw: string): boolean {
-  const email = raw.trim().toLowerCase()
+  const email = normalizeInstitutionalEmail(raw)
   const parts = email.split('@')
   if (parts.length !== 2) return false
   const [local, domain] = parts
@@ -66,7 +76,7 @@ function isAllowedInstitutionalEmail(raw: string): boolean {
 function getSavedAuthEmail(): string | null {
   try {
     const stored = localStorage.getItem(AUTH_STORAGE_KEY)
-    if (stored && isAllowedInstitutionalEmail(stored)) return stored
+    if (stored && isAllowedInstitutionalEmail(stored)) return normalizeInstitutionalEmail(stored)
   } catch {
     // ignore storage errors
   }
@@ -74,7 +84,7 @@ function getSavedAuthEmail(): string | null {
     const match = document.cookie.match(new RegExp('(?:^|; )' + AUTH_COOKIE_KEY + '=([^;]*)'))
     if (match) {
       const decoded = decodeURIComponent(match[1])
-      if (isAllowedInstitutionalEmail(decoded)) return decoded
+      if (isAllowedInstitutionalEmail(decoded)) return normalizeInstitutionalEmail(decoded)
     }
   } catch {
     // ignore cookie errors
@@ -83,7 +93,7 @@ function getSavedAuthEmail(): string | null {
 }
 
 function saveAuthEmail(email: string) {
-  const clean = email.trim().toLowerCase()
+  const clean = normalizeInstitutionalEmail(email)
   try {
     localStorage.setItem(AUTH_STORAGE_KEY, clean)
   } catch {
@@ -94,6 +104,19 @@ function saveAuthEmail(email: string) {
     document.cookie = `${AUTH_COOKIE_KEY}=${encodeURIComponent(clean)}; max-age=315360000; path=/; SameSite=Lax`
   } catch {
     // ignore cookie errors
+  }
+}
+
+function clearSavedAuthEmail() {
+  try {
+    localStorage.removeItem(AUTH_STORAGE_KEY)
+  } catch {
+    // ignore
+  }
+  try {
+    document.cookie = `${AUTH_COOKIE_KEY}=; max-age=0; path=/; SameSite=Lax`
+  } catch {
+    // ignore
   }
 }
 
@@ -256,16 +279,21 @@ export default function App() {
 
   useEffect(() => {
     if (!authEmail && emailInputRef.current) {
-      emailInputRef.current.focus()
-      emailInputRef.current.setSelectionRange(0, 0)
+      const input = emailInputRef.current
+      input.focus()
+      try {
+        input.setSelectionRange(0, 0)
+      } catch {
+        // ignore if unsupported
+      }
     }
   }, [authEmail])
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const clean = emailInput.trim().toLowerCase()
+    const clean = normalizeInstitutionalEmail(emailInput)
     if (!isAllowedInstitutionalEmail(clean)) {
-      setAuthError('Ingresa un correo válido con dominio @lasec.com.mx o @carlosdamian.com (ej. usuario@lasec.com.mx).')
+      setAuthError('Ingresa un correo válido con @lasec.com.mx (ej. nombre@lasec.com.mx)')
       return
     }
     saveAuthEmail(clean)
@@ -330,7 +358,17 @@ export default function App() {
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <span className="avatar">DS</span>
+          <button
+            className="avatar"
+            title={authEmail ? `Sesión: ${authEmail} (clic para cambiar correo)` : 'Cambiar correo'}
+            onClick={() => {
+              clearSavedAuthEmail()
+              setEmailInput('@lasec.com.mx')
+              setAuthEmail(null)
+            }}
+          >
+            DS
+          </button>
         </div>
       </header>
 
@@ -1064,14 +1102,14 @@ export default function App() {
       {/* Institutional Email Access Gate Modal */}
       {!authEmail && (
         <div className="auth-backdrop" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
-          <form className="glass auth-modal" onSubmit={handleAuthSubmit}>
+          <form className="glass auth-modal" onSubmit={handleAuthSubmit} noValidate>
             <div className="auth-logo-wrap">
               <img src={logoUrl} alt="SmartFlow" className="auth-logo" />
             </div>
 
             <div className="auth-header">
               <h2 id="auth-modal-title">Acceso a SmartFlow</h2>
-              <p>Ingresa tu correo con tu correo institucional para continuar</p>
+              <p>Ingresa tu correo con tu correo institucional</p>
             </div>
 
             <div className="auth-field-group">
@@ -1081,7 +1119,8 @@ export default function App() {
               <input
                 ref={emailInputRef}
                 id="institutional-email"
-                type="email"
+                type="text"
+                inputMode="email"
                 className={`auth-input ${authError ? 'error' : ''}`}
                 placeholder="Ingresa tu correo con tu correo institucional"
                 value={emailInput}
@@ -1090,12 +1129,12 @@ export default function App() {
                   if (authError) setAuthError('')
                 }}
                 autoComplete="email"
-                required
+                autoFocus
               />
               {authError ? (
                 <span className="auth-error">{authError}</span>
               ) : (
-                <span className="auth-hint">Dominios autorizados: <b>@lasec.com.mx</b></span>
+                <span className="auth-hint">Ejemplo: <b>usuario@lasec.com.mx</b></span>
               )}
             </div>
 
