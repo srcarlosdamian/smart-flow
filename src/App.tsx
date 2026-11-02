@@ -55,13 +55,7 @@ const AUTH_STORAGE_KEY = 'smartflow_auth_email_v2'
 const AUTH_COOKIE_KEY = 'smartflow_auth_email_v2'
 
 function normalizeInstitutionalEmail(raw: string): string {
-  const clean = raw.trim().toLowerCase()
-  if (!clean) return ''
-  // If user typed only the username (without @), append @lasec.com.mx automatically
-  if (!clean.includes('@')) {
-    return `${clean}@lasec.com.mx`
-  }
-  return clean
+  return raw.trim().toLowerCase()
 }
 
 function isAllowedInstitutionalEmail(raw: string): boolean {
@@ -227,7 +221,7 @@ function Section({
 
 export default function App() {
   const [authEmail, setAuthEmail] = useState<string | null>(() => getSavedAuthEmail())
-  const [emailInput, setEmailInput] = useState('@lasec.com.mx')
+  const [emailInput, setEmailInput] = useState('')
   const [authError, setAuthError] = useState('')
   const emailInputRef = useRef<HTMLInputElement>(null)
 
@@ -301,7 +295,7 @@ export default function App() {
     e.preventDefault()
     const clean = normalizeInstitutionalEmail(emailInput)
     if (!isAllowedInstitutionalEmail(clean)) {
-      setAuthError('Ingresa un correo válido con @lasec.com.mx (ej. nombre@lasec.com.mx)')
+      setAuthError('No puedes acceder a la plataforma')
       return
     }
     saveAuthEmail(clean)
@@ -389,7 +383,7 @@ export default function App() {
             className="avatar"
             onClick={() => {
               clearSavedAuthEmail()
-              setEmailInput('@lasec.com.mx')
+              setEmailInput('')
               setAuthEmail(null)
             }}
             {...showHelp('Operaciones', 'Módulos principales para gestionar las distintas áreas de la empresa minera (HSEC, planeación y producción).')}
@@ -1293,10 +1287,8 @@ export default function App() {
                 autoComplete="email"
                 autoFocus
               />
-              {authError ? (
+              {authError && (
                 <span className="auth-error">{authError}</span>
-              ) : (
-                <span className="auth-hint">Ejemplo: <b>usuario@lasec.com.mx</b></span>
               )}
             </div>
 
