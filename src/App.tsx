@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import {
-  Search, Bell, Globe, Sun, Compass, Calendar, Pickaxe, Factory, ShieldCheck, Wrench,
+  Search, Bell, Globe, Sun, Moon, Compass, Calendar, Pickaxe, Factory, ShieldCheck, Wrench,
   Cpu, Settings, ChevronRight, ChevronDown, ChevronUp, ZoomIn, ZoomOut, SquareArrowUp,
   SquareMousePointer, SquareArrowRight, Box, Fullscreen, Columns3, RulerDimensionLine, Sparkles,
 } from 'lucide-react'
-import Scene3D, { type ViewMode } from './Scene3D'
+import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import './App.css'
 
 const sideIcons = [Compass, Calendar, Pickaxe, Factory, ShieldCheck, Wrench]
@@ -28,6 +28,7 @@ function Section({ title, open, onToggle, children }: { title: string; open: boo
 }
 
 export default function App() {
+  const [theme, setTheme] = useState<Theme>('dark')
   const [mode, setMode] = useState<ViewMode>('perspective')
   const [zoom, setZoom] = useState(50)
   const [open, setOpen] = useState<Record<string, boolean>>({ vis: true, sim: true })
@@ -38,13 +39,22 @@ export default function App() {
   const clamp = (n: number) => Math.max(10, Math.min(200, n))
 
   return (
-    <div className="app">
-      <Scene3D mode={mode} zoom={zoom} zoomStep={10} />
+    <div className="app" data-theme={theme}>
+      <Scene3D mode={mode} zoom={zoom} theme={theme} />
 
       <header className="glass topbar">
         <div className="logo">S</div>
         <div className="top-actions">
-          <Search size={20} /><Bell size={20} /><Globe size={20} /><Sun size={20} />
+          <button aria-label="Buscar"><Search size={20} /></button>
+          <button aria-label="Notificaciones"><Bell size={20} /></button>
+          <button aria-label="Idioma"><Globe size={20} /></button>
+          <button
+            aria-label="Cambiar tema"
+            title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
           <span className="avatar">DS</span>
         </div>
       </header>

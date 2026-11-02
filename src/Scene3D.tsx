@@ -2,21 +2,30 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
 export type ViewMode = 'perspective' | 'isometric' | 'top'
+export type Theme = 'dark' | 'light'
 
 interface Props {
   mode: ViewMode
-  zoom: number // percentage
-  zoomStep: number
+  zoom: number
+  theme: Theme
 }
 
-const BG = 0x0a1c30
+const PALETTE = {
+  dark: { bg: 0x0a1c30, floor: 0x0b2036, fine: 0x0d2a45, coarse: 0x02060d, fineOp: 0.55, coarseOp: 0.9, dust: 0x4fc3f7, dustOp: 0.5 },
+  light: { bg: 0xdfe7ef, floor: 0xe6ecf2, fine: 0xcfd8e3, coarse: 0xb6c2cf, fineOp: 0.55, coarseOp: 0.85, dust: 0x1e88e5, dustOp: 0.25 },
+}
 
-export default function Scene3D({ mode, zoom, zoomStep }: Props) {
+export default function Scene3D({ mode, zoom, theme }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const state = useRef({ mode, zoom })
-  state.current = { mode, zoom }
-  const stepRef = useRef(zoomStep)
-  stepRef.current = zoomStep
+  const state = useRef({ mode, zoom, theme })
+  state.current = { mode, zoom, theme }
+  const matsRef = useRef<{
+    scene: THREE.Scene
+    floorMat: THREE.MeshBasicMaterial
+    fineMat: THREE.LineBasicMaterial
+    coarseMat: THREE.LineBasicMaterial
+    dustMat: THREE.PointsMaterial
+  } | null>(null)
 
   useEffect(() => {
     const el = ref.current!
@@ -24,33 +33,30 @@ export default function Scene3D({ mode, zoom, zoomStep }: Props) {
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
     el.appendChild(renderer.domElement)
 
+    const p = PALETTE[state.current.theme]
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(BG)
-    scene.fog = new THREE.Fog(BG, 40, 260)
+    scene.background = new THREE.Color(p.bg)
+    scene.fog = new THREE.Fog(p.bg, 40, 260)
 
     const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000)
 
-    // Floor grid: fine + coarse lines
-    const fine = new THREE.GridHelper(800, 400, 0x0d2a45, 0x0d2a45)
-    const coarse = new THREE.GridHelper(800, 80, 0x02060d, 0x02060d)
+    const fine = new THREE.GridHelper(800, 400, p.fine, p.fine)
+    const coarse = new THREE.GridHelper(800, 80, p.coarse, p.coarse)
     coarse.position.y = 0.01
-    ;[fine, coarse].forEach((g) => {
-      const m = g.material as THREE.LineBasicMaterial
-      m.transparent = true
-      m.opacity = g === fine ? 0.55 : 0.9
-      scene.add(g)
-    })
+    const fineMat = fine.material as THREE.LineBasicMaterial
+    const coarseMat = coarse.material as THREE.LineBasicMaterial
+    fineMat.transparent = true
+    coarseMat.transparent = true
+    fineMat.opacity = p.fineOp
+    coarseMat.opacity = p.coarseOp
+    scene.add(fine, coarse)
 
-    // Floor plane with subtle gradient glow
-    const floor = new THREE.Mesh(
-      new THREE.PlaneGeometry(800, 800),
-      new THREE.MeshBasicMaterial({ color: 0x0b2036 })
-    )
+    const floorMat = new THREE.MeshBasicMaterial({ color: p.floor })
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), floorMat)
     floor.rotation.x = -Math.PI / 2
     floor.position.y = -0.02
     scene.add(floor)
 
-    // Floating particles (dust)
     const N = 300
     const pos = new Float32Array(N * 3)
     for (let i = 0; i < N; i++) {
@@ -60,17 +66,15 @@ export default function Scene3D({ mode, zoom, zoomStep }: Props) {
     }
     const pg = new THREE.BufferGeometry()
     pg.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-    const dust = new THREE.Points(
-      pg,
-      new THREE.PointsMaterial({ color: 0x4fc3f7, size: 0.15, transparent: true, opacity: 0.5 })
-    )
+    const dustMat = new THREE.PointsMaterial({ color: p.dust, size: 0.15, transparent: true, opacity: p.dustOp })
+    const dust = new THREE.Points(pg, dustMat)
     scene.add(dust)
 
-    // Camera animation state
+    matsRef.current = { scene, floorMat, fineMat, coarseMat, dustMat }
+
     const target = new THREE.Vector3()
     const camPos = new THREE.Vector3(0, 6, 30)
     let yaw = 0, pitchOff = 0, dragging = false, lx = 0, ly = 0
-    let ortho = false
 
     const resize = () => {
       const w = el.clientWidth, h = el.clientHeight
@@ -108,8 +112,6 @@ export default function Scene3D({ mode, zoom, zoomStep }: Props) {
       camera.lookAt(target)
       camera.fov = m === 'isometric' ? 25 : 50
       camera.updateProjectionMatrix()
-      ortho = m !== 'perspective'
-      void ortho
       dust.rotation.y = (performance.now() - t0) * 0.00002
       renderer.render(scene, camera)
       raf = requestAnimationFrame(tick)
@@ -126,6 +128,21 @@ export default function Scene3D({ mode, zoom, zoomStep }: Props) {
       el.removeChild(renderer.domElement)
     }
   }, [])
+
+  useEffect(() => {
+    const m = matsRef.current
+    if (!m) return
+    const p = PALETTE[theme]
+    ;(m.scene.background as THREE.Color).setHex(p.bg)
+    ;(m.scene.fog as THREE.Fog).color.setHex(p.bg)
+    m.floorMat.color.setHex(p.floor)
+    m.fineMat.color.setHex(p.fine)
+    m.fineMat.opacity = p.fineOp
+    m.coarseMat.color.setHex(p.coarse)
+    m.coarseMat.opacity = p.coarseOp
+    m.dustMat.color.setHex(p.dust)
+    m.dustMat.opacity = p.dustOp
+  }, [theme])
 
   return <div ref={ref} className="scene" />
 }
