@@ -1,19 +1,40 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, CirclePlus,
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Eye, EyeOff, Minus, Sparkles,
+  Grid3x3, Workflow, Check, ArrowLeft, LandPlot,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
+import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
 
 const levels = [['L1', 'General'], ['L2', 'Sector'], ['L3', 'Zona'], ['L4', 'Equipo'], ['L5', 'Interior']]
-const modes: { v: ViewMode; label: string }[] = [
-  { v: 'perspective', label: '3D - Perspectiva' },
-  { v: 'isometric', label: '3D - Isométrica' },
-  { v: 'top', label: '2D - Planta' },
+
+const projections: { id: string; label: string; view: ViewMode; icon: typeof Box }[] = [
+  { id: '3D - Perspectiva', label: '3D - Perspectiva', view: 'perspective', icon: Box },
+  { id: '3D - Superficie', label: '3D - Superficie', view: 'perspective', icon: LandPlot },
+  { id: '2D - Vista superior', label: '2D - Vista superior', view: 'top', icon: Grid3x3 },
+  { id: '2D - Diagrama de planta', label: '2D - Diagrama de planta', view: 'top', icon: Workflow },
+]
+
+const cameras: { id: string; label: string; view: ViewMode; icon: typeof Box; reset?: boolean }[] = [
+  { id: 'Superior', label: 'Superior', view: 'top', icon: SquareArrowUp },
+  { id: 'Frontal', label: 'Frontal', view: 'perspective', icon: SquareMousePointer },
+  { id: 'Derecha', label: 'Derecha', view: 'perspective', icon: SquareArrowRight },
+  { id: 'Isométrica', label: 'Isométrica', view: 'isometric', icon: Box },
+  { id: 'Ajustar todo', label: 'Ajustar todo', view: 'perspective', icon: Fullscreen, reset: true },
+]
+
+const zoomPresets: { val: number; label: string; tag?: string }[] = [
+  { val: 25, label: '25 %', tag: 'Alejado' },
+  { val: 50, label: '50 %', tag: 'Por defecto' },
+  { val: 75, label: '75 %' },
+  { val: 100, label: '100 %', tag: 'Escala real' },
+  { val: 150, label: '150 %' },
+  { val: 200, label: '200 %', tag: 'Detalle' },
 ]
 
 const trackingItems = [
@@ -56,7 +77,10 @@ function Section({
 export default function App() {
   const [theme, setTheme] = useState<Theme>('light')
   const [mode, setMode] = useState<ViewMode>('perspective')
+  const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
+  const [selectedCam, setSelectedCam] = useState<string>('')
   const [zoom, setZoom] = useState(50)
+  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | null>(null)
   const [nexoOn, setNexoOn] = useState(true)
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [perfLevel, setPerfLevel] = useState<'Bajo' | 'Medio' | 'Alto'>('Bajo')
@@ -65,16 +89,34 @@ export default function App() {
   const [level, setLevel] = useState('L1')
   const [activeTool, setActiveTool] = useState<string>('')
   const [eyeOff, setEyeOff] = useState<Record<string, boolean>>({})
+  const visRef = useRef<HTMLDivElement>(null)
+
   const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }))
   const toggleEye = (k: string) => setEyeOff((e) => ({ ...e, [k]: !e[k] }))
   const clamp = (n: number) => Math.max(10, Math.min(200, n))
+
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (visRef.current && !visRef.current.contains(e.target as Node)) {
+        setDdOpen(null)
+      }
+    }
+    document.addEventListener('mousedown', onDocClick)
+    return () => document.removeEventListener('mousedown', onDocClick)
+  }, [])
 
   return (
     <div className="app" data-theme={theme}>
       <Scene3D mode={mode} zoom={zoom} theme={theme} />
 
       <header className="glass topbar">
-        <div className="logo">S</div>
+        <button className="logo-btn" aria-label="Volver" title="Volver">
+          <img src={logoUrl} alt="SmartFlow" className="logo-img" />
+          <span className="logo-back">
+            <ArrowLeft size={18} />
+          </span>
+        </button>
+
         <div className="top-actions">
           <button aria-label="Buscar"><Search size={20} /></button>
           <button aria-label="Notificaciones"><Bell size={20} /></button>
@@ -90,7 +132,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Left vertical sidebar from SMF - V2 - 17 */}
+      {/* Left vertical sidebar from SMF - V2 - 3 / 17 */}
       <nav className="glass sidebar">
         <button className="icon-btn" title="Acercar" onClick={() => setZoom(clamp(zoom + 10))}><ZoomIn size={20} /></button>
         <button className="icon-btn" title="Alejar" onClick={() => setZoom(clamp(zoom - 10))}><ZoomOut size={20} /></button>
@@ -114,7 +156,7 @@ export default function App() {
         <button className="icon-btn" title="Rehacer"><Redo2 size={20} /></button>
       </nav>
 
-      {/* Right column from SMF - V2 - 17 */}
+      {/* Right column from SMF - V2 - 17 & SMF - V2 - 4 */}
       <div className="right-col">
         <button className="nexo-bar" onClick={() => setNexoOn((v) => !v)}>
           <span className="nexo-title"><Sparkles size={16} /> Pregúntale a Nexo IA</span>
@@ -124,16 +166,112 @@ export default function App() {
         <aside className="glass panel">
           <div className="search"><span>Buscar</span><small>Ctrl + K</small><Search size={14} /></div>
 
-          <Section title="Modo de visualización" open={!!open.vis} onToggle={() => toggle('vis')}>
-            <div className="row">
-              <select value={mode} onChange={(e) => setMode(e.target.value as ViewMode)} className="field grow">
-                {modes.map((m) => <option key={m.v} value={m.v}>{m.label}</option>)}
-              </select>
-              <select value={zoom} onChange={(e) => setZoom(+e.target.value)} className="field">
-                {[10, 25, 50, 75, 100, 150, 200].map((z) => <option key={z} value={z}>{z} %</option>)}
-              </select>
-            </div>
-          </Section>
+          {/* MODO DE VISUALIZACIÓN (always visible above accordion or toggleable, with SMF-V2-4 custom dropdowns) */}
+          <div className="vis-block" ref={visRef}>
+            <button className="section-head vis-head" onClick={() => toggle('vis')}>
+              <span>Modo de visualización</span>
+              {open.vis === false ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            </button>
+
+            {open.vis !== false && (
+              <div className="vis-controls">
+                <div className="row">
+                  <button
+                    className={`dd-trigger grow ${ddOpen === 'proj' ? 'active' : ''}`}
+                    onClick={() => setDdOpen((d) => (d === 'proj' ? null : 'proj'))}
+                  >
+                    <span>{selectedProj}</span>
+                    <ChevronDown size={16} />
+                  </button>
+
+                  <button
+                    className={`dd-trigger zoom-btn ${ddOpen === 'zoom' ? 'active' : ''}`}
+                    onClick={() => setDdOpen((d) => (d === 'zoom' ? null : 'zoom'))}
+                  >
+                    <span>{zoom} %</span>
+                    <ChevronDown size={16} />
+                  </button>
+                </div>
+
+                {/* SMF - V2 - 4 Projection & Camera Popover Menu */}
+                {ddOpen === 'proj' && (
+                  <div className="dd-menu">
+                    <div className="dd-group-title">PROYECCIÓN</div>
+                    {projections.map(({ id, label, view, icon: I }) => {
+                      const isSel = selectedProj === id
+                      return (
+                        <button
+                          key={id}
+                          className={`dd-item ${isSel ? 'selected' : ''}`}
+                          onClick={() => {
+                            setSelectedProj(id)
+                            setMode(view)
+                            setDdOpen(null)
+                          }}
+                        >
+                          <I size={18} />
+                          <span>{label}</span>
+                          {isSel && <Check size={16} className="dd-check" />}
+                        </button>
+                      )
+                    })}
+
+                    <div className="dd-divider" />
+
+                    <div className="dd-group-title">CÁMARA</div>
+                    {cameras.map(({ id, label, view, icon: I, reset }) => {
+                      const isSel = selectedCam === id
+                      return (
+                        <button
+                          key={id}
+                          className={`dd-item ${isSel ? 'selected' : ''}`}
+                          onClick={() => {
+                            setSelectedCam(id)
+                            setMode(view)
+                            if (reset) setZoom(50)
+                            setDdOpen(null)
+                          }}
+                        >
+                          <I size={18} />
+                          <span>{label}</span>
+                          {isSel && <Check size={16} className="dd-check" />}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {/* 50% Zoom Popover Menu with default prototype parameters */}
+                {ddOpen === 'zoom' && (
+                  <div className="dd-menu zoom-menu">
+                    <div className="dd-group-title">ESCALA DE VISTA</div>
+                    {zoomPresets.map(({ val, label, tag }) => {
+                      const isSel = zoom === val
+                      return (
+                        <button
+                          key={val}
+                          className={`dd-item ${isSel ? 'selected' : ''}`}
+                          onClick={() => {
+                            setZoom(val)
+                            setDdOpen(null)
+                          }}
+                        >
+                          <span>{label}</span>
+                          {tag && <small className="dd-tag">{tag}</small>}
+                          {isSel && <Check size={16} className="dd-check" />}
+                        </button>
+                      )
+                    })}
+                    <div className="dd-divider" />
+                    <div className="dd-group-title">PARÁMETROS DE CÁMARA</div>
+                    <div className="dd-param-row"><span>FOV</span><b>50°</b></div>
+                    <div className="dd-param-row"><span>Distancia focal</span><b>30 m</b></div>
+                    <div className="dd-param-row"><span>Recorte cercano</span><b>0.1 m</b></div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <Section title="Estadísticas de rendimiento" open={!!open.perf} onToggle={() => toggle('perf')}>
             <div className="seg-row">

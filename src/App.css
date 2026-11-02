@@ -19,6 +19,9 @@
   --option-bg: #12202f;
   --seg-bg: rgba(255, 255, 255, 0.08);
   --seg-on: rgba(255, 255, 255, 0.16);
+  --popover-bg: rgba(26, 36, 50, 0.88);
+  --back-circle-bg: rgba(255, 255, 255, 0.16);
+  --back-icon-color: #ffffff;
   color: var(--text);
 }
 
@@ -40,6 +43,9 @@
   --option-bg: #ffffff;
   --seg-bg: rgba(0, 0, 0, 0.06);
   --seg-on: rgba(255, 255, 255, 0.50);
+  --popover-bg: rgba(255, 255, 255, 0.92);
+  --back-circle-bg: rgba(0, 0, 0, 0.10);
+  --back-icon-color: #000000;
   color: var(--text);
 }
 
@@ -69,7 +75,29 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
 }
-.logo { width: 34px; height: 38px; display: grid; place-items: center; font-weight: 600; font-size: 20px; color: #29b6f6; border: 2px solid #29b6f6; border-radius: 10px; }
+
+/* SmartFlow Logo with hover transition to translucent circle + Back button (black in light, white in dark) */
+.logo-btn {
+  position: relative; width: 38px; height: 38px; padding: 0; border-radius: 50%;
+  display: grid; place-items: center;
+}
+.logo-img {
+  width: 35px; height: 40px; object-fit: contain;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.logo-back {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: var(--back-circle-bg);
+  color: var(--back-icon-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: grid; place-items: center;
+  opacity: 0; transform: scale(0.85);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.logo-btn:hover .logo-img { opacity: 0; transform: scale(0.85); }
+.logo-btn:hover .logo-back { opacity: 1; transform: scale(1); }
+
 .top-actions { display: flex; align-items: center; gap: 20px; }
 .top-actions > button { padding: 6px; border-radius: 8px; color: var(--text); }
 .top-actions > button:hover { background: var(--hover-bg); }
@@ -113,16 +141,64 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 .nexo-badge.on { background: rgba(255, 255, 255, 0.28); }
 
 .panel {
-  width: 100%; border-radius: 16px; padding: 8px 12px; overflow-y: auto;
+  width: 100%; border-radius: 16px; padding: 8px 12px; overflow: visible;
   backdrop-filter: blur(50px) saturate(140%);
   -webkit-backdrop-filter: blur(50px) saturate(140%);
 }
 .search { display: flex; align-items: center; gap: 8px; padding: 8px 4px 10px; font-size: 14px; }
 .search span { flex: 1; font-weight: 600; } .search small { color: var(--caption); font-size: 12px; }
-.section { border-top: 1px solid var(--line); }
+.section, .vis-block { border-top: 1px solid var(--line); }
 .section-head { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; text-transform: uppercase; font-size: 13px; font-weight: 600; letter-spacing: .4px; }
+.vis-head { padding-bottom: 8px; }
+.vis-controls { position: relative; padding: 0 4px 12px; }
+
+/* SMF - V2 - 4 Custom Dropdown Triggers & Popover Menu */
+.dd-trigger {
+  height: 36px; padding: 6px 12px; border-radius: 6px;
+  background: var(--field-bg); border: 1px solid var(--glass-border-sutil);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 13.5px; font-weight: 600; text-align: left;
+}
+.dd-trigger span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-trigger.zoom-btn { width: 78px; flex-shrink: 0; }
+.dd-trigger:hover, .dd-trigger.active { background: var(--hover-bg); }
+
+.dd-menu {
+  position: absolute; top: calc(100% - 4px); left: 0; right: 0; z-index: 40;
+  background: var(--popover-bg);
+  border: 1.5px solid var(--glass-border-suave);
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+  border-radius: 16px; padding: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.dd-group-title {
+  font-size: 11px; font-weight: 600; letter-spacing: .6px;
+  color: var(--muted); padding: 4px 6px; text-transform: uppercase;
+}
+.dd-item {
+  width: 100%; padding: 8px 8px; border-radius: 8px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; font-weight: 400; text-align: left;
+}
+.dd-item:hover { background: var(--hover-bg); }
+.dd-item span { flex: 1; }
+.dd-check { color: #1976d2; }
+.dd-tag {
+  font-size: 11px; color: var(--muted);
+  background: var(--field-bg); padding: 2px 6px; border-radius: 4px;
+}
+.dd-divider { height: 1px; background: var(--line); margin: 6px 0; }
+.dd-param-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 8px; font-size: 12.5px; color: var(--muted);
+}
+.dd-param-row b { color: var(--text); font-weight: 600; }
+
 .section-body { display: flex; flex-direction: column; gap: 10px; padding: 0 4px 14px; }
-.row { display: flex; gap: 8px; align-items: center; } .row.between { justify-content: space-between; font-size: 13px; } .grow { flex: 1; }
+.row { display: flex; gap: 8px; align-items: center; } .row.between { justify-content: space-between; font-size: 13px; } .grow { flex: 1; min-width: 0; }
 
 /* Inner fields & controls with subtle glass fill and soft border */
 .field {
