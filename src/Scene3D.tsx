@@ -11,8 +11,8 @@ interface Props {
 }
 
 const PALETTE = {
-  dark: { bg: 0x0a1c30, floor: 0x0b2036, fine: 0x0d2a45, coarse: 0x02060d, fineOp: 0.55, coarseOp: 0.9, dust: 0x4fc3f7, dustOp: 0.5 },
-  light: { bg: 0xdfe7ef, floor: 0xe6ecf2, fine: 0xcfd8e3, coarse: 0xb6c2cf, fineOp: 0.55, coarseOp: 0.85, dust: 0x1e88e5, dustOp: 0.25 },
+  dark: { bg: 0x0a1c30, floor: 0x0b2036, fine: 0x0d2a45, coarse: 0x02060d, fineOp: 0.55, coarseOp: 0.9 },
+  light: { bg: 0xdfe7ef, floor: 0xe6ecf2, fine: 0xcfd8e3, coarse: 0xb6c2cf, fineOp: 0.55, coarseOp: 0.85 },
 }
 
 export default function Scene3D({ mode, zoom, theme }: Props) {
@@ -24,7 +24,6 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
     floorMat: THREE.MeshBasicMaterial
     fineMat: THREE.LineBasicMaterial
     coarseMat: THREE.LineBasicMaterial
-    dustMat: THREE.PointsMaterial
   } | null>(null)
 
   useEffect(() => {
@@ -57,20 +56,7 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
     floor.position.y = -0.02
     scene.add(floor)
 
-    const N = 300
-    const pos = new Float32Array(N * 3)
-    for (let i = 0; i < N; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 200
-      pos[i * 3 + 1] = Math.random() * 30
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 200
-    }
-    const pg = new THREE.BufferGeometry()
-    pg.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-    const dustMat = new THREE.PointsMaterial({ color: p.dust, size: 0.15, transparent: true, opacity: p.dustOp })
-    const dust = new THREE.Points(pg, dustMat)
-    scene.add(dust)
-
-    matsRef.current = { scene, floorMat, fineMat, coarseMat, dustMat }
+    matsRef.current = { scene, floorMat, fineMat, coarseMat }
 
     const target = new THREE.Vector3()
     const camPos = new THREE.Vector3(0, 6, 30)
@@ -99,7 +85,6 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
     addEventListener('pointermove', move)
 
     let raf = 0
-    const t0 = performance.now()
     const tick = () => {
       const { mode: m, zoom: z } = state.current
       const dist = 30 * (50 / z)
@@ -112,7 +97,6 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
       camera.lookAt(target)
       camera.fov = m === 'isometric' ? 25 : 50
       camera.updateProjectionMatrix()
-      dust.rotation.y = (performance.now() - t0) * 0.00002
       renderer.render(scene, camera)
       raf = requestAnimationFrame(tick)
     }
@@ -140,8 +124,6 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
     m.fineMat.opacity = p.fineOp
     m.coarseMat.color.setHex(p.coarse)
     m.coarseMat.opacity = p.coarseOp
-    m.dustMat.color.setHex(p.dust)
-    m.dustMat.opacity = p.dustOp
   }, [theme])
 
   return <div ref={ref} className="scene" />
