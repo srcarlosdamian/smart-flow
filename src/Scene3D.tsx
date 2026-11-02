@@ -8,6 +8,7 @@ interface Props {
   mode: ViewMode
   zoom: number
   theme: Theme
+  onZoomChange?: (newZoom: number) => void
 }
 
 const PALETTE = {
@@ -15,10 +16,10 @@ const PALETTE = {
   light: { bg: 0xdfe7ef, floor: 0xe6ecf2, fine: 0xd5dee8, coarse: 0xc2cdd9, fineOp: 0.30, coarseOp: 0.48 },
 }
 
-export default function Scene3D({ mode, zoom, theme }: Props) {
+export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const state = useRef({ mode, zoom, theme })
-  state.current = { mode, zoom, theme }
+  const state = useRef({ mode, zoom, theme, onZoomChange })
+  state.current = { mode, zoom, theme, onZoomChange }
   const matsRef = useRef<{
     scene: THREE.Scene
     floorMat: THREE.MeshBasicMaterial
@@ -81,9 +82,20 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
       pitchOff = Math.max(-0.4, Math.min(0.5, pitchOff + (e.clientY - ly) * 0.003))
       lx = e.clientX; ly = e.clientY
     }
+    const wheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const delta = -e.deltaY * 0.08
+      const currentZoom = state.current.zoom
+      const nextZoom = Math.max(10, Math.min(200, Math.round(currentZoom + delta)))
+      if (state.current.onZoomChange && nextZoom !== currentZoom) {
+        state.current.onZoomChange(nextZoom)
+      }
+    }
+
     el.addEventListener('pointerdown', down)
     addEventListener('pointerup', up)
     addEventListener('pointermove', move)
+    el.addEventListener('wheel', wheel, { passive: false })
 
     let raf = 0
     const tick = () => {
@@ -109,6 +121,7 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
       el.removeEventListener('pointerdown', down)
       removeEventListener('pointerup', up)
       removeEventListener('pointermove', move)
+      el.removeEventListener('wheel', wheel)
       renderer.dispose()
       el.removeChild(renderer.domElement)
     }

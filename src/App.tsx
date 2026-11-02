@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, ChevronRight, ChevronLeft,
   CirclePlus, CircleMinus, Calendar, CircleAlert, CheckSquare, Square,
@@ -8,6 +8,8 @@ import {
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Minus,
   Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot, Settings,
   EllipsisVertical, Ellipsis, TextAlignStart, Pin, PictureInPicture2, SquareArrowOutUpRight,
+  Camera, Target, Network, Gauge, GitFork, RotateCcw, FlaskConical, History, ShieldCheck,
+  Droplets, Mountain, Ruler, ArrowUpDown, CornerDownLeft, Layers, EyeOff,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import logoUrl from './assets/smartflow-logo.png'
@@ -50,6 +52,19 @@ const NEXO_MORE_CHATS = [
   'Inspección de geocercas y perímetros activos',
   'Bitácora de incidentes y telemetría L2',
 ]
+
+// Definition for Search Command Palette (SMF - V2 - 10)
+interface CommandItem {
+  id: string
+  title: string
+  category: 'Vista' | 'Tracking' | 'Simulaciones' | 'Análisis' | 'Interiores' | 'Ingeniería'
+  sub: string
+  icon: any
+  iconColor?: string
+  active?: boolean
+  disabled?: boolean
+  action?: () => void
+}
 
 const AUTH_STORAGE_KEY = 'smartflow_auth_email_v2'
 const AUTH_COOKIE_KEY = 'smartflow_auth_email_v2'
@@ -225,6 +240,12 @@ export default function App() {
   const [authError, setAuthError] = useState('')
   const emailInputRef = useRef<HTMLInputElement>(null)
 
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCmdIndex, setSelectedCmdIndex] = useState(0)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const cmdListRef = useRef<HTMLDivElement>(null)
+
   const [theme, setTheme] = useState<Theme>('light')
   const [mode, setMode] = useState<ViewMode>('perspective')
   const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
@@ -337,9 +358,112 @@ export default function App() {
 
   const selectedCount = Object.values(checkedPeople).filter(Boolean).length
 
+  // SMF - V2 - 10: 40 Command Palette items
+  const commands: CommandItem[] = useMemo(() => [
+    // Vista
+    { id: 'cam-sup', title: 'Superior', category: 'Vista', sub: 'Cámara', icon: Camera, action: () => setMode('top') },
+    { id: 'cam-front', title: 'Frontal', category: 'Vista', sub: 'Cámara', icon: Camera, action: () => setMode('perspective') },
+    { id: 'cam-right', title: 'Derecha', category: 'Vista', sub: 'Cámara', icon: Camera, action: () => setMode('perspective') },
+    { id: 'cam-iso', title: 'Isométrica', category: 'Vista', sub: 'Cámara', icon: Camera, action: () => setMode('isometric') },
+    { id: 'cam-fit', title: 'Ajustar todo', category: 'Vista', sub: 'Cámara', icon: Grid3x3, action: () => { setZoom(50); setMode('perspective') } },
+    { id: 'proj-3d', title: '3D – Perspectiva', category: 'Vista', sub: 'Proyección', icon: Box, active: mode === 'perspective', action: () => setMode('perspective') },
+    { id: 'proj-2d', title: '2D – Vista superior', category: 'Vista', sub: 'Proyección', icon: Network, active: mode === 'top', action: () => setMode('top') },
+    { id: 'proj-2d-imm', title: '2D inmersivo', category: 'Vista', sub: 'Cambia a vista superior (2D)', icon: Layers, disabled: true },
+    { id: 'proj-diagram', title: 'Diagrama de planta', category: 'Vista', sub: 'Proyección', icon: Network },
+    { id: 'proj-surface', title: 'Superficie', category: 'Vista', sub: 'Proyección', icon: Globe },
+    { id: 'panel-perf', title: 'Estadísticas de rendimiento', category: 'Vista', sub: 'Paneles', icon: Gauge, action: () => setOpen((o) => ({ ...o, perf: true })) },
+
+    // Tracking
+    { id: 'track-personal', title: 'Personal y vehículos', category: 'Tracking', sub: 'En vivo', icon: Target, iconColor: '#00bcd4', action: () => { addTrackingItem('personal'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-zonas', title: 'Zonas y áreas', category: 'Tracking', sub: 'En vivo', icon: Layers, iconColor: '#ffa726', action: () => { addTrackingItem('zonas'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-perim', title: 'Perímetros', category: 'Tracking', sub: 'En vivo', icon: CircleGauge, iconColor: '#e91e63', action: () => { addTrackingItem('perimetros'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-recorrido', title: 'Recorrido', category: 'Tracking', sub: 'Histórico', icon: Waypoints, iconColor: '#ab47bc', action: () => { addTrackingItem('recorrido'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-escenario', title: 'Escenario alterno', category: 'Tracking', sub: 'Histórico', icon: GitFork, iconColor: '#26a69a', action: () => { addTrackingItem('escenario'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-reset', title: 'Restablecer la demostración', category: 'Tracking', sub: 'Emergencia', icon: RotateCcw, iconColor: '#546e7a', action: () => { setActiveTrackings([]); setActiveSimulations([]) } },
+    { id: 'track-evac', title: 'Declarar evacuación', category: 'Tracking', sub: 'Emergencia', icon: Siren, iconColor: '#f44336' },
+
+    // Simulaciones
+    { id: 'sim-aire', title: 'Flujo de aire', category: 'Simulaciones', sub: 'Ventilación', icon: Wind, iconColor: '#00bcd4', action: () => { addSimulationItem('aire'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-calor', title: 'Mapa de calor', category: 'Simulaciones', sub: 'Ventilación', icon: Flame, iconColor: '#ff9800', action: () => { addSimulationItem('calor'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-energia', title: 'Flujo de energía', category: 'Simulaciones', sub: 'Energía', icon: Zap, iconColor: '#fbc02d', action: () => { addSimulationItem('energia'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-red', title: 'Flujo de red', category: 'Simulaciones', sub: 'Módulo aún no implementado', icon: Wifi, iconColor: '#ba68c8', disabled: true },
+    { id: 'sim-geocercas', title: 'Geocercas', category: 'Simulaciones', sub: 'Seguridad', icon: MapPin, iconColor: '#f4511e', action: () => { addSimulationItem('geocercas'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-sismicas', title: 'Vibraciones sísmicas', category: 'Simulaciones', sub: 'Módulo aún no implementado', icon: Activity, iconColor: '#f06292', disabled: true },
+    { id: 'sim-personal', title: 'Movimiento de personal', category: 'Simulaciones', sub: 'Personal', icon: Users, iconColor: '#4caf50', action: () => { addSimulationItem('personal'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-hide', title: 'Ocultar todas las capas', category: 'Simulaciones', sub: 'Simulaciones', icon: EyeOff, action: () => setActiveSimulations([]) },
+
+    // Análisis
+    { id: 'ana-sub', title: 'Apagón de subestación', category: 'Análisis', sub: 'Qué pasa si...', icon: FlaskConical, iconColor: '#e91e63', action: () => setOpen((o) => ({ ...o, ana: true })) },
+    { id: 'ana-vent', title: 'Falla de ventilador', category: 'Análisis', sub: 'Qué pasa si...', icon: FlaskConical, iconColor: '#e91e63', action: () => setOpen((o) => ({ ...o, ana: true })) },
+    { id: 'ana-gas', title: 'Fuga de gas', category: 'Análisis', sub: 'Qué pasa si...', icon: FlaskConical, iconColor: '#e91e63', action: () => setOpen((o) => ({ ...o, ana: true })) },
+    { id: 'ana-evac', title: 'Evacuación de emergencia', category: 'Análisis', sub: 'Qué pasa si...', icon: FlaskConical, iconColor: '#e91e63', action: () => setOpen((o) => ({ ...o, ana: true })) },
+    { id: 'ana-cierre', title: 'Cierre de galería', category: 'Análisis', sub: 'Qué pasa si...', icon: FlaskConical, iconColor: '#e91e63', action: () => setOpen((o) => ({ ...o, ana: true })) },
+    { id: 'ana-time', title: 'Máquina del tiempo', category: 'Análisis', sub: 'Histórico', icon: History, iconColor: '#5c6bc0' },
+
+    // Interiores
+    { id: 'int-refugio', title: 'Refugio', category: 'Interiores', sub: 'En la mina', icon: ShieldCheck, iconColor: '#4caf50' },
+    { id: 'int-taller', title: 'Taller mecánico', category: 'Interiores', sub: 'En la mina', icon: Wrench, iconColor: '#fbc02d' },
+    { id: 'int-bombeo', title: 'Sala de bombeo', category: 'Interiores', sub: 'En la mina', icon: Droplets, iconColor: '#03a9f4' },
+    { id: 'int-chancador', title: 'Chancador', category: 'Interiores', sub: 'En la mina', icon: Mountain, iconColor: '#ff7043' },
+    { id: 'int-subestacion', title: 'Sala de subestación', category: 'Interiores', sub: 'Selecciona una subestación en el visor para entrar', icon: Zap, iconColor: '#fbc02d', disabled: true },
+
+    // Ingeniería
+    { id: 'ing-herramientas', title: 'Herramientas de ingeniería', category: 'Ingeniería', sub: 'Herramientas', icon: Ruler, active: true },
+    { id: 'ing-cad', title: 'Laboratorio de importación CAD', category: 'Ingeniería', sub: 'Herramientas', icon: Box },
+  ], [mode])
+
+  const filteredCommands = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return commands
+    return commands.filter(
+      (c) => c.title.toLowerCase().includes(q) || c.sub.toLowerCase().includes(q) || c.category.toLowerCase().includes(q)
+    )
+  }, [commands, searchQuery])
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setSearchOpen((v) => !v)
+      } else if (e.key === 'Escape' && searchOpen) {
+        setSearchOpen(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [searchOpen])
+
+  useEffect(() => {
+    if (searchOpen) {
+      setSearchQuery('')
+      setSelectedCmdIndex(0)
+      setTimeout(() => searchInputRef.current?.focus(), 40)
+    }
+  }, [searchOpen])
+
+  const executeCommand = (cmd: CommandItem) => {
+    if (cmd.disabled) return
+    if (cmd.action) cmd.action()
+    setSearchOpen(false)
+  }
+
+  const handleCmdKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setSelectedCmdIndex((idx) => (idx + 1) % filteredCommands.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setSelectedCmdIndex((idx) => (idx - 1 + filteredCommands.length) % filteredCommands.length)
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      const item = filteredCommands[selectedCmdIndex]
+      if (item) executeCommand(item)
+    }
+  }
+
   return (
     <div className={`app ${nexoOpen ? 'nexo-open' : ''}`} data-theme={theme}>
-      <Scene3D mode={mode} zoom={zoom} theme={theme} />
+      <Scene3D mode={mode} zoom={zoom} theme={theme} onZoomChange={setZoom} />
 
       <header className="glass topbar">
         <button
@@ -356,7 +480,8 @@ export default function App() {
         <div className="top-actions">
           <button
             aria-label="Buscar"
-            {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema.')}
+            onClick={() => setSearchOpen(true)}
+            {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
           >
             <Search size={20} />
           </button>
@@ -579,6 +704,10 @@ export default function App() {
         <aside className="glass panel">
           <div
             className="search"
+            onClick={() => setSearchOpen(true)}
+            role="button"
+            tabIndex={0}
+            style={{ cursor: 'pointer' }}
             {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
           >
             <span>Buscar</span><small>Ctrl + K</small><Search size={14} />
@@ -945,11 +1074,15 @@ export default function App() {
                   )
                 })}
 
-                <div className="perf-divider" />
-                <button className="clear-track-btn" onClick={() => setActiveTrackings([])}>
-                  <Trash size={17} />
-                  <span>Limpiar lista de seguimiento</span>
-                </button>
+                {activeTrackings.length > 2 && (
+                  <>
+                    <div className="perf-divider" />
+                    <button className="clear-track-btn" onClick={() => setActiveTrackings([])}>
+                      <Trash size={17} />
+                      <span>Limpiar lista de seguimiento</span>
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -1010,11 +1143,15 @@ export default function App() {
                   )
                 })}
 
-                <div className="perf-divider" />
-                <button className="clear-track-btn" onClick={() => setActiveSimulations([])}>
-                  <Trash size={17} />
-                  <span>Limpiar lista de simulación</span>
-                </button>
+                {activeSimulations.length > 2 && (
+                  <>
+                    <div className="perf-divider" />
+                    <button className="clear-track-btn" onClick={() => setActiveSimulations([])}>
+                      <Trash size={17} />
+                      <span>Limpiar lista de simulación</span>
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -1296,6 +1433,88 @@ export default function App() {
               Agregar
             </button>
           </form>
+        </div>
+      )}
+
+      {/* SMF - V2 - 10: Command Palette Modal */}
+      {searchOpen && (
+        <div
+          className="cmd-backdrop"
+          onClick={() => setSearchOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Buscar comandos"
+        >
+          <div className="glass cmd-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cmd-header">
+              <Search size={19} className="cmd-search-icon" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="cmd-input"
+                placeholder="Buscar comandos, simulaciones y escenarios..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setSelectedCmdIndex(0)
+                }}
+                onKeyDown={handleCmdKeyDown}
+              />
+              <kbd className="cmd-esc-badge" onClick={() => setSearchOpen(false)}>esc</kbd>
+            </div>
+
+            <div className="cmd-list" ref={cmdListRef}>
+              {filteredCommands.length === 0 ? (
+                <div className="cmd-empty">No se encontraron resultados para "{searchQuery}"</div>
+              ) : (
+                (['Vista', 'Tracking', 'Simulaciones', 'Análisis', 'Interiores', 'Ingeniería'] as const).map((cat) => {
+                  const itemsInCat = filteredCommands.filter((c) => c.category === cat)
+                  if (itemsInCat.length === 0) return null
+                  return (
+                    <div key={cat} className="cmd-group">
+                      <div className="cmd-group-title">{cat}</div>
+                      {itemsInCat.map((item) => {
+                        const Icon = item.icon
+                        const globalIndex = filteredCommands.indexOf(item)
+                        const isSelected = globalIndex === selectedCmdIndex
+                        return (
+                          <div
+                            key={item.id}
+                            className={`cmd-item ${isSelected ? 'selected' : ''} ${item.disabled ? 'disabled' : ''}`}
+                            onClick={() => executeCommand(item)}
+                            onMouseEnter={() => setSelectedCmdIndex(globalIndex)}
+                          >
+                            <div className="cmd-item-left">
+                              <div className="cmd-icon-box" style={{ color: item.iconColor }}>
+                                <Icon size={19} />
+                              </div>
+                              <span className="cmd-item-title">{item.title}</span>
+                              {item.active && <span className="cmd-pill-activo">Activo</span>}
+                            </div>
+                            <span className="cmd-item-sub">{item.sub}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            <div className="cmd-footer">
+              <div className="cmd-footer-hints">
+                <span className="cmd-hint">
+                  <kbd className="cmd-key-box"><ArrowUpDown size={12} /></kbd> Navegar
+                </span>
+                <span className="cmd-hint">
+                  <kbd className="cmd-key-box"><CornerDownLeft size={12} /></kbd> Ejecutar
+                </span>
+              </div>
+              <div className="cmd-footer-count">
+                {filteredCommands.length} comando(s)
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
