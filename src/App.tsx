@@ -1074,7 +1074,7 @@ export default function App() {
                   )
                 })}
 
-                {activeTrackings.length > 2 && (
+                {activeTrackings.length > 1 && (
                   <>
                     <div className="perf-divider" />
                     <button className="clear-track-btn" onClick={() => setActiveTrackings([])}>
