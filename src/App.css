@@ -122,15 +122,19 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 }
 .nexo-bar {
   width: 100%;
-  background: rgba(15, 31, 52, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: linear-gradient(90deg, rgba(69, 90, 100, 0.88) 0%, rgba(84, 110, 122, 0.88) 50%, rgba(144, 164, 174, 0.88) 100%);
+  border: 1.5px solid var(--glass-border-suave);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
   color: #fff; border-radius: 16px;
   padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  box-shadow: var(--glass-shadow);
+  transition: transform .15s ease, box-shadow .2s ease;
 }
-.nexo-title { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; }
+.nexo-bar:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+}
+.nexo-title { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; letter-spacing: 0.15px; }
 .nexo-badge {
   background: rgba(255, 255, 255, 0.24);
   backdrop-filter: blur(12px);

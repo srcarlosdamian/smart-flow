@@ -4,12 +4,23 @@ import {
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
-  Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Eye, EyeOff, Minus, Sparkles,
+  Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Eye, EyeOff, Minus,
   Grid3x3, Workflow, Check, ArrowLeft, LandPlot,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
+
+function NexoLogo() {
+  return (
+    <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M2.30986 8.23786C1.52047 9.62654 1.94747 11.3897 3.28474 12.2633C3.70779 12.5397 4.18751 12.7021 4.67897 12.7444L3.66391 14.5026C3.16334 14.3689 2.68149 14.1558 2.23782 13.8659C0.0538579 12.4392 -0.643495 9.55972 0.6457 7.29182L4.79077 0H6.99271L2.30986 8.23786Z" fill="white" />
+      <path d="M13.6265 11.7621C14.4159 10.3735 13.9889 8.61031 12.6516 7.7367C12.2286 7.46033 11.7489 7.29793 11.2574 7.25561L12.2725 5.49743C12.773 5.63113 13.2549 5.84422 13.6986 6.13406C15.8825 7.56079 16.5799 10.4403 15.2907 12.7082L11.1456 20L8.94366 20L13.6265 11.7621Z" fill="white" />
+      <path d="M6.50173 9.75989H4.29979L9.89546 0H12.0974L6.50173 9.75989Z" fill="white" />
+      <path d="M6.04194 19.9947H3.84L9.43567 10.2348H11.6376L6.04194 19.9947Z" fill="white" />
+    </svg>
+  )
+}
 
 const levels = [['L1', 'General'], ['L2', 'Sector'], ['L3', 'Zona'], ['L4', 'Equipo'], ['L5', 'Interior']]
 
@@ -156,10 +167,10 @@ export default function App() {
         <button className="icon-btn" title="Rehacer"><Redo2 size={20} /></button>
       </nav>
 
-      {/* Right column from SMF - V2 - 17 & SMF - V2 - 4 */}
+      {/* Right column from SMF - V2 - 19 & SMF - V2 - 4 */}
       <div className="right-col">
         <button className="nexo-bar" onClick={() => setNexoOn((v) => !v)}>
-          <span className="nexo-title"><Sparkles size={16} /> Pregúntale a Nexo IA</span>
+          <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
           <span className={`nexo-badge ${nexoOn ? 'on' : ''}`}>{nexoOn ? 'ON' : 'OFF'}</span>
         </button>
 
