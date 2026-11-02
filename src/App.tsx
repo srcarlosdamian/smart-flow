@@ -5,7 +5,7 @@ import {
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
-  Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Eye, EyeOff, Minus,
+  Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Minus,
   Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
@@ -66,6 +66,18 @@ const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; co
   { id: 'evacuacion', label: 'Declarar evaluación', menuLabel: 'Declarar evacuación', color: '#ff5252', icon: Siren },
 ]
 
+type SimulationType = 'aire' | 'calor' | 'energia' | 'red' | 'geocercas' | 'vibraciones' | 'personal'
+
+const SIMULATION_CATALOG: { id: SimulationType; label: string; color: string; icon: typeof Wind }[] = [
+  { id: 'aire', label: 'Flujo de aire', color: '#00bcd4', icon: Wind },
+  { id: 'calor', label: 'Mapa de calor', color: '#ff5722', icon: Flame },
+  { id: 'energia', label: 'Flujo de energía', color: '#ffc107', icon: Zap },
+  { id: 'red', label: 'Flujo de red', color: '#2196f3', icon: Wifi },
+  { id: 'geocercas', label: 'Geocercas', color: '#9c27b0', icon: MapPin },
+  { id: 'vibraciones', label: 'Vibraciones sísmicas', color: '#e91e63', icon: Activity },
+  { id: 'personal', label: 'Movimiento de personal', color: '#4caf50', icon: Users },
+]
+
 const ZONAS_DATA = [
   { title: 'Nivel 3', sub: 'Chancador', status: 'Restringida', color: '#f44336', alert: 1, ratio: '1/3' },
   { title: 'Refugio', sub: 'R-01', status: 'Refugio', color: '#2196f3', alert: 2, ratio: '2/16' },
@@ -102,16 +114,6 @@ const PERSONAL_CHECKLIST = [
   { id: '10', name: 'Cecilia Campos', sub: 'Carlos Cordero' },
 ]
 
-const simItems = [
-  { icon: Wind, label: 'Flujo de aire' },
-  { icon: Flame, label: 'Mapa de calor' },
-  { icon: Zap, label: 'Flujo de energía' },
-  { icon: Wifi, label: 'Flujo de red' },
-  { icon: MapPin, label: 'Geocercas' },
-  { icon: Activity, label: 'Vibraciones sísmicas' },
-  { icon: Users, label: 'Movimiento de personal' },
-]
-
 function Section({
   title, open, onToggle, iconType = 'chevron', children,
 }: {
@@ -136,7 +138,7 @@ export default function App() {
   const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
   const [selectedCam, setSelectedCam] = useState<string>('')
   const [zoom, setZoom] = useState(50)
-  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'personalSearch' | null>(null)
+  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | null>(null)
   const [nexoOpen, setNexoOpen] = useState(false)
   const [nexoPrompt, setNexoPrompt] = useState('')
   const [nexoMessages, setNexoMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
@@ -146,17 +148,18 @@ export default function App() {
   const [factor, setFactor] = useState(1.3)
   const [level, setLevel] = useState('L1')
   const [activeTool, setActiveTool] = useState<string>('')
-  const [eyeOff, setEyeOff] = useState<Record<string, boolean>>({})
 
   // TRACKING state (SMF - V2 - 5 / 6 / 7 / 8)
   const [activeTrackings, setActiveTrackings] = useState<TrackingType[]>([])
   const [expandedTrack, setExpandedTrack] = useState<Record<string, boolean>>({})
   const [checkedPeople, setCheckedPeople] = useState<Record<string, boolean>>({ '3': true, '4': true })
 
+  // SIMULACIONES state (SMF - V2 - 12 / 13)
+  const [activeSimulations, setActiveSimulations] = useState<SimulationType[]>([])
+
   const panelRef = useRef<HTMLElement>(null)
 
   const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }))
-  const toggleEye = (k: string) => setEyeOff((e) => ({ ...e, [k]: !e[k] }))
   const clamp = (n: number) => Math.max(10, Math.min(200, n))
 
   useEffect(() => {
@@ -177,6 +180,15 @@ export default function App() {
 
   const removeTrackingItem = (id: TrackingType) => {
     setActiveTrackings((prev) => prev.filter((item) => item !== id))
+  }
+
+  const addSimulationItem = (id: SimulationType) => {
+    setActiveSimulations((prev) => (prev.includes(id) ? prev : [...prev, id]))
+    setDdOpen(null)
+  }
+
+  const removeSimulationItem = (id: SimulationType) => {
+    setActiveSimulations((prev) => prev.filter((item) => item !== id))
   }
 
   const sendNexoMessage = (text: string) => {
@@ -616,19 +628,67 @@ export default function App() {
             )}
           </div>
 
-          <Section title="Simulaciones" iconType="plus" open={!!open.sim} onToggle={() => toggle('sim')}>
-            <ul className="item-list">
-              {simItems.map(({ icon: I, label }) => (
-                <li key={label}>
-                  <I size={16} /><span>{label}</span>
-                  <button onClick={() => toggleEye(label)}>
-                    {eyeOff[label] ? <EyeOff size={16} /> : <Eye size={16} />}
+          {/* 4. SIMULACIONES (SMF - V2 - 12 & SMF - V2 - 13) */}
+          <div className="section sim-section">
+            <div className="section-head">
+              <span onClick={() => setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))} style={{ flex: 1, textAlign: 'left' }}>
+                Simulaciones
+              </span>
+              <button
+                className="plus-trigger"
+                aria-label="Agregar simulación"
+                onClick={() => setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))}
+              >
+                <CirclePlus size={17} />
+              </button>
+            </div>
+
+            {/* SMF - V2 - 13 Popover: AGREGAR SIMULACIÓN */}
+            {ddOpen === 'addSim' && (
+              <div className="dd-menu track-add-menu">
+                <div className="dd-group-title">AGREGAR SIMULACIÓN</div>
+                {SIMULATION_CATALOG.map(({ id, label, color, icon: I }) => (
+                  <button
+                    key={id}
+                    className="dd-item"
+                    onClick={() => addSimulationItem(id)}
+                  >
+                    <I size={18} style={{ color }} />
+                    <span>{label}</span>
                   </button>
-                </li>
-              ))}
-              <li className="clear-item"><Trash size={16} /><span>Limpiar lista de simulación</span></li>
-            </ul>
-          </Section>
+                ))}
+              </div>
+            )}
+
+            {/* Active Simulations List (SMF - V2 - 12 / node 8865:305609) */}
+            {activeSimulations.length > 0 && (
+              <div className="section-body track-body">
+                {activeSimulations.map((id) => {
+                  const cfg = SIMULATION_CATALOG.find((c) => c.id === id)!
+                  const Icon = cfg.icon
+                  return (
+                    <div key={id} className="track-row-head">
+                      <div className="track-row-title" style={{ cursor: 'default' }}>
+                        <Icon size={18} style={{ color: cfg.color }} />
+                        <span>{cfg.label}</span>
+                      </div>
+                      <div className="track-row-actions">
+                        <button title="Quitar simulación" onClick={() => removeSimulationItem(id)}>
+                          <CircleMinus size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+
+                <div className="perf-divider" />
+                <button className="clear-track-btn" onClick={() => setActiveSimulations([])}>
+                  <Trash size={17} />
+                  <span>Limpiar lista de simulación</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <Section title="Análisis" open={!!open.ana} onToggle={() => toggle('ana')}>
             <select className="field full"><option>Buscar por zona, nivel o equipo</option></select>
