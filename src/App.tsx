@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import {
-  Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, CirclePlus,
+  Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, ChevronRight,
+  CirclePlus, CircleMinus, Calendar, CircleAlert, CheckSquare, Square,
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
@@ -48,13 +49,51 @@ const zoomPresets: { val: number; label: string; tag?: string }[] = [
   { val: 200, label: '200 %', tag: 'Detalle' },
 ]
 
-const trackingItems = [
-  { icon: UserRoundSearch, label: 'Personal y vehículos' },
-  { icon: Layers2, label: 'Zonas y áreas' },
-  { icon: CircleGauge, label: 'Perímetros' },
-  { icon: Waypoints, label: 'Recorrido' },
-  { icon: AudioWaveform, label: 'Escenario alterno' },
-  { icon: Siren, label: 'Declarar evaluación' },
+type TrackingType = 'personal' | 'zonas' | 'perimetros' | 'recorrido' | 'escenario' | 'evacuacion'
+
+const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; color: string; icon: typeof UserRoundSearch }[] = [
+  { id: 'personal', label: 'Personal y vehículos', menuLabel: 'Personal y vehículos', color: '#2196f3', icon: UserRoundSearch },
+  { id: 'zonas', label: 'Zonas y áreas', menuLabel: 'Zonas y áreas', color: '#ff9800', icon: Layers2 },
+  { id: 'perimetros', label: 'Perímetros', menuLabel: 'Perímetros', color: '#f44336', icon: CircleGauge },
+  { id: 'recorrido', label: 'Recorrido', menuLabel: 'Recorrido', color: '#7c4dff', icon: Waypoints },
+  { id: 'escenario', label: 'Escenario alterno', menuLabel: 'Escenario alterno', color: '#00bfa5', icon: AudioWaveform },
+  { id: 'evacuacion', label: 'Declarar evaluación', menuLabel: 'Declarar evacuación', color: '#ff5252', icon: Siren },
+]
+
+const ZONAS_DATA = [
+  { title: 'Nivel 3', sub: 'Chancador', status: 'Restringida', color: '#f44336', alert: 1, ratio: '1/3' },
+  { title: 'Refugio', sub: 'R-01', status: 'Refugio', color: '#2196f3', alert: 2, ratio: '2/16' },
+  { title: 'Nivel 5', sub: 'Sala de bombeo', status: 'Restringida', color: '#f44336', alert: 2, ratio: '2/4' },
+  { title: 'Nivel 7', sub: 'Frente de voladura', status: 'Peligrosa', color: '#f44336', alert: 1, ratio: '1/4' },
+  { title: 'Refugio', sub: 'R-04', status: 'Refugio', color: '#2196f3', alert: 1, ratio: '1/16' },
+  { title: 'Rampa', sub: 'principal', status: 'Operativa', color: '#2196f3', ratio: '3/14' },
+  { title: 'Nivel 1', sub: 'Galeria norte', status: 'Operativa', color: '#2196f3', ratio: '0/10' },
+  { title: 'Nivel 2', sub: 'Taller mecanico', status: 'Operativa', color: '#2196f3', ratio: '2/8' },
+  { title: 'Nivel 2', sub: 'Frente de avance', status: 'Operativa', color: '#2196f3', ratio: '2/6' },
+  { title: 'Nivel 3', sub: 'Frente de voladura', status: 'Peligrosa', color: '#f44336', ratio: '0/4' },
+  { title: 'Refugio', sub: 'R-02', status: 'Refugio', color: '#2196f3', ratio: '1/16' },
+  { title: 'Nivel 4', sub: 'Galeria principal', status: 'Operativa', color: '#2196f3', ratio: '0/10' },
+  { title: 'Nivel 4', sub: 'Frente de avance', status: 'Operativa', color: '#2196f3', ratio: '0/6' },
+]
+
+const PERSONAL_RECORRIDO = [
+  { name: 'Ana Torres', role: 'Operador', area: 'Interior', alert: 1 },
+  { name: 'Carlos Martínez', role: 'Mecánico', area: 'Exterior' },
+  { name: 'Luis Pérez', role: 'Operador', area: 'Superficie' },
+  { name: 'Sofía Jiménez', role: 'Mecánico', area: 'Tecnología' },
+]
+
+const PERSONAL_CHECKLIST = [
+  { id: '1', name: 'Camila Cordero', sub: 'Carla Campos' },
+  { id: '2', name: 'Catalina Cano', sub: 'Cayetana Castro' },
+  { id: '3', name: 'César Calderón', sub: 'Carmelo Carrillo' },
+  { id: '4', name: 'Celia Castañeda', sub: 'Clara Cifuentes' },
+  { id: '5', name: 'Camilo Cárdenas', sub: 'Carolina Ceballos' },
+  { id: '6', name: 'Candela Cortés', sub: 'Candelaria Cruz' },
+  { id: '7', name: 'Carlos Carmona', sub: 'Cayetano Correa' },
+  { id: '8', name: 'Carina Cifuentes', sub: 'Carmen Calderón' },
+  { id: '9', name: 'Camilo Castillo', sub: 'Carla Cabrera' },
+  { id: '10', name: 'Cecilia Campos', sub: 'Carlos Cordero' },
 ]
 
 const simItems = [
@@ -91,7 +130,7 @@ export default function App() {
   const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
   const [selectedCam, setSelectedCam] = useState<string>('')
   const [zoom, setZoom] = useState(50)
-  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | null>(null)
+  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'personalSearch' | null>(null)
   const [nexoOn, setNexoOn] = useState(true)
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [perfLevel, setPerfLevel] = useState<'Bajo' | 'Medio' | 'Alto'>('Bajo')
@@ -100,7 +139,13 @@ export default function App() {
   const [level, setLevel] = useState('L1')
   const [activeTool, setActiveTool] = useState<string>('')
   const [eyeOff, setEyeOff] = useState<Record<string, boolean>>({})
-  const visRef = useRef<HTMLDivElement>(null)
+
+  // TRACKING state (SMF - V2 - 5 / 6 / 7 / 8)
+  const [activeTrackings, setActiveTrackings] = useState<TrackingType[]>([])
+  const [expandedTrack, setExpandedTrack] = useState<Record<string, boolean>>({})
+  const [checkedPeople, setCheckedPeople] = useState<Record<string, boolean>>({ '3': true, '4': true })
+
+  const panelRef = useRef<HTMLElement>(null)
 
   const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }))
   const toggleEye = (k: string) => setEyeOff((e) => ({ ...e, [k]: !e[k] }))
@@ -108,13 +153,25 @@ export default function App() {
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
-      if (visRef.current && !visRef.current.contains(e.target as Node)) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setDdOpen(null)
       }
     }
     document.addEventListener('mousedown', onDocClick)
     return () => document.removeEventListener('mousedown', onDocClick)
   }, [])
+
+  const addTrackingItem = (id: TrackingType) => {
+    setActiveTrackings((prev) => (prev.includes(id) ? prev : [...prev, id]))
+    setExpandedTrack((prev) => ({ ...prev, [id]: true }))
+    setDdOpen(null)
+  }
+
+  const removeTrackingItem = (id: TrackingType) => {
+    setActiveTrackings((prev) => prev.filter((item) => item !== id))
+  }
+
+  const selectedCount = Object.values(checkedPeople).filter(Boolean).length
 
   return (
     <div className="app" data-theme={theme}>
@@ -167,24 +224,24 @@ export default function App() {
         <button className="icon-btn" title="Rehacer"><Redo2 size={20} /></button>
       </nav>
 
-      {/* Right column from SMF - V2 - 19 & SMF - V2 - 4 */}
+      {/* Right column */}
       <div className="right-col">
         <button className="nexo-bar" onClick={() => setNexoOn((v) => !v)}>
           <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
           <span className={`nexo-badge ${nexoOn ? 'on' : ''}`}>{nexoOn ? 'ON' : 'OFF'}</span>
         </button>
 
-        <aside className="glass panel">
+        <aside className="glass panel" ref={panelRef}>
           <div className="search"><span>Buscar</span><small>Ctrl + K</small><Search size={14} /></div>
 
-          {/* MODO DE VISUALIZACIÓN (always visible above accordion or toggleable, with SMF-V2-4 custom dropdowns) */}
-          <div className="vis-block" ref={visRef}>
-            <button className="section-head vis-head" onClick={() => toggle('vis')}>
+          {/* 1. MODO DE VISUALIZACIÓN (SMF - V2 - 4) */}
+          <div className="vis-block">
+            <button className="section-head" onClick={() => toggle('vis')}>
               <span>Modo de visualización</span>
-              {open.vis === false ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+              {open.vis ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
 
-            {open.vis !== false && (
+            {open.vis && (
               <div className="vis-controls">
                 <div className="row">
                   <button
@@ -284,25 +341,36 @@ export default function App() {
             )}
           </div>
 
+          {/* 2. ESTADÍSTICAS DE RENDIMIENTO (SMF - V2 - 11) */}
           <Section title="Estadísticas de rendimiento" open={!!open.perf} onToggle={() => toggle('perf')}>
             <div className="seg-row">
               {(['Bajo', 'Medio', 'Alto'] as const).map((lvl) => (
                 <button key={lvl} className={perfLevel === lvl ? 'on' : ''} onClick={() => setPerfLevel(lvl)}>{lvl}</button>
               ))}
             </div>
-            <label className="row between switch-row">
+
+            <div className="row between switch-row" onClick={() => setAutoPerf((v) => !v)}>
               <span>Automático</span>
-              <input type="checkbox" checked={autoPerf} onChange={(e) => setAutoPerf(e.target.checked)} />
-            </label>
+              <span className={`mui-switch ${autoPerf ? 'checked' : ''}`}>
+                <span className="mui-switch-track" />
+                <span className="mui-switch-thumb" />
+              </span>
+            </div>
+
+            <div className="perf-divider" />
+
             <div className="sublabel">Dispositivo</div>
             <div className="chips-row">
               <span>8 núcleos</span><span>8 GB</span><span>DPR 2</span>
             </div>
             <p className="hint">ANGLE (Apple, ANGLE Metal Renderer: Apple M2, versión no especificada)</p>
+
+            <div className="perf-divider" />
+
             <div className="fps-row"><b>60</b> <span>FPS</span> <small>16,7 ms</small></div>
             <div className="stats-grid">
               <div><b>48</b><small>Triángulos</small></div>
-              <div><b>9</b><small>Llamadas de dibujo</small></div>
+              <div><b>9</b><small>Llamadas de di...</small></div>
               <div><b>15</b><small>Objetos</small></div>
               <div><b>42 MB</b><small>Memoria GPU</small></div>
               <div><b>37</b><small>Texturas</small></div>
@@ -310,19 +378,220 @@ export default function App() {
             </div>
           </Section>
 
-          <Section title="Tracking" iconType="plus" open={!!open.track} onToggle={() => toggle('track')}>
-            <ul className="item-list">
-              {trackingItems.map(({ icon: I, label }) => (
-                <li key={label}>
-                  <I size={16} /><span>{label}</span>
-                  <button onClick={() => toggleEye(label)}>
-                    {eyeOff[label] ? <EyeOff size={16} /> : <Eye size={16} />}
+          {/* 3. TRACKING (SMF - V2 - 5, 6, 7, 8) */}
+          <div className="section track-section">
+            <div className="section-head">
+              <span onClick={() => setDdOpen((d) => (d === 'addTrack' ? null : 'addTrack'))} style={{ flex: 1, textAlign: 'left' }}>
+                Tracking
+              </span>
+              <button
+                className="plus-trigger"
+                aria-label="Agregar tracking"
+                onClick={() => setDdOpen((d) => (d === 'addTrack' ? null : 'addTrack'))}
+              >
+                <CirclePlus size={17} />
+              </button>
+            </div>
+
+            {/* SMF - V2 - 6 Popover: AGREGAR TRACKING */}
+            {ddOpen === 'addTrack' && (
+              <div className="dd-menu track-add-menu">
+                <div className="dd-group-title">AGREGAR TRACKING</div>
+                {TRACKING_CATALOG.map(({ id, menuLabel, color, icon: I }) => (
+                  <button
+                    key={id}
+                    className="dd-item"
+                    onClick={() => addTrackingItem(id)}
+                  >
+                    <I size={18} style={{ color }} />
+                    <span>{menuLabel}</span>
                   </button>
-                </li>
-              ))}
-              <li className="clear-item"><Trash size={16} /><span>Limpiar lista de seguimiento</span></li>
-            </ul>
-          </Section>
+                ))}
+              </div>
+            )}
+
+            {/* Active Tracking Items List */}
+            {activeTrackings.length > 0 && (
+              <div className="section-body track-body">
+                {activeTrackings.map((id) => {
+                  const cfg = TRACKING_CATALOG.find((c) => c.id === id)!
+                  const Icon = cfg.icon
+                  const isExp = !!expandedTrack[id]
+                  return (
+                    <div key={id} className="track-item-block">
+                      <div className="track-row-head">
+                        <button
+                          className="track-row-title"
+                          onClick={() => setExpandedTrack((prev) => ({ ...prev, [id]: !prev[id] }))}
+                        >
+                          <Icon size={18} style={{ color: cfg.color }} />
+                          <span>{id === 'evacuacion' && isExp ? 'Terminar evaluación' : cfg.label}</span>
+                        </button>
+                        <div className="track-row-actions">
+                          <button title="Quitar" onClick={() => removeTrackingItem(id)}>
+                            <CircleMinus size={18} />
+                          </button>
+                          {id !== 'evacuacion' && (
+                            <button
+                              title={isExp ? 'Contraer' : 'Expandir'}
+                              onClick={() => setExpandedTrack((prev) => ({ ...prev, [id]: !prev[id] }))}
+                            >
+                              {isExp ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Expanded sub-panel for Zonas y áreas */}
+                      {isExp && id === 'zonas' && (
+                        <div className="track-subpanel">
+                          {ZONAS_DATA.map((z, idx) => (
+                            <div key={idx} className="zona-row">
+                              <span className="zona-bar" style={{ background: z.color }} />
+                              <div className="zona-info">
+                                <div className="zona-line1">
+                                  <b>{z.title}</b> <small>{z.sub}</small>
+                                </div>
+                                <div className="zona-line2">{z.status}</div>
+                              </div>
+                              {z.alert && (
+                                <span className="alert-pill">
+                                  <b>{z.alert}</b> <CircleAlert size={12} />
+                                </span>
+                              )}
+                              <span className="zona-ratio">{z.ratio}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Expanded sub-panel for Recorrido (SMF - V2 - 7 & 8) */}
+                      {isExp && id === 'recorrido' && (
+                        <div className="track-subpanel">
+                          <div className="recorrido-header">
+                            <span>Tramo del recorrido</span>
+                            <b>Todo el turno</b>
+                          </div>
+                          <div className="row">
+                            <button className="dd-trigger grow">
+                              <span>Inicio</span>
+                              <Calendar size={16} />
+                            </button>
+                            <button className="dd-trigger grow">
+                              <span>Fin</span>
+                              <Calendar size={16} />
+                            </button>
+                          </div>
+
+                          <div className="recorrido-search-wrap">
+                            <button
+                              className={`dd-trigger full ${ddOpen === 'personalSearch' ? 'active' : ''}`}
+                              onClick={() => setDdOpen((d) => (d === 'personalSearch' ? null : 'personalSearch'))}
+                            >
+                              <Search size={16} />
+                              <span style={{ flex: 1 }}>Buscar personal</span>
+                              <ChevronDown size={16} />
+                            </button>
+
+                            {/* SMF - V2 - 8 Popover: Multi-select checklist */}
+                            {ddOpen === 'personalSearch' && (
+                              <div className="dd-menu personal-checklist-menu">
+                                <div className="checklist-head">
+                                  <span>{selectedCount}/12 SELECCIONADO</span>
+                                  <button onClick={() => setCheckedPeople({})}>QUITAR TODOS</button>
+                                </div>
+                                <div className="checklist-scroll">
+                                  {PERSONAL_CHECKLIST.map((p) => {
+                                    const checked = !!checkedPeople[p.id]
+                                    return (
+                                      <button
+                                        key={p.id}
+                                        className="checklist-item"
+                                        onClick={() => setCheckedPeople((prev) => ({ ...prev, [p.id]: !prev[p.id] }))}
+                                      >
+                                        {checked
+                                          ? <CheckSquare size={18} className="chk-on" />
+                                          : <Square size={18} className="chk-off" />}
+                                        <div className="checklist-names">
+                                          <b>{p.name}</b>
+                                          <small>{p.sub}</small>
+                                        </div>
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="personal-list">
+                            {PERSONAL_RECORRIDO.map((p) => (
+                              <div key={p.name} className="zona-row">
+                                <span className="zona-bar neutral" />
+                                <div className="zona-info">
+                                  <div className="zona-line1"><b>{p.name}</b></div>
+                                  <div className="zona-line2">{p.role} &nbsp; {p.area}</div>
+                                </div>
+                                {p.alert && (
+                                  <span className="alert-pill">
+                                    <b>{p.alert}</b> <CircleAlert size={12} />
+                                  </span>
+                                )}
+                                <ChevronRight size={16} className="row-chevron" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Expanded sub-panel for Personal y vehículos */}
+                      {isExp && id === 'personal' && (
+                        <div className="track-subpanel">
+                          <div className="personal-list">
+                            {PERSONAL_RECORRIDO.map((p) => (
+                              <div key={p.name} className="zona-row">
+                                <span className="zona-bar" style={{ background: '#2196f3' }} />
+                                <div className="zona-info">
+                                  <div className="zona-line1"><b>{p.name}</b></div>
+                                  <div className="zona-line2">{p.role} &nbsp; {p.area}</div>
+                                </div>
+                                {p.alert && (
+                                  <span className="alert-pill">
+                                    <b>{p.alert}</b> <CircleAlert size={12} />
+                                  </span>
+                                )}
+                                <ChevronRight size={16} className="row-chevron" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Expanded sub-panel for Escenario alterno */}
+                      {isExp && id === 'escenario' && (
+                        <div className="track-subpanel">
+                          <div className="zona-row">
+                            <span className="zona-bar neutral" />
+                            <div className="zona-info">
+                              <div className="zona-line1"><b>Condiciones del escenario</b></div>
+                              <div className="zona-line2">Configuración para simular en el entorno</div>
+                            </div>
+                            <ChevronRight size={16} className="row-chevron" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+
+                <div className="perf-divider" />
+                <button className="clear-track-btn" onClick={() => setActiveTrackings([])}>
+                  <Trash size={17} />
+                  <span>Limpiar lista de seguimiento</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <Section title="Simulaciones" iconType="plus" open={!!open.sim} onToggle={() => toggle('sim')}>
             <ul className="item-list">
