@@ -5,11 +5,11 @@
   --glass-bg-ligera: linear-gradient(135deg, rgba(30, 44, 62, 0.42) 0%, rgba(18, 28, 42, 0.28) 100%);
   --glass-bg-moderada: rgba(22, 22, 22, 0.42);
   --glass-bg-suave: rgba(22, 22, 22, 0.55);
-  --glass-border-sutil: rgba(255, 255, 255, 0.08);
-  --glass-border-suave: rgba(255, 255, 255, 0.16);
-  --glass-border-dialog: rgba(255, 255, 255, 0.18);
-  --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  --line: rgba(255, 255, 255, 0.08);
+  --glass-border-sutil: rgba(255, 255, 255, 0.04);
+  --glass-border-suave: rgba(255, 255, 255, 0.08);
+  --glass-border-dialog: rgba(255, 255, 255, 0.10);
+  --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);
+  --line: rgba(255, 255, 255, 0.05);
   --text: #ffffff;
   --muted: rgba(255, 255, 255, 0.65);
   --caption: rgba(255, 255, 255, 0.40);
@@ -137,13 +137,14 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 
 .nexo-bar {
   width: 100%;
-  background: linear-gradient(90deg, rgba(69, 90, 100, 0.78) 0%, rgba(84, 110, 122, 0.78) 50%, rgba(144, 164, 174, 0.78) 100%);
-  border: 1.5px solid var(--glass-border-suave);
+  background: linear-gradient(90deg, rgba(69, 90, 100, 0.85) 0%, rgba(84, 110, 122, 0.85) 50%, rgba(144, 164, 174, 0.85) 100%);
+  border: none;
+  outline: none;
   -webkit-backdrop-filter: blur(32px) saturate(160%);
   backdrop-filter: blur(32px) saturate(160%);
   color: #fff; border-radius: 16px;
   padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
-  box-shadow: var(--glass-shadow);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
   transition: transform .15s ease, box-shadow .2s ease;
 }
 .nexo-bar:hover {
@@ -211,7 +212,7 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 .nexo-avatar-circle {
   width: 52px; height: 52px; border-radius: 999px;
   background-image: linear-gradient(90deg, rgb(84, 110, 122) 0%, rgb(144, 164, 174) 100%), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  border: 1px solid var(--glass-border-suave);
+  border: none;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }

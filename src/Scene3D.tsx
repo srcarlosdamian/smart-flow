@@ -11,7 +11,7 @@ interface Props {
 }
 
 const PALETTE = {
-  dark: { bg: 0x0a1c30, floor: 0x0b2036, fine: 0x0d2a45, coarse: 0x05111f, fineOp: 0.28, coarseOp: 0.45 },
+  dark: { bg: 0x0a1c30, floor: 0x0b2036, fine: 0x0d2842, coarse: 0x071728, fineOp: 0.14, coarseOp: 0.24 },
   light: { bg: 0xdfe7ef, floor: 0xe6ecf2, fine: 0xd5dee8, coarse: 0xc2cdd9, fineOp: 0.30, coarseOp: 0.48 },
 }
 
