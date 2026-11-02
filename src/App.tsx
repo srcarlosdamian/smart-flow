@@ -6,15 +6,15 @@ import {
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Eye, EyeOff, Minus,
-  Grid3x3, Workflow, Check, ArrowLeft, LandPlot,
+  Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
 
-function NexoLogo() {
+function NexoLogo({ width = 16, height = 20 }: { width?: number; height?: number }) {
   return (
-    <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg width={width} height={height} viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M2.30986 8.23786C1.52047 9.62654 1.94747 11.3897 3.28474 12.2633C3.70779 12.5397 4.18751 12.7021 4.67897 12.7444L3.66391 14.5026C3.16334 14.3689 2.68149 14.1558 2.23782 13.8659C0.0538579 12.4392 -0.643495 9.55972 0.6457 7.29182L4.79077 0H6.99271L2.30986 8.23786Z" fill="white" />
       <path d="M13.6265 11.7621C14.4159 10.3735 13.9889 8.61031 12.6516 7.7367C12.2286 7.46033 11.7489 7.29793 11.2574 7.25561L12.2725 5.49743C12.773 5.63113 13.2549 5.84422 13.6986 6.13406C15.8825 7.56079 16.5799 10.4403 15.2907 12.7082L11.1456 20L8.94366 20L13.6265 11.7621Z" fill="white" />
       <path d="M6.50173 9.75989H4.29979L9.89546 0H12.0974L6.50173 9.75989Z" fill="white" />
@@ -22,6 +22,12 @@ function NexoLogo() {
     </svg>
   )
 }
+
+const NEXO_SUGGESTIONS = [
+  'Ponme al día con el turno',
+  '¿Cómo está la ventilación?',
+  '¿Dónde está la gente en este momento?',
+]
 
 const levels = [['L1', 'General'], ['L2', 'Sector'], ['L3', 'Zona'], ['L4', 'Equipo'], ['L5', 'Interior']]
 
@@ -131,7 +137,9 @@ export default function App() {
   const [selectedCam, setSelectedCam] = useState<string>('')
   const [zoom, setZoom] = useState(50)
   const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'personalSearch' | null>(null)
-  const [nexoOn, setNexoOn] = useState(true)
+  const [nexoOpen, setNexoOpen] = useState(false)
+  const [nexoPrompt, setNexoPrompt] = useState('')
+  const [nexoMessages, setNexoMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [perfLevel, setPerfLevel] = useState<'Bajo' | 'Medio' | 'Alto'>('Bajo')
   const [autoPerf, setAutoPerf] = useState(false)
@@ -171,10 +179,23 @@ export default function App() {
     setActiveTrackings((prev) => prev.filter((item) => item !== id))
   }
 
+  const sendNexoMessage = (text: string) => {
+    const clean = text.trim()
+    if (!clean) return
+    const replyMap: Record<string, string> = {
+      'Ponme al día con el turno': 'El turno actual opera con normalidad. Hay 28 trabajadores activos en interior mina, 2 alertas preventivas en Nivel 3 (Chancador) y Nivel 5 (Sala de bombeo), y los refugios R-01 y R-04 se encuentran operativos.',
+      '¿Cómo está la ventilación?': 'El caudal principal en V-PH-01 está al 96 % de su capacidad nominal. Los niveles L1 a L4 mantienen niveles óptimos de oxígeno y concentración de gases dentro de norma.',
+      '¿Dónde está la gente en este momento?': 'Actualmente hay 14 personas en Galería Norte (L1), 8 en Taller Mecánico (L2), 4 en Rampa Principal y 2 en Sala de Bombeo (L5).',
+    }
+    const reply = replyMap[clean] || `Analizando "${clean}" en tiempo real sobre los sensores y telemetría activa de SmartFlow... Todos los indicadores del sector ${level} están sincronizados.`
+    setNexoMessages((prev) => [...prev, { role: 'user', text: clean }, { role: 'assistant', text: reply }])
+    setNexoPrompt('')
+  }
+
   const selectedCount = Object.values(checkedPeople).filter(Boolean).length
 
   return (
-    <div className="app" data-theme={theme}>
+    <div className={`app ${nexoOpen ? 'nexo-open' : ''}`} data-theme={theme}>
       <Scene3D mode={mode} zoom={zoom} theme={theme} />
 
       <header className="glass topbar">
@@ -226,10 +247,12 @@ export default function App() {
 
       {/* Right column */}
       <div className="right-col">
-        <button className="nexo-bar" onClick={() => setNexoOn((v) => !v)}>
-          <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
-          <span className={`nexo-badge ${nexoOn ? 'on' : ''}`}>{nexoOn ? 'ON' : 'OFF'}</span>
-        </button>
+        {!nexoOpen && (
+          <button className="nexo-bar" onClick={() => setNexoOpen(true)}>
+            <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
+            <span className="nexo-badge on">ON</span>
+          </button>
+        )}
 
         <aside className="glass panel" ref={panelRef}>
           <div className="search"><span>Buscar</span><small>Ctrl + K</small><Search size={14} /></div>
@@ -627,6 +650,83 @@ export default function App() {
           <Section title="Seguimiento" open={!!open.seg} onToggle={() => toggle('seg')} />
         </aside>
       </div>
+
+      {/* SMF - V2 - 20 Nexo IA Right Drawer (340px wide, full height) */}
+      {nexoOpen && (
+        <aside className="glass nexo-drawer" aria-label="Nexo IA">
+          <div className="nexo-drawer-top">
+            <button
+              className="nexo-close-btn"
+              title="Cerrar Nexo IA"
+              aria-label="Cerrar Nexo IA"
+              onClick={() => setNexoOpen(false)}
+            >
+              <PanelRightClose size={18} />
+            </button>
+          </div>
+
+          <div className="nexo-drawer-body">
+            {nexoMessages.length > 0 && (
+              <div className="nexo-chat-log">
+                {nexoMessages.map((m, i) => (
+                  <div key={i} className={`nexo-msg ${m.role}`}>
+                    {m.text}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="nexo-welcome">
+              <div className="nexo-avatar-circle">
+                <NexoLogo width={24} height={30} />
+              </div>
+
+              <h2 className="nexo-greeting">¿Cómo puedo ayudarte hoy?</h2>
+
+              <div className="nexo-suggestions">
+                {NEXO_SUGGESTIONS.map((s) => (
+                  <button
+                    key={s}
+                    className="nexo-pill"
+                    onClick={() => sendNexoMessage(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <form
+            className="nexo-input-box"
+            onSubmit={(e) => {
+              e.preventDefault()
+              sendNexoMessage(nexoPrompt)
+            }}
+          >
+            <textarea
+              className="nexo-textarea"
+              placeholder="Pregúntale a Nexo IA"
+              value={nexoPrompt}
+              onChange={(e) => setNexoPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  sendNexoMessage(nexoPrompt)
+                }
+              }}
+            />
+            <div className="nexo-input-actions">
+              <button type="button" className="nexo-attach-btn" title="Adjuntar contexto">
+                <Plus size={18} />
+              </button>
+              <button type="submit" className="nexo-send-btn" title="Enviar a Nexo IA">
+                <ArrowUp size={18} />
+              </button>
+            </div>
+          </form>
+        </aside>
+      )}
 
       <ul className="glass levels">
         {levels.map(([k, n]) => (
