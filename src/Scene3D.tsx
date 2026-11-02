@@ -35,9 +35,9 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
     const p = PALETTE[state.current.theme]
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(p.bg)
-    scene.fog = new THREE.Fog(p.bg, 40, 260)
+    scene.fog = new THREE.Fog(p.bg, 70, 320)
 
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000)
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000)
 
     const fine = new THREE.GridHelper(800, 400, p.fine, p.fine)
     const coarse = new THREE.GridHelper(800, 80, p.coarse, p.coarse)
@@ -58,8 +58,9 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
 
     matsRef.current = { scene, floorMat, fineMat, coarseMat }
 
-    const target = new THREE.Vector3()
-    const camPos = new THREE.Vector3(0, 6, 30)
+    // Look slightly below center so the horizon sits around ~42% from top, matching Figma
+    const target = new THREE.Vector3(0, -1.8, -10)
+    const camPos = new THREE.Vector3(0, 7.5, 28)
     let yaw = 0, pitchOff = 0, dragging = false, lx = 0, ly = 0
 
     const resize = () => {
@@ -77,7 +78,7 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
     const move = (e: PointerEvent) => {
       if (!dragging) return
       yaw -= (e.clientX - lx) * 0.005
-      pitchOff = Math.max(-0.5, Math.min(0.5, pitchOff + (e.clientY - ly) * 0.003))
+      pitchOff = Math.max(-0.4, Math.min(0.5, pitchOff + (e.clientY - ly) * 0.003))
       lx = e.clientX; ly = e.clientY
     }
     el.addEventListener('pointerdown', down)
@@ -87,15 +88,15 @@ export default function Scene3D({ mode, zoom, theme }: Props) {
     let raf = 0
     const tick = () => {
       const { mode: m, zoom: z } = state.current
-      const dist = 30 * (50 / z)
+      const dist = 28 * (50 / z)
       let desired: THREE.Vector3
-      if (m === 'perspective') desired = new THREE.Vector3(Math.sin(yaw) * dist, 6 + pitchOff * 20, Math.cos(yaw) * dist)
+      if (m === 'perspective') desired = new THREE.Vector3(Math.sin(yaw) * dist, 7.5 + pitchOff * 20, Math.cos(yaw) * dist)
       else if (m === 'isometric') desired = new THREE.Vector3(Math.sin(yaw + Math.PI / 4) * dist, dist * 0.8, Math.cos(yaw + Math.PI / 4) * dist)
       else desired = new THREE.Vector3(0.001, dist * 1.4, 0.001)
       camPos.lerp(desired, 0.08)
       camera.position.copy(camPos)
       camera.lookAt(target)
-      camera.fov = m === 'isometric' ? 25 : 50
+      camera.fov = m === 'isometric' ? 25 : 45
       camera.updateProjectionMatrix()
       renderer.render(scene, camera)
       raf = requestAnimationFrame(tick)
