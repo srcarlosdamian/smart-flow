@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import {
-  Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, ChevronRight,
+  Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, ChevronRight, ChevronLeft,
   CirclePlus, CircleMinus, Calendar, CircleAlert, CheckSquare, Square,
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Minus,
   Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot, Settings,
+  EllipsisVertical, Ellipsis, TextAlignStart, Pin, PictureInPicture2, SquareArrowOutUpRight,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import logoUrl from './assets/smartflow-logo.png'
@@ -27,6 +28,27 @@ const NEXO_SUGGESTIONS = [
   'Ponme al día con el turno',
   '¿Cómo está la ventilación?',
   '¿Dónde está la gente en este momento?',
+]
+
+const NEXO_PINNED_CHATS = [
+  'Reporte de turno — Nivel 3 Chancador',
+  'Estado de ventilación V-PH-01',
+  'Personal activo en Galería Norte',
+  'Cálculo de caudal y alertas L5',
+  'Rutas de evacuación Refugio R-01',
+]
+
+const NEXO_MORE_CHATS = [
+  'Resumen operativo del turno matutino',
+  'Monitoreo de gases en Frente de voladura',
+  'Disponibilidad de equipos Jumbo J-01 y J-02',
+  'Historial de alertas en Sala de bombeo',
+  'Simulación de falla en ventilador principal',
+  'Ubicación de cuadrilla de mantenimiento',
+  'Tiempo estimado de evacuación Nivel 4',
+  'Balance energético en subestación interior',
+  'Inspección de geocercas y perímetros activos',
+  'Bitácora de incidentes y telemetría L2',
 ]
 
 const AUTH_STORAGE_KEY = 'smartflow_auth_email_v1'
@@ -191,6 +213,8 @@ export default function App() {
   const [zoom, setZoom] = useState(50)
   const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | null>(null)
   const [nexoOpen, setNexoOpen] = useState(false)
+  const [nexoMoreOpen, setNexoMoreOpen] = useState(false)
+  const [nexoMoreView, setNexoMoreView] = useState<'main' | 'more'>('main')
   const [nexoEnabled, setNexoEnabled] = useState(true)
   const [nexoAutoAlerts, setNexoAutoAlerts] = useState(true)
   const [nexoVoice, setNexoVoice] = useState(false)
@@ -212,6 +236,7 @@ export default function App() {
   const [activeSimulations, setActiveSimulations] = useState<SimulationType[]>([])
 
   const rightColRef = useRef<HTMLDivElement>(null)
+  const nexoMoreRef = useRef<HTMLDivElement>(null)
 
   const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }))
   const clamp = (n: number) => Math.max(10, Math.min(200, n))
@@ -220,6 +245,9 @@ export default function App() {
     const onDocClick = (e: MouseEvent) => {
       if (rightColRef.current && !rightColRef.current.contains(e.target as Node)) {
         setDdOpen(null)
+      }
+      if (nexoMoreRef.current && !nexoMoreRef.current.contains(e.target as Node)) {
+        setNexoMoreOpen(false)
       }
     }
     document.addEventListener('mousedown', onDocClick)
@@ -849,15 +877,119 @@ export default function App() {
       {/* SMF - V2 - 20 Nexo IA Right Drawer (340px wide, full height) */}
       {nexoOpen && (
         <aside className="glass nexo-drawer" aria-label="Nexo IA">
-          <div className="nexo-drawer-top">
-            <button
-              className="nexo-close-btn"
-              title="Cerrar Nexo IA"
-              aria-label="Cerrar Nexo IA"
-              onClick={() => setNexoOpen(false)}
-            >
-              <PanelRightClose size={18} />
-            </button>
+          <div className="nexo-drawer-top" ref={nexoMoreRef}>
+            <div className="nexo-top-actions">
+              <button
+                className={`nexo-more-btn ${nexoMoreOpen ? 'active' : ''}`}
+                title="Historial y más opciones"
+                aria-label="Historial y más opciones"
+                onClick={() => {
+                  setNexoMoreOpen((v) => !v)
+                  setNexoMoreView('main')
+                }}
+              >
+                <EllipsisVertical size={17} />
+              </button>
+
+              <button
+                className="nexo-close-btn"
+                title="Cerrar Nexo IA"
+                aria-label="Cerrar Nexo IA"
+                onClick={() => {
+                  setNexoMoreOpen(false)
+                  setNexoOpen(false)
+                }}
+              >
+                <PanelRightClose size={18} />
+              </button>
+            </div>
+
+            {nexoMoreOpen && (
+              <div className="dd-menu nexo-history-menu">
+                {nexoMoreView === 'main' ? (
+                  <>
+                    <button
+                      className="dd-item nexo-history-item"
+                      onClick={() => setNexoMoreOpen(false)}
+                    >
+                      <PictureInPicture2 size={16} />
+                      <span>Chat en ventana emergente</span>
+                    </button>
+
+                    <div className="dd-divider" />
+
+                    <div className="dd-group-title">HISTORIAL DE CONVERSACIÓN</div>
+                    {NEXO_PINNED_CHATS.map((chatTitle) => (
+                      <button
+                        key={chatTitle}
+                        className="dd-item nexo-history-item"
+                        onClick={() => {
+                          sendNexoMessage(chatTitle)
+                          setNexoMoreOpen(false)
+                        }}
+                      >
+                        <TextAlignStart size={16} className="nexo-hist-icon" />
+                        <span className="nexo-hist-label">{chatTitle}</span>
+                        <Pin size={14} className="nexo-pin-icon" />
+                      </button>
+                    ))}
+
+                    <button
+                      className="dd-item nexo-history-item"
+                      onClick={() => setNexoMoreView('more')}
+                    >
+                      <Ellipsis size={16} className="nexo-hist-icon" />
+                      <span className="nexo-hist-label">Más chats</span>
+                      <ChevronRight size={15} className="nexo-pin-icon" />
+                    </button>
+
+                    <div className="dd-divider" />
+
+                    <button className="dd-item nexo-history-item disabled" disabled>
+                      <SquareArrowOutUpRight size={16} />
+                      <span>Continuar chat en una nueva pestaña</span>
+                    </button>
+
+                    <button
+                      className="dd-item nexo-history-item"
+                      onClick={() => setNexoMoreOpen(false)}
+                    >
+                      <Settings size={16} />
+                      <span className="nexo-hist-label">Configuración y ayuda</span>
+                      <ChevronRight size={15} className="nexo-pin-icon" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="dd-item nexo-back-row"
+                      onClick={() => setNexoMoreView('main')}
+                    >
+                      <ChevronLeft size={16} />
+                      <span>Atrás</span>
+                    </button>
+
+                    <div className="dd-divider" />
+
+                    <div className="nexo-history-scroll">
+                      {NEXO_MORE_CHATS.map((chatTitle) => (
+                        <button
+                          key={chatTitle}
+                          className="dd-item nexo-history-item"
+                          onClick={() => {
+                            sendNexoMessage(chatTitle)
+                            setNexoMoreOpen(false)
+                          }}
+                        >
+                          <TextAlignStart size={16} className="nexo-hist-icon" />
+                          <span className="nexo-hist-label">{chatTitle}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="nexo-drawer-body">

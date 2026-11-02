@@ -211,13 +211,52 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   to { transform: translateX(0); opacity: 1; }
 }
 .nexo-drawer-top {
-  display: flex; align-items: center; justify-content: flex-end; height: 22px;
+  position: relative;
+  display: flex; align-items: center; justify-content: flex-end; height: 28px;
+}
+.nexo-top-actions {
+  display: flex; align-items: center; gap: 6px;
+}
+.nexo-more-btn {
+  width: 28px; height: 28px; border-radius: 50%; color: var(--muted);
+  transition: background .15s ease, color .15s ease;
+}
+.nexo-more-btn:hover, .nexo-more-btn.active {
+  color: var(--text); background: var(--seg-bg);
 }
 .nexo-close-btn {
   width: 28px; height: 28px; border-radius: 6px; color: var(--muted);
 }
 .nexo-close-btn:hover {
   color: var(--text); background: var(--hover-bg);
+}
+.nexo-history-menu {
+  top: calc(100% + 8px); left: 0; right: 0; padding: 12px; gap: 2px;
+}
+.nexo-history-item {
+  padding: 8px 10px; gap: 10px; font-size: 13.5px;
+}
+.nexo-history-item.disabled {
+  opacity: 0.45; cursor: default;
+}
+.nexo-history-item.disabled:hover {
+  background: transparent;
+}
+.nexo-hist-icon {
+  color: var(--muted); flex-shrink: 0;
+}
+.nexo-hist-label {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.nexo-pin-icon {
+  color: var(--muted); flex-shrink: 0; opacity: 0.8;
+}
+.nexo-back-row {
+  padding: 6px 8px; gap: 6px; font-weight: 600; font-size: 13.5px;
+}
+.nexo-history-scroll {
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 310px; overflow-y: auto; padding-right: 2px;
 }
 .nexo-drawer-body {
   flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end;
