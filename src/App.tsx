@@ -29,6 +29,52 @@ const NEXO_SUGGESTIONS = [
   '¿Dónde está la gente en este momento?',
 ]
 
+const AUTH_STORAGE_KEY = 'smartflow_auth_email_v1'
+const AUTH_COOKIE_KEY = 'smartflow_auth_email'
+
+function isAllowedInstitutionalEmail(raw: string): boolean {
+  const email = raw.trim().toLowerCase()
+  const parts = email.split('@')
+  if (parts.length !== 2) return false
+  const [local, domain] = parts
+  if (!local || local.includes(' ')) return false
+  return domain === 'lasec.com.mx' || domain === 'carlosdamian.com'
+}
+
+function getSavedAuthEmail(): string | null {
+  try {
+    const stored = localStorage.getItem(AUTH_STORAGE_KEY)
+    if (stored && isAllowedInstitutionalEmail(stored)) return stored
+  } catch {
+    // ignore storage errors
+  }
+  try {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + AUTH_COOKIE_KEY + '=([^;]*)'))
+    if (match) {
+      const decoded = decodeURIComponent(match[1])
+      if (isAllowedInstitutionalEmail(decoded)) return decoded
+    }
+  } catch {
+    // ignore cookie errors
+  }
+  return null
+}
+
+function saveAuthEmail(email: string) {
+  const clean = email.trim().toLowerCase()
+  try {
+    localStorage.setItem(AUTH_STORAGE_KEY, clean)
+  } catch {
+    // ignore storage errors
+  }
+  try {
+    // Persist for 10 years (315360000 seconds) so the browser remembers as long as possible
+    document.cookie = `${AUTH_COOKIE_KEY}=${encodeURIComponent(clean)}; max-age=315360000; path=/; SameSite=Lax`
+  } catch {
+    // ignore cookie errors
+  }
+}
+
 const levels = [['L1', 'General'], ['L2', 'Sector'], ['L3', 'Zona'], ['L4', 'Equipo'], ['L5', 'Interior']]
 
 const projections: { id: string; label: string; view: ViewMode; icon: typeof Box }[] = [
@@ -133,6 +179,11 @@ function Section({
 }
 
 export default function App() {
+  const [authEmail, setAuthEmail] = useState<string | null>(() => getSavedAuthEmail())
+  const [emailInput, setEmailInput] = useState('@lasec.com.mx')
+  const [authError, setAuthError] = useState('')
+  const emailInputRef = useRef<HTMLInputElement>(null)
+
   const [theme, setTheme] = useState<Theme>('light')
   const [mode, setMode] = useState<ViewMode>('perspective')
   const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
@@ -174,6 +225,25 @@ export default function App() {
     document.addEventListener('mousedown', onDocClick)
     return () => document.removeEventListener('mousedown', onDocClick)
   }, [])
+
+  useEffect(() => {
+    if (!authEmail && emailInputRef.current) {
+      emailInputRef.current.focus()
+      emailInputRef.current.setSelectionRange(0, 0)
+    }
+  }, [authEmail])
+
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const clean = emailInput.trim().toLowerCase()
+    if (!isAllowedInstitutionalEmail(clean)) {
+      setAuthError('Ingresa un correo válido con dominio @lasec.com.mx o @carlosdamian.com (ej. usuario@lasec.com.mx).')
+      return
+    }
+    saveAuthEmail(clean)
+    setAuthEmail(clean)
+    setAuthError('')
+  }
 
   const addTrackingItem = (id: TrackingType) => {
     setActiveTrackings((prev) => (prev.includes(id) ? prev : [...prev, id]))
@@ -858,6 +928,51 @@ export default function App() {
           <li key={k} className={level === k ? 'on' : ''} onClick={() => setLevel(k)}><b>{k}</b> {n}</li>
         ))}
       </ul>
+
+      {/* Institutional Email Access Gate Modal */}
+      {!authEmail && (
+        <div className="auth-backdrop" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+          <form className="glass auth-modal" onSubmit={handleAuthSubmit}>
+            <div className="auth-logo-wrap">
+              <img src={logoUrl} alt="SmartFlow" className="auth-logo" />
+            </div>
+
+            <div className="auth-header">
+              <h2 id="auth-modal-title">Acceso a SmartFlow</h2>
+              <p>Ingresa tu correo con tu correo institucional para continuar</p>
+            </div>
+
+            <div className="auth-field-group">
+              <label htmlFor="institutional-email" className="auth-label">
+                Ingresa tu correo con tu correo institucional
+              </label>
+              <input
+                ref={emailInputRef}
+                id="institutional-email"
+                type="email"
+                className={`auth-input ${authError ? 'error' : ''}`}
+                placeholder="Ingresa tu correo con tu correo institucional"
+                value={emailInput}
+                onChange={(e) => {
+                  setEmailInput(e.target.value)
+                  if (authError) setAuthError('')
+                }}
+                autoComplete="email"
+                required
+              />
+              {authError ? (
+                <span className="auth-error">{authError}</span>
+              ) : (
+                <span className="auth-hint">Dominios autorizados: <b>@lasec.com.mx</b></span>
+              )}
+            </div>
+
+            <button type="submit" className="cta auth-submit">
+              Agregar
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   )
 }
