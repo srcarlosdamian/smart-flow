@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, ChevronRight, ChevronLeft,
-  CirclePlus, CircleMinus, Calendar, CircleAlert, CheckSquare, Square,
+  CirclePlus, CircleMinus, CircleAlert, CheckSquare, Square,
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
@@ -10,6 +10,7 @@ import {
   EllipsisVertical, Ellipsis, TextAlignStart, Pin, PictureInPicture2, SquareArrowOutUpRight,
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
+  Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Clock, Eye,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import logoUrl from './assets/smartflow-logo.png'
@@ -194,11 +195,108 @@ const ZONAS_DATA = [
   { title: 'Nivel 4', sub: 'Frente de avance', status: 'Operativa', color: '#2196f3', ratio: '0/6' },
 ]
 
-const PERSONAL_RECORRIDO = [
-  { name: 'Ana Torres', role: 'Operador', area: 'Interior', alert: 1 },
-  { name: 'Carlos Martínez', role: 'Mecánico', area: 'Exterior' },
-  { name: 'Luis Pérez', role: 'Operador', area: 'Superficie' },
-  { name: 'Sofía Jiménez', role: 'Mecánico', area: 'Tecnología' },
+export interface PersonalItem {
+  id: string
+  name: string
+  role: string
+  area: string
+  alert?: number
+  type?: string
+  status?: string
+  time?: string
+  zone?: string
+  precision?: string
+  recent?: string
+}
+
+const PERSONAL_RECORRIDO: PersonalItem[] = [
+  {
+    id: 'ana',
+    name: 'Ana Torres',
+    role: 'Operador',
+    area: 'Interior',
+    alert: 1,
+    type: 'Perforista',
+    status: 'En línea',
+    time: '00:25:00',
+    zone: 'Interior - Nivel 2',
+    precision: '± 2.1 m',
+    recent: '5 min',
+  },
+  {
+    id: 'carlos',
+    name: 'Carlos Martínez',
+    role: 'Mecánico',
+    area: 'Exterior',
+    type: 'Perforista',
+    status: 'En línea',
+    time: '00:25:00',
+    zone: 'Fuera de zonas monitoreadas',
+    precision: '± 2.1 m',
+    recent: '5 min',
+  },
+  {
+    id: 'luis',
+    name: 'Luis Pérez',
+    role: 'Operador',
+    area: 'Superficie',
+    type: 'Operador planta',
+    status: 'En línea',
+    time: '00:18:20',
+    zone: 'Superficie - Chancado',
+    precision: '± 1.8 m',
+    recent: '3 min',
+  },
+  {
+    id: 'sofia',
+    name: 'Sofía Jiménez',
+    role: 'Mecánico',
+    area: 'Tecnología',
+    type: 'Técnico telecom',
+    status: 'En línea',
+    time: '00:32:15',
+    zone: 'Interior - Taller L2',
+    precision: '± 1.2 m',
+    recent: '8 min',
+  },
+]
+
+const TIMELINE_EVENT_DOTS = [
+  { id: 0, pos: 2, type: 'info', label: 'Inicio de turno · 08:00' },
+  { id: 1, pos: 5, type: 'info', label: 'Ingreso Rampa Principal · 08:05' },
+  { id: 2, pos: 8, type: 'warn', label: 'Lectura de gas CO normal · 08:12' },
+  { id: 3, pos: 12, type: 'info', label: 'Paso por Galería Norte · 08:22' },
+  { id: 4, pos: 15, type: 'info', label: 'Check-in Refugio R-01 · 08:30' },
+  { id: 5, pos: 18, type: 'warn', label: 'Aviso velocidad vehículo · 08:41' },
+  { id: 6, pos: 22, type: 'info', label: 'Llegada a Frente de Avance L2 · 08:50' },
+  { id: 7, pos: 25, type: 'crit', label: 'Alerta hombre caído · 09:00' },
+  { id: 8, pos: 27, type: 'alert', label: 'Petición de auxilio activada · 09:02' },
+  { id: 9, pos: 30, type: 'info', label: 'Respuesta brigada de emergencia · 09:08' },
+  { id: 10, pos: 33, type: 'info', label: 'Despacho Camión T-03 · 09:14' },
+  { id: 11, pos: 36, type: 'warn', label: 'Sensor polvo PM10 en alerta · 09:20' },
+  { id: 12, pos: 39, type: 'warn', label: 'Tráfico en Rampa nivel 3 · 09:28' },
+  { id: 13, pos: 42, type: 'info', label: 'Ventilador V-02 en 100% · 09:35' },
+  { id: 14, pos: 45, type: 'alert', label: 'Desvío de ruta programada · 09:42' },
+  { id: 15, pos: 48, type: 'alert', label: 'Pérdida temporal de telemetría · 09:50' },
+  { id: 16, pos: 51, type: 'info', label: 'Señal restablecida (AP-14) · 09:55' },
+  { id: 17, pos: 54, type: 'info', label: 'Inspección Taller Mecánico L2 · 10:02' },
+  { id: 18, pos: 57, type: 'info', label: 'Pausa activa turno A · 10:15' },
+  { id: 19, pos: 60, type: 'warn', label: 'Alerta proximidad maquinaria · 10:25' },
+  { id: 20, pos: 63, type: 'warn', label: 'Geocerca Chancador violada · 10:33' },
+  { id: 21, pos: 66, type: 'alert', label: 'Nivel agua elevado en L5 · 10:45' },
+  { id: 22, pos: 69, type: 'alert', label: 'Bomba sumergible activada · 10:48' },
+  { id: 23, pos: 72, type: 'alert', label: 'Aviso flujo de aire recirculado · 10:55' },
+  { id: 24, pos: 75, type: 'warn', label: 'Monitoreo temperatura L3 · 11:05' },
+  { id: 25, pos: 78, type: 'warn', label: 'Reporte turno L2 entregado · 11:15' },
+  { id: 26, pos: 81, type: 'info', label: 'Recambio batería baliza B-09 · 11:24' },
+  { id: 27, pos: 84, type: 'info', label: 'Paso por Refugio R-04 · 11:32' },
+  { id: 28, pos: 87, type: 'info', label: 'Salida hacia Superficie · 11:40' },
+  { id: 29, pos: 89, type: 'warn', label: 'Sensor NO2 leve aumento · 11:45' },
+  { id: 30, pos: 91, type: 'warn', label: 'Control pesaje camión T-03 · 11:48' },
+  { id: 31, pos: 93, type: 'warn', label: 'Inspección rodado de neumáticos · 11:51' },
+  { id: 32, pos: 95, type: 'alert', label: 'Aviso mantención preventiva · 11:54' },
+  { id: 33, pos: 97, type: 'alert', label: 'Check-out garita norte · 11:57' },
+  { id: 34, pos: 99, type: 'info', label: 'Fin de jornada · 12:00' },
 ]
 
 const PERSONAL_CHECKLIST = [
@@ -251,7 +349,7 @@ export default function App() {
   const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
   const [selectedCam, setSelectedCam] = useState<string>('')
   const [zoom, setZoom] = useState(50)
-  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | null>(null)
+  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | 'shiftStart' | 'shiftEnd' | null>(null)
   const [nexoOpen, setNexoOpen] = useState(false)
   const [nexoMoreOpen, setNexoMoreOpen] = useState(false)
   const [nexoMoreView, setNexoMoreView] = useState<'main' | 'more'>('main')
@@ -280,6 +378,59 @@ export default function App() {
 
   // SIMULACIONES state (SMF - V2 - 12 / 13)
   const [activeSimulations, setActiveSimulations] = useState<SimulationType[]>([])
+
+  // Recorrido Player & Detail state (SMF - V2 - 7, 8, 9)
+  const [selectedUser, setSelectedUser] = useState<PersonalItem | null>(null)
+  const [recorridoPlayerVisible, setRecorridoPlayerVisible] = useState(true)
+  const [playerPlaying, setPlayerPlaying] = useState(false)
+  const [playerSeconds, setPlayerSeconds] = useState(4)
+  const [playerSpeed, setPlayerSpeed] = useState<'0.5x' | '1x' | '2x' | '4x' | '8x'>('1x')
+  const [playerSeverityFilter, setPlayerSeverityFilter] = useState<string | null>('Aviso')
+  const [playerBookmarked, setPlayerBookmarked] = useState(false)
+  const [playerLoop, setPlayerLoop] = useState(false)
+  const [auxilioHandled, setAuxilioHandled] = useState(false)
+  const [auxilioResolved, setAuxilioResolved] = useState(false)
+  const [personSearchText, setPersonSearchText] = useState('')
+  const [shiftStart, setShiftStart] = useState('08:00')
+  const [shiftEnd, setShiftEnd] = useState('16:00')
+
+  useEffect(() => {
+    if (!playerPlaying) return
+    const speedMult: Record<string, number> = {
+      '0.5x': 0.5,
+      '1x': 1,
+      '2x': 2,
+      '4x': 4,
+      '8x': 8,
+    }
+    const mult = speedMult[playerSpeed] || 1
+    const interval = setInterval(() => {
+      setPlayerSeconds((prev) => {
+        if (prev >= 600) {
+          if (playerLoop) return 0
+          setPlayerPlaying(false)
+          return 600
+        }
+        return prev + 1
+      })
+    }, 1000 / mult)
+    return () => clearInterval(interval)
+  }, [playerPlaying, playerSpeed, playerLoop])
+
+  const formatPlayerTime = (totalSec: number) => {
+    const h = Math.floor(totalSec / 3600)
+    const m = Math.floor((totalSec % 3600) / 60)
+    const s = totalSec % 60
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  }
+
+  const filteredChecklist = useMemo(() => {
+    const q = personSearchText.trim().toLowerCase()
+    if (!q) return PERSONAL_CHECKLIST
+    return PERSONAL_CHECKLIST.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.sub.toLowerCase().includes(q)
+    )
+  }, [personSearchText])
 
   const rightColRef = useRef<HTMLDivElement>(null)
   const nexoMoreRef = useRef<HTMLDivElement>(null)
@@ -704,16 +855,121 @@ export default function App() {
         )}
 
         <aside className="glass panel">
-          <div
-            className="search"
-            onClick={() => setSearchOpen(true)}
-            role="button"
-            tabIndex={0}
-            style={{ cursor: 'pointer' }}
-            {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
-          >
-            <span>Buscar</span><small>Ctrl + K</small><Search size={14} />
-          </div>
+          {selectedUser ? (
+            <div className="user-detail-panel">
+              {/* Breadcrumb matching SMF - V2 - 9 */}
+              <div className="user-detail-breadcrumb">
+                <button
+                  className="user-back-btn"
+                  onClick={() => setSelectedUser(null)}
+                  title="Volver al panel principal"
+                >
+                  <ChevronLeft size={16} />
+                  <span>Inicio</span>
+                </button>
+                <span className="crumb-sep">/</span>
+                <span className="crumb-current">{selectedUser.name}</span>
+              </div>
+
+              {/* Title row */}
+              <div className="user-detail-header">
+                <h3 className="user-detail-name">{selectedUser.name}</h3>
+              </div>
+
+              {/* Action buttons */}
+              <div className="user-actions-row">
+                <button className="user-action-btn primary" onClick={() => {}}>
+                  <Crosshair size={14} />
+                  <span>Centrar en el mapa</span>
+                </button>
+                <button className="user-action-btn secondary" onClick={() => {}}>
+                  <span>Seguir usuario - Superficie</span>
+                </button>
+              </div>
+
+              {/* Detail Table */}
+              <div className="user-info-table">
+                <div className="info-row">
+                  <span className="info-key">Tipo</span>
+                  <span className="info-val">{selectedUser.type || selectedUser.role}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-key">Señal</span>
+                  <span className="info-val">
+                    <span className="user-status-pill online">
+                      <span className="dot" /> {selectedUser.status || 'En línea'}
+                    </span>
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="info-key">Última observación</span>
+                  <span className="info-val">{selectedUser.time || '00:25:00'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-key">Zona</span>
+                  <span className="info-val">{selectedUser.zone || selectedUser.area}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-key">Precisión del fix</span>
+                  <span className="info-val">{selectedUser.precision || '± 2.1 m'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-key">Recorrido reciente</span>
+                  <span className="info-val">{selectedUser.recent || '5 min'}</span>
+                </div>
+              </div>
+
+              {/* Petición de auxilio section (for Ana Torres or any user with alert) */}
+              {(selectedUser.alert || selectedUser.id === 'ana') && (
+                <div className="user-auxilio-section">
+                  <div className="auxilio-card">
+                    <div className="auxilio-header">
+                      <div className="auxilio-title-row">
+                        <span className="auxilio-accent" />
+                        <b>Petición de auxilio</b>
+                      </div>
+                      <span className="auxilio-badge-crit">Crítica</span>
+                    </div>
+
+                    <div className="auxilio-desc">
+                      Alerta activada por sensor de hombre caído
+                    </div>
+
+                    <div className="auxilio-tags">
+                      <span>Hombre caído</span>
+                      <span>Rampa Principal N2</span>
+                    </div>
+
+                    <div className="auxilio-actions">
+                      <button
+                        className={`auxilio-btn atender ${auxilioHandled ? 'done' : ''}`}
+                        onClick={() => setAuxilioHandled((v) => !v)}
+                      >
+                        {auxilioHandled ? 'Atendido' : 'Atender'}
+                      </button>
+                      <button
+                        className={`auxilio-btn resolver ${auxilioResolved ? 'done' : ''}`}
+                        onClick={() => setAuxilioResolved((v) => !v)}
+                      >
+                        {auxilioResolved ? 'Resuelto' : 'Resolver'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <div
+                className="search"
+                onClick={() => setSearchOpen(true)}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: 'pointer' }}
+                {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
+              >
+                <span>Buscar</span><small>Ctrl + K</small><Search size={14} />
+              </div>
 
           {/* 1. MODO DE VISUALIZACIÓN (SMF - V2 - 4) */}
           <div
@@ -933,6 +1189,15 @@ export default function App() {
                           <span>{id === 'evacuacion' && isExp ? 'Terminar evaluación' : cfg.label}</span>
                         </button>
                         <div className="track-row-actions">
+                          {id === 'recorrido' && (
+                            <button
+                              title={recorridoPlayerVisible ? 'Ocultar reproductor' : 'Mostrar reproductor'}
+                              onClick={() => setRecorridoPlayerVisible((v) => !v)}
+                              style={{ opacity: recorridoPlayerVisible ? 1 : 0.4 }}
+                            >
+                              <Eye size={17} />
+                            </button>
+                          )}
                           <button title="Quitar" onClick={() => removeTrackingItem(id)}>
                             <CircleMinus size={18} />
                           </button>
@@ -977,42 +1242,93 @@ export default function App() {
                             <span>Tramo del recorrido</span>
                             <b>Todo el turno</b>
                           </div>
-                          <div className="row">
-                            <button className="dd-trigger grow">
-                              <span>Inicio</span>
-                              <Calendar size={16} />
-                            </button>
-                            <button className="dd-trigger grow">
-                              <span>Fin</span>
-                              <Calendar size={16} />
-                            </button>
+                          <div className="row" style={{ position: 'relative' }}>
+                            <div style={{ flex: 1, position: 'relative' }}>
+                              <button
+                                className="dd-trigger grow"
+                                onClick={() => setDdOpen((d) => (d === 'shiftStart' ? null : 'shiftStart'))}
+                              >
+                                <span>Inicio: {shiftStart}</span>
+                                <Clock size={15} />
+                              </button>
+                              {ddOpen === 'shiftStart' && (
+                                <div className="dd-menu time-picker-menu">
+                                  {['06:00', '08:00', '10:00', '12:00'].map((t) => (
+                                    <button
+                                      key={t}
+                                      className={`dd-item ${shiftStart === t ? 'active' : ''}`}
+                                      onClick={() => { setShiftStart(t); setDdOpen(null) }}
+                                    >
+                                      <span>{t}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ flex: 1, position: 'relative' }}>
+                              <button
+                                className="dd-trigger grow"
+                                onClick={() => setDdOpen((d) => (d === 'shiftEnd' ? null : 'shiftEnd'))}
+                              >
+                                <span>Fin: {shiftEnd}</span>
+                                <Clock size={15} />
+                              </button>
+                              {ddOpen === 'shiftEnd' && (
+                                <div className="dd-menu time-picker-menu">
+                                  {['14:00', '16:00', '18:00', '20:00'].map((t) => (
+                                    <button
+                                      key={t}
+                                      className={`dd-item ${shiftEnd === t ? 'active' : ''}`}
+                                      onClick={() => { setShiftEnd(t); setDdOpen(null) }}
+                                    >
+                                      <span>{t}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
 
-                          <div className="recorrido-search-wrap">
+                          <div className="recorrido-search-wrap" style={{ position: 'relative' }}>
                             <button
                               className={`dd-trigger full ${ddOpen === 'personalSearch' ? 'active' : ''}`}
                               onClick={() => setDdOpen((d) => (d === 'personalSearch' ? null : 'personalSearch'))}
                             >
                               <Search size={16} />
-                              <span style={{ flex: 1 }}>Buscar personal</span>
+                              <span style={{ flex: 1, textAlign: 'left' }}>Buscar personal</span>
                               <ChevronDown size={16} />
                             </button>
 
-                            {/* SMF - V2 - 8 Popover: Multi-select checklist */}
+                            {/* SMF - V2 - 8 Popover: Multi-select checklist with search */}
                             {ddOpen === 'personalSearch' && (
                               <div className="dd-menu personal-checklist-menu">
+                                <div className="checklist-search-bar">
+                                  <Search size={14} className="checklist-search-icon" />
+                                  <input
+                                    type="text"
+                                    placeholder="Filtrar por nombre..."
+                                    value={personSearchText}
+                                    onChange={(e) => setPersonSearchText(e.target.value)}
+                                    className="checklist-input"
+                                    autoFocus
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
                                 <div className="checklist-head">
-                                  <span>{selectedCount}/12 SELECCIONADO</span>
+                                  <span>{selectedCount}/{PERSONAL_CHECKLIST.length} SELECCIONADO</span>
                                   <button onClick={() => setCheckedPeople({})}>QUITAR TODOS</button>
                                 </div>
                                 <div className="checklist-scroll">
-                                  {PERSONAL_CHECKLIST.map((p) => {
+                                  {filteredChecklist.map((p) => {
                                     const checked = !!checkedPeople[p.id]
                                     return (
                                       <button
                                         key={p.id}
                                         className="checklist-item"
-                                        onClick={() => setCheckedPeople((prev) => ({ ...prev, [p.id]: !prev[p.id] }))}
+                                        onClick={() => {
+                                          setCheckedPeople((prev) => ({ ...prev, [p.id]: !prev[p.id] }))
+                                        }}
                                       >
                                         {checked
                                           ? <CheckSquare size={18} className="chk-on" />
@@ -1031,7 +1347,12 @@ export default function App() {
 
                           <div className="personal-list">
                             {PERSONAL_RECORRIDO.map((p) => (
-                              <div key={p.name} className="zona-row">
+                              <div
+                                key={p.id}
+                                className="zona-row personal-clickable-row"
+                                onClick={() => setSelectedUser(p)}
+                                title="Ver detalle de usuario"
+                              >
                                 <span className="zona-bar neutral" />
                                 <div className="zona-info">
                                   <div className="zona-line1"><b>{p.name}</b></div>
@@ -1054,7 +1375,12 @@ export default function App() {
                         <div className="track-subpanel">
                           <div className="personal-list">
                             {PERSONAL_RECORRIDO.map((p) => (
-                              <div key={p.name} className="zona-row">
+                              <div
+                                key={p.id}
+                                className="zona-row personal-clickable-row"
+                                onClick={() => setSelectedUser(p)}
+                                title="Ver detalle de usuario"
+                              >
                                 <span className="zona-bar" style={{ background: '#2196f3' }} />
                                 <div className="zona-info">
                                   <div className="zona-line1"><b>{p.name}</b></div>
@@ -1212,8 +1538,157 @@ export default function App() {
             onToggle={() => toggle('seg')}
             onHover={showHelp('Demo de seguimiento', 'Ejercicios o modos demostrativos para pruebas de tracking y seguimiento operativo.')}
           />
+            </>
+          )}
         </aside>
       </div>
+
+      {/* SMF - V2 - 7 & SMF - V2 - 9 Floating Timeline Simulation Player */}
+      {activeTrackings.includes('recorrido') && recorridoPlayerVisible && (
+        <div className={`glass recorrido-player ${nexoOpen ? 'nexo-offset' : ''}`}>
+          {/* Top Row: Chips on left, Severity pills on right */}
+          <div className="player-row-top">
+            <div className="player-chips-left">
+              <span className="player-chip active">Simulación</span>
+              <span className="player-chip">Personal</span>
+              <span className="player-chip">Recorrido</span>
+              <span className="player-time-badge">
+                <Clock size={12} />
+                <span>{shiftStart} - {shiftEnd}</span>
+              </span>
+            </div>
+
+            <div className="player-severity-pills">
+              <span className="severity-title">Severidad:</span>
+              <button
+                className={`sev-pill all ${playerSeverityFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setPlayerSeverityFilter('all')}
+              >
+                Todas
+              </button>
+              <button
+                className={`sev-pill crit ${playerSeverityFilter === 'crit' ? 'active' : ''}`}
+                onClick={() => setPlayerSeverityFilter(playerSeverityFilter === 'crit' ? 'all' : 'crit')}
+              >
+                Crítica
+              </button>
+              <button
+                className={`sev-pill alert ${playerSeverityFilter === 'alert' ? 'active' : ''}`}
+                onClick={() => setPlayerSeverityFilter(playerSeverityFilter === 'alert' ? 'all' : 'alert')}
+              >
+                Alerta
+              </button>
+              <button
+                className={`sev-pill warn ${playerSeverityFilter === 'warn' ? 'active' : ''}`}
+                onClick={() => setPlayerSeverityFilter(playerSeverityFilter === 'warn' ? 'all' : 'warn')}
+              >
+                Aviso
+              </button>
+              <button
+                className={`sev-pill info ${playerSeverityFilter === 'info' ? 'active' : ''}`}
+                onClick={() => setPlayerSeverityFilter(playerSeverityFilter === 'info' ? 'all' : 'info')}
+              >
+                Info
+              </button>
+            </div>
+          </div>
+
+          {/* Controls Row: Play/Pause, Skip, Time display, Speed Multipliers, Loop, Bookmark */}
+          <div className="player-controls-row">
+            <div className="player-btn-group">
+              <button
+                className="player-icon-btn"
+                title="Retroceder 15s"
+                onClick={() => setPlayerSeconds((s) => Math.max(0, s - 15))}
+              >
+                <ChevronsLeft size={16} />
+              </button>
+              <button
+                className="player-icon-btn play-pause-btn"
+                title={playerPlaying ? 'Pausar' : 'Reproducir'}
+                onClick={() => setPlayerPlaying((p) => !p)}
+              >
+                {playerPlaying ? <Pause size={18} /> : <Play size={18} />}
+              </button>
+              <button
+                className="player-icon-btn"
+                title="Avanzar 15s"
+                onClick={() => setPlayerSeconds((s) => Math.min(28800, s + 15))}
+              >
+                <ChevronsRight size={16} />
+              </button>
+              <button
+                className="player-icon-btn"
+                title="Reiniciar"
+                onClick={() => setPlayerSeconds(0)}
+              >
+                <RotateCw size={15} />
+              </button>
+            </div>
+
+            <div className="player-time-display">
+              <span className="current-time">{formatPlayerTime(playerSeconds)}</span>
+              <span className="time-sep">/</span>
+              <span className="total-time">08:00:00</span>
+            </div>
+
+            <div className="player-speed-selector">
+              {(['0.5x', '1x', '2x', '4x', '8x'] as const).map((spd) => (
+                <button
+                  key={spd}
+                  className={`speed-btn ${playerSpeed === spd ? 'active' : ''}`}
+                  onClick={() => setPlayerSpeed(spd)}
+                >
+                  {spd}
+                </button>
+              ))}
+            </div>
+
+            <div className="player-extra-controls">
+              <button
+                className={`player-icon-btn ${playerLoop ? 'active' : ''}`}
+                title={playerLoop ? 'Bucle activado' : 'Activar bucle'}
+                onClick={() => setPlayerLoop((v) => !v)}
+              >
+                <Repeat size={15} />
+              </button>
+              <button
+                className={`player-icon-btn ${playerBookmarked ? 'active' : ''}`}
+                title={playerBookmarked ? 'Marcador guardado' : 'Guardar marcador'}
+                onClick={() => setPlayerBookmarked((v) => !v)}
+              >
+                <Bookmark size={15} />
+              </button>
+            </div>
+          </div>
+
+          {/* Timeline Bar with Event Dots */}
+          <div className="player-timeline-wrapper">
+            <div className="player-timeline-dots">
+              {TIMELINE_EVENT_DOTS.filter(
+                (d) => playerSeverityFilter === 'all' || d.type === playerSeverityFilter
+              ).map((d) => (
+                <span
+                  key={d.id}
+                  className={`timeline-dot dot-${d.type}`}
+                  style={{ left: `${d.pos}%` }}
+                  title={d.label}
+                  onClick={() => setPlayerSeconds(Math.round((d.pos / 100) * 28800))}
+                />
+              ))}
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={28800}
+              step={1}
+              value={playerSeconds}
+              onChange={(e) => setPlayerSeconds(+e.target.value)}
+              className="player-seekbar"
+            />
+          </div>
+        </div>
+      )}
 
       {/* SMF - V2 - 20 Nexo IA Right Drawer (340px wide, full height) */}
       {nexoOpen && (
