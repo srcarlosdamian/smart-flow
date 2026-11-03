@@ -10,9 +10,12 @@ import {
   EllipsisVertical, Ellipsis, TextAlignStart, Pin, PictureInPicture2, SquareArrowOutUpRight,
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
-  Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Eye, Calendar,
+  Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
+  BarChart3, Magnet, X,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
+import DiagramView from './DiagramView'
+import SurfaceView from './SurfaceView'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
 
@@ -168,19 +171,33 @@ const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; co
 ]
 
 const ZONAS_DATA = [
-  { title: 'Nivel 3', sub: 'Chancador', status: 'Restringida', color: '#f44336', alert: 1, ratio: '1/3' },
-  { title: 'Refugio', sub: 'R-01', status: 'Refugio', color: '#2196f3', alert: 2, ratio: '2/16' },
-  { title: 'Nivel 5', sub: 'Sala de bombeo', status: 'Restringida', color: '#f44336', alert: 2, ratio: '2/4' },
-  { title: 'Nivel 7', sub: 'Frente de voladura', status: 'Peligrosa', color: '#f44336', alert: 1, ratio: '1/4' },
-  { title: 'Refugio', sub: 'R-04', status: 'Refugio', color: '#2196f3', alert: 1, ratio: '1/16' },
-  { title: 'Rampa', sub: 'principal', status: 'Operativa', color: '#2196f3', ratio: '3/14' },
-  { title: 'Nivel 1', sub: 'Galeria norte', status: 'Operativa', color: '#2196f3', ratio: '0/10' },
-  { title: 'Nivel 2', sub: 'Taller mecanico', status: 'Operativa', color: '#2196f3', ratio: '2/8' },
-  { title: 'Nivel 2', sub: 'Frente de avance', status: 'Operativa', color: '#2196f3', ratio: '2/6' },
-  { title: 'Nivel 3', sub: 'Frente de voladura', status: 'Peligrosa', color: '#f44336', ratio: '0/4' },
-  { title: 'Refugio', sub: 'R-02', status: 'Refugio', color: '#2196f3', ratio: '1/16' },
-  { title: 'Nivel 4', sub: 'Galeria principal', status: 'Operativa', color: '#2196f3', ratio: '0/10' },
-  { title: 'Nivel 4', sub: 'Frente de avance', status: 'Operativa', color: '#2196f3', ratio: '0/6' },
+  { id: 'z1', title: 'Nivel 3', sub: 'Chancador', status: 'Restringida', color: '#f44336', alert: 1, ratio: '1/3', ext: '51 tramos', nivel: 'N03', vehicles: ['Camion T-03', 'Scoop ST-02'] },
+  { id: 'z2', title: 'Rampa', sub: 'principal', status: 'Operativa', color: '#2196f3', ratio: '3/14', ext: '85 tramos', nivel: 'N01-N04', vehicles: ['Camion T-01', 'Camioneta C-04'] },
+  { id: 'z3', title: 'Nivel 1', sub: 'Galeria norte', status: 'Operativa', color: '#2196f3', ratio: '0/10', ext: '42 tramos', nivel: 'N01', vehicles: [] },
+  { id: 'z4', title: 'Nivel 2', sub: 'Taller mecanico', status: 'Operativa', color: '#2196f3', ratio: '2/8', ext: '38 tramos', nivel: 'N02', vehicles: ['Scoop ST-01'] },
+  { id: 'z5', title: 'Nivel 2', sub: 'Frente de avance', status: 'Operativa', color: '#2196f3', ratio: '2/6', ext: '29 tramos', nivel: 'N02', vehicles: ['Jumbo J-01'] },
+  { id: 'z6', title: 'Nivel 3', sub: 'Frente de voladura', status: 'Peligrosa', color: '#f44336', ratio: '0/4', ext: '34 tramos', nivel: 'N03', vehicles: [] },
+  { id: 'z7', title: 'Refugio', sub: 'R-02', status: 'Refugio', color: '#2196f3', ratio: '1/16', ext: '12 tramos', nivel: 'N02', vehicles: [] },
+  { id: 'z8', title: 'Nivel 4', sub: 'Galeria principal', status: 'Operativa', color: '#2196f3', ratio: '0/10', ext: '60 tramos', nivel: 'N04', vehicles: [] },
+  { id: 'z9', title: 'Nivel 4', sub: 'Frente de avance', status: 'Operativa', color: '#2196f3', ratio: '0/6', ext: '22 tramos', nivel: 'N04', vehicles: [] },
+]
+
+export interface SimulationItem {
+  id: string
+  label: string
+  category: 'VENTILACIÓN' | 'ENERGÍA' | 'COMUNICACIONES' | 'SEGURIDAD' | 'PERSONAL'
+  icon: typeof Wind
+  color: string
+}
+
+const SIMULATION_CATALOG: SimulationItem[] = [
+  { id: 'aire', label: 'Flujo de aire', category: 'VENTILACIÓN', icon: Wind, color: '#03a9f4' },
+  { id: 'calor', label: 'Mapa de calor', category: 'VENTILACIÓN', icon: Flame, color: '#ff5722' },
+  { id: 'energia', label: 'Flujo de energía', category: 'ENERGÍA', icon: Zap, color: '#fbc02d' },
+  { id: 'red', label: 'Flujo de red', category: 'COMUNICACIONES', icon: Wifi, color: '#7c4dff' },
+  { id: 'geocercas', label: 'Geocercas', category: 'SEGURIDAD', icon: MapPin, color: '#f44336' },
+  { id: 'sismicas', label: 'Vibraciones sísmicas', category: 'SEGURIDAD', icon: Activity, color: '#e91e63' },
+  { id: 'personal', label: 'Movimiento de personal', category: 'PERSONAL', icon: Users, color: '#00bfa5' },
 ]
 
 export interface PersonalItem {
@@ -196,6 +213,24 @@ export interface PersonalItem {
   precision?: string
   recent?: string
 }
+
+export interface VehicleDetailItem {
+  name: string
+  type: string
+  zone: string
+  level: string
+  precision: string
+  time?: string
+  recent?: string
+}
+
+export type SidebarView =
+  | null
+  | { type: 'user'; data: PersonalItem }
+  | { type: 'escenario_condiciones' }
+  | { type: 'escenario_comparacion' }
+  | { type: 'zona_detail'; data: (typeof ZONAS_DATA)[0] }
+  | { type: 'vehicle_detail'; data: VehicleDetailItem }
 
 const PERSONAL_RECORRIDO: PersonalItem[] = [
   {
@@ -333,14 +368,44 @@ export default function App() {
     onMouseLeave: () => setHelpInfo(null),
   })
 
+  // Navigation & Sub-views in Sidebar
+  const [sidebarView, setSidebarView] = useState<SidebarView>(null)
+  const setSelectedUser = (u: PersonalItem | null) => setSidebarView(u ? { type: 'user', data: u } : null)
+  const [recorridoPlayerVisible] = useState(true)
+
   // TRACKING state (SMF - V2 - 5 / 6 / 7 / 8)
-  const [activeTrackings, setActiveTrackings] = useState<TrackingType[]>([])
-  const [expandedTrack, setExpandedTrack] = useState<Record<string, boolean>>({})
+  const [activeTrackings, setActiveTrackings] = useState<TrackingType[]>(['recorrido', 'zonas', 'escenario'])
+  const [expandedTrack, setExpandedTrack] = useState<Record<string, boolean>>({ recorrido: true, zonas: true, escenario: true })
   const [checkedPeople, setCheckedPeople] = useState<Record<string, boolean>>({ '3': true, '4': true })
 
+  // SIMULACIONES state (SMF - V2)
+  const [activeSimulations, setActiveSimulations] = useState<string[]>([
+    'aire', 'calor', 'energia', 'red', 'geocercas', 'sismicas', 'personal'
+  ])
+
+  // Escenario alterno state
+  const [escenarioCierres, setEscenarioCierres] = useState<string[]>(['Nivel 2 - Taller mecanico', 'Frente de voladura'])
+  const [escenarioRefugios, setEscenarioRefugios] = useState<string[]>(['Refugio R01', 'Refugio R02'])
+  const [escenarioFueraTurno, setEscenarioFueraTurno] = useState<string[]>(['Miguel Torres', 'Juan Garcia'])
+  const [escenarioPuntos, setEscenarioPuntos] = useState({ n01: true, n04: true, n07: true })
+  const [escenarioDensidad, setEscenarioDensidad] = useState<Record<string, number>>({
+    'Rampa principal': 1,
+    'Nivel 1 - Galeria norte': 1,
+    'Nivel 2 - Taller mecanico': 0,
+    'Nivel 2 - Frente de avance': 0,
+    'Nivel 3 - Frente de voladura': 0,
+    'Nivel 3 - Chancador': 0,
+    'Refugio R-01': 0,
+  })
+  const [escenarioMinuto10, setEscenarioMinuto10] = useState(true)
+  const [escenarioSlider, setEscenarioSlider] = useState(25)
+
+  // Vehicle auxilio state
+  const [auxilioTab, setAuxilioTab] = useState<'sin_resolver' | 'resueltas'>('sin_resolver')
+  const [auxilioAddOpen, setAuxilioAddOpen] = useState(false)
+  const [vehicleAuxilios, setVehicleAuxilios] = useState<string[]>(['Hombre caído', 'Coacción', 'SOS'])
+
   // Recorrido Player & Detail state (SMF - V2 - 7, 8, 9)
-  const [selectedUser, setSelectedUser] = useState<PersonalItem | null>(null)
-  const [recorridoPlayerVisible, setRecorridoPlayerVisible] = useState(true)
   const [playerPlaying, setPlayerPlaying] = useState(false)
   const [playerSeconds, setPlayerSeconds] = useState(4)
   const [playerSpeed, setPlayerSpeed] = useState<'0.5x' | '1x' | '2x' | '4x' | '8x'>('1x')
@@ -434,6 +499,16 @@ export default function App() {
 
   const removeTrackingItem = (id: TrackingType) => {
     setActiveTrackings((prev) => prev.filter((item) => item !== id))
+  }
+
+  const addSimulationItem = (id: string) => {
+    setActiveSimulations((prev) => (prev.includes(id) ? prev : [...prev, id]))
+    setOpen((prev) => ({ ...prev, sim: true }))
+    setDdOpen(null)
+  }
+
+  const removeSimulationItem = (id: string) => {
+    setActiveSimulations((prev) => prev.filter((item) => item !== id))
   }
 
   const sendNexoMessage = (text: string) => {
@@ -556,7 +631,24 @@ export default function App() {
 
   return (
     <div className={`app ${nexoOpen ? 'nexo-open' : ''}`} data-theme={theme}>
-      <Scene3D mode={mode} zoom={zoom} theme={theme} onZoomChange={setZoom} />
+      {selectedProj === '3D - Superficie' ? (
+        <SurfaceView
+          theme={theme}
+          onClose={() => {
+            setSelectedProj('3D - Perspectiva')
+            setMode('perspective')
+          }}
+        />
+      ) : selectedProj === '2D - Diagrama de planta' ? (
+        <DiagramView theme={theme} zoom={zoom} onZoomChange={setZoom} />
+      ) : (
+        <Scene3D
+          mode={selectedProj === '2D - Vista superior' ? 'top' : mode}
+          zoom={zoom}
+          theme={theme}
+          onZoomChange={setZoom}
+        />
+      )}
 
       <header className="glass topbar">
         <button
@@ -612,115 +704,160 @@ export default function App() {
       </header>
 
       {/* Left vertical sidebar from SMF - V2 - 3 / 17 */}
-      <nav className="glass sidebar">
-        <button
-          className="icon-btn"
-          onClick={() => setZoom(clamp(zoom + 10))}
-          {...showHelp('Acercar vista', 'Incrementa la escala de acercamiento sobre el modelo del gemelo digital en 3D/2D.')}
-        >
-          <ZoomIn size={20} />
-        </button>
-        <button
-          className="icon-btn"
-          onClick={() => setZoom(clamp(zoom - 10))}
-          {...showHelp('Alejar vista', 'Reduce la escala de visualización para obtener una vista general del entorno minero.')}
-        >
-          <ZoomOut size={20} />
-        </button>
-        <hr />
-        <button
-          className={`icon-btn ${mode === 'top' ? 'active' : ''}`}
-          onClick={() => setMode('top')}
-          {...showHelp('Vista (Superior)', 'Permite alternar y configurar las perspectivas y modos de visualización del gemelo digital en 2D/planta.')}
-        >
-          <SquareArrowUp size={20} />
-        </button>
-        <button
-          className={`icon-btn ${mode === 'perspective' ? 'active' : ''}`}
-          onClick={() => setMode('perspective')}
-          {...showHelp('Vista (3D Perspectiva)', 'Permite alternar y configurar las perspectivas y modos de visualización del gemelo digital en 3D/2D.')}
-        >
-          <Box size={20} />
-        </button>
-        <button
-          className={`icon-btn ${mode === 'isometric' ? 'active' : ''}`}
-          onClick={() => setMode('isometric')}
-          {...showHelp('Vista (Isométrica)', 'Proyección técnica isométrica para inspeccionar niveles, rampas y galerías sin distorsión.')}
-        >
-          <SquareArrowRight size={20} />
-        </button>
-        <button
-          className={`icon-btn ${activeTool === 'select' ? 'active' : ''}`}
-          onClick={() => setActiveTool('select')}
-          {...showHelp('Interiores', 'Gestión y visualización detallada de espacios cerrados, refugios y talleres.')}
-        >
-          <SquareMousePointer size={20} />
-        </button>
-        <hr />
-        <button
-          className="icon-btn"
-          onClick={() => { setZoom(50); setMode('perspective') }}
-          {...showHelp('Motor de Gemelo Digital', 'Restablece la cámara principal del núcleo de representación virtual 3D de la infraestructura minera.')}
-        >
-          <Fullscreen size={20} />
-        </button>
-        <hr />
-        <button
-          className="icon-btn"
-          {...showHelp('Motor de Flujo de Datos', 'Gestión y procesamiento en tiempo real de la telemetría e información de sensores.')}
-        >
-          <Upload size={20} />
-        </button>
-        <hr />
-        <button
-          className={`icon-btn ${activeTool === 'ruler' ? 'active' : ''}`}
-          onClick={() => setActiveTool('ruler')}
-          {...showHelp('Ingeniería', 'Acceso a las capas estructurales, niveles, rampas, cotas y parámetros técnicos del diseño de la mina.')}
-        >
-          <RulerDimensionLine size={20} />
-        </button>
-        <button
-          className={`icon-btn ${activeTool === 'diamond' ? 'active' : ''}`}
-          onClick={() => setActiveTool('diamond')}
-          {...showHelp('Demo de seguimiento', 'Ejercicios o modos demostrativos para pruebas de tracking y puntos de control en interior mina.')}
-        >
-          <Diamond size={20} />
-        </button>
-        <button
-          className={`icon-btn ${activeTool === 'cable' ? 'active' : ''}`}
-          onClick={() => setActiveTool('cable')}
-          {...showHelp('Motor de Blueprints', 'Gestión de planos, esquemas, redes de conexión y diseños técnicos originales.')}
-        >
-          <Cable size={20} />
-        </button>
-        <button
-          className={`icon-btn ${activeTool === 'light' ? 'active' : ''}`}
-          onClick={() => setActiveTool('light')}
-          {...showHelp('Motor de Provisión de Dispositivos', 'Configuración, alta y administración del hardware y luminarias instaladas en terreno.')}
-        >
-          <Lightbulb size={20} />
-        </button>
-        <button
-          className={`icon-btn ${activeTool === 'wrench' ? 'active' : ''}`}
-          onClick={() => setActiveTool('wrench')}
-          {...showHelp('Operaciones', 'Módulos principales para gestionar Exploración, Planificación, Operaciones Mina, Planta, HSEC y Servicios de Sitio.')}
-        >
-          <Wrench size={20} />
-        </button>
-        <hr />
-        <button
-          className="icon-btn"
-          {...showHelp('Deshacer', 'Revierte la última acción realizada sobre la vista o herramientas de ingeniería.')}
-        >
-          <Undo2 size={20} />
-        </button>
-        <button
-          className="icon-btn"
-          {...showHelp('Rehacer', 'Restaura la acción previamente deshecha en el entorno de trabajo.')}
-        >
-          <Redo2 size={20} />
-        </button>
-      </nav>
+      {selectedProj !== '3D - Superficie' && (
+        <nav className="glass sidebar">
+          <button
+            className="icon-btn"
+            onClick={() => setZoom(clamp(zoom + 10))}
+            {...showHelp('Acercar vista', 'Incrementa la escala de acercamiento sobre el modelo del gemelo digital en 3D/2D.')}
+          >
+            <ZoomIn size={20} />
+          </button>
+          <button
+            className="icon-btn"
+            onClick={() => setZoom(clamp(zoom - 10))}
+            {...showHelp('Alejar vista', 'Reduce la escala de visualización para obtener una vista general del entorno minero.')}
+          >
+            <ZoomOut size={20} />
+          </button>
+          <hr />
+          <button
+            className={`icon-btn ${activeTool === 'level-up' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'level-up' ? '' : 'level-up')}
+            {...showHelp('Flecha arriba', 'Permite elevar o cambiar de nivel/piso en la visualización vertical de la mina.')}
+          >
+            <SquareArrowUp size={20} />
+          </button>
+          <button
+            className={`icon-btn ${mode === 'perspective' ? 'active' : ''}`}
+            onClick={() => { setSelectedProj('3D - Perspectiva'); setMode('perspective') }}
+            {...showHelp('Cubo', 'Alterna o ajusta la vista de volúmenes 3D y geometrías de los modelos.')}
+          >
+            <Box size={20} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'shift' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'shift' ? '' : 'shift')}
+            {...showHelp('Flecha derecha', 'Desplaza la selección o cambia entre vistas/secciones adyacentes.')}
+          >
+            <SquareArrowRight size={20} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'select' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'select' ? '' : 'select')}
+            {...showHelp('Cuadros punteados (delimitadores)', 'Seleccionan áreas de interés, bounding boxes o zonas de recorte para aislar sectores.')}
+          >
+            <SquareMousePointer size={20} />
+          </button>
+          <hr />
+          <button
+            className="icon-btn"
+            onClick={() => {}}
+            {...showHelp('Flecha hacia arriba saliente', 'Exporta o sube configuraciones, capas o elementos personalizados a la plataforma.')}
+          >
+            <Fullscreen size={20} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'network' ? 'active' : ''}`}
+            onClick={() => { setSelectedProj('2D - Diagrama de planta') }}
+            {...showHelp('Nodos conectados (Red)', 'Muestra u optimiza la topología de red, rutas de evacuación o conexiones estructurales.')}
+          >
+            <Workflow size={20} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'sim-lab' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'sim-lab' ? '' : 'sim-lab')}
+            {...showHelp('Matraz', 'Activa herramientas de simulación (como flujos, pruebas ambientales o análisis químicos/técnicos).')}
+          >
+            <FlaskConical size={20} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'wrench-left' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'wrench-left' ? '' : 'wrench-left')}
+            {...showHelp('Llave inglesa', 'Acceso rápido a herramientas de ajuste o propiedades del sistema seleccionado.')}
+          >
+            <Wrench size={20} />
+          </button>
+        </nav>
+      )}
+
+      {/* Floating Bottom Toolbar (Herramientas de medición, análisis y edición rápida) */}
+      {selectedProj !== '3D - Superficie' && (
+        <div className="bottom-tools-bar glass">
+          <button
+            className={`icon-btn ${activeTool === 'ruler' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'ruler' ? '' : 'ruler')}
+            {...showHelp('Regla', 'Mide distancias, longitudes o cotas directamente sobre el plano o modelo.')}
+          >
+            <RulerDimensionLine size={19} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'diamond' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'diamond' ? '' : 'diamond')}
+            {...showHelp('Formas geométricas (Cubo/Prisma)', 'Permite insertar o gestionar volúmenes y elementos geométricos en la escena.')}
+          >
+            <Diamond size={19} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'cable' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'cable' ? '' : 'cable')}
+            {...showHelp('Cable/Conector', 'Gestiona o visualiza las conexiones de servicios, redes o cableado eléctrico.')}
+          >
+            <Cable size={19} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'light' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'light' ? '' : 'light')}
+            {...showHelp('Foco', 'Controla la iluminación de la escena o la activación de luces auxiliares.')}
+          >
+            <Lightbulb size={19} />
+          </button>
+          <button
+            className="icon-btn"
+            onClick={() => {}}
+            {...showHelp('Descarga', 'Exporta datos, reportes o capturas del estado actual del visor.')}
+          >
+            <Upload size={19} />
+          </button>
+          <hr />
+          <button
+            className={`icon-btn ${activeTool === 'stats' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'stats' ? '' : 'stats')}
+            {...showHelp('Gráfica de barras', 'Muestra métricas, estadísticas o paneles analíticos rápidos del sector activo.')}
+          >
+            <BarChart3 size={19} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'magnet' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'magnet' ? '' : 'magnet')}
+            {...showHelp('Imán (Snapping)', 'Activa el ajuste automático a vértices, rejillas o ejes para alinear elementos con precisión.')}
+          >
+            <Magnet size={19} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'wrench-bottom' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => t === 'wrench-bottom' ? '' : 'wrench-bottom')}
+            {...showHelp('Llave inglesa', 'Abre las opciones de configuración, herramientas avanzadas o parámetros técnicos.')}
+          >
+            <Wrench size={19} />
+          </button>
+          <hr />
+          <button
+            className="icon-btn"
+            onClick={() => {}}
+            {...showHelp('Deshacer', 'Revierte la última acción realizada.')}
+          >
+            <Undo2 size={19} />
+          </button>
+          <button
+            className="icon-btn"
+            onClick={() => {}}
+            {...showHelp('Rehacer', 'Vuelve a aplicar la última acción realizada.')}
+          >
+            <Redo2 size={19} />
+          </button>
+        </div>
+      )}
 
       {/* Right column */}
       <div className="right-col" ref={rightColRef}>
@@ -795,13 +932,13 @@ export default function App() {
         )}
 
         <aside className={`glass panel ${ddOpen ? 'has-dropdown-open' : ''}`}>
-          {selectedUser ? (
+          {sidebarView?.type === 'user' ? (
             <div className="user-detail-panel">
               {/* Header / Breadcrumb row matching Figma SMF - V2 - 9 & screenshot */}
               <div className="user-detail-topbar">
                 <button
                   className="user-top-back-btn"
-                  onClick={() => setSelectedUser(null)}
+                  onClick={() => setSidebarView(null)}
                   title="Volver"
                   aria-label="Volver"
                 >
@@ -809,7 +946,7 @@ export default function App() {
                 </button>
                 <div className="user-top-crumb">
                   <span className="crumb-prefix">Inicio / </span>
-                  <span className="crumb-name">{selectedUser.name}</span>
+                  <span className="crumb-name">{sidebarView.data.name}</span>
                 </div>
                 <button
                   className="user-top-search-btn"
@@ -822,7 +959,7 @@ export default function App() {
               </div>
 
               {/* User title */}
-              <h2 className="user-detail-title">{selectedUser.name}</h2>
+              <h2 className="user-detail-title">{sidebarView.data.name}</h2>
 
               {/* Action buttons */}
               <div className="user-action-buttons">
@@ -831,7 +968,7 @@ export default function App() {
                   <span>Centrar en el mapa</span>
                 </button>
                 <button className="user-action-btn">
-                  <span>Seguir usuario - {selectedUser.area || 'Superficie'}</span>
+                  <span>Seguir usuario - {sidebarView.data.area || 'Superficie'}</span>
                 </button>
               </div>
 
@@ -839,29 +976,29 @@ export default function App() {
               <div className="user-info-list">
                 <div className="user-info-row">
                   <span className="info-label">Tipo</span>
-                  <span className="info-value bold">{selectedUser.type || selectedUser.role}</span>
+                  <span className="info-value bold">{sidebarView.data.type || sidebarView.data.role}</span>
                 </div>
                 <div className="user-info-row">
                   <span className="info-label">Señal</span>
                   <span className="info-value">
-                    <span className="user-signal-badge online">{selectedUser.status || 'En línea'}</span>
+                    <span className="user-signal-badge online">{sidebarView.data.status || 'En línea'}</span>
                   </span>
                 </div>
                 <div className="user-info-row">
                   <span className="info-label">Última observación</span>
-                  <span className="info-value bold">{selectedUser.time || '00:25:00'}</span>
+                  <span className="info-value bold">{sidebarView.data.time || '00:25:00'}</span>
                 </div>
                 <div className="user-info-row">
                   <span className="info-label">Zona</span>
-                  <span className="info-value bold text-right">{selectedUser.zone || 'Fuera de zonas monitoreadas'}</span>
+                  <span className="info-value bold text-right">{sidebarView.data.zone || 'Fuera de zonas monitoreadas'}</span>
                 </div>
                 <div className="user-info-row">
                   <span className="info-label">Precisión del fix</span>
-                  <span className="info-value bold">{selectedUser.precision || '± 2.1 m'}</span>
+                  <span className="info-value bold">{sidebarView.data.precision || '± 2.1 m'}</span>
                 </div>
                 <div className="user-info-row">
                   <span className="info-label">Recorrido reciente</span>
-                  <span className="info-value bold">{selectedUser.recent || '5 min'}</span>
+                  <span className="info-value bold">{sidebarView.data.recent || '5 min'}</span>
                 </div>
               </div>
 
@@ -922,6 +1059,562 @@ export default function App() {
                       {auxilioResolved ? 'Resuelto' : 'Resolver'}
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+          ) : sidebarView?.type === 'escenario_condiciones' ? (
+            /* SMF - V2: Condiciones del escenario */
+            <div className="escenario-panel">
+              <div className="user-detail-topbar">
+                <button
+                  className="user-top-back-btn"
+                  onClick={() => setSidebarView(null)}
+                  title="Volver"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div className="user-top-crumb">
+                  <span className="crumb-prefix">Inicio / </span>
+                  <span className="crumb-name">Condiciones del escen...</span>
+                </div>
+                <button className="user-top-search-btn" onClick={() => setSearchOpen(true)}>
+                  <Search size={18} />
+                </button>
+              </div>
+
+              <h2 className="user-detail-title">Condiciones del escenario</h2>
+              <div className="row between status-banner-row">
+                <span className="field-label">Estatus</span>
+                <span className="status-badge-unapplied">Sin aplicar</span>
+              </div>
+
+              {/* CIERRES */}
+              <div className="esc-section-block">
+                <div className="esc-block-title">CIERRES</div>
+                <button className="dd-trigger full">
+                  <Search size={16} />
+                  <span style={{ flex: 1, textAlign: 'left' }}>Zonas cerradas</span>
+                  <ChevronDown size={16} />
+                </button>
+                <small className="esc-hint">Cierra el paso en esta área. Los trabajadores deberán tomar un desvío o se quedarán sin salida</small>
+                <div className="esc-tag-list">
+                  {escenarioCierres.map((c, i) => (
+                    <div key={i} className="esc-tag-item">
+                      <span className="esc-tag-bar" />
+                      <span className="esc-tag-text">{c}</span>
+                      <button onClick={() => setEscenarioCierres((prev) => prev.filter((_, idx) => idx !== i))}><X size={14} /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* PUNTOS DE REUNIÓN */}
+              <div className="esc-section-block">
+                <div className="esc-block-title">PUNTOS DE REUNIÓN</div>
+                {[
+                  { key: 'n01', label: 'Punto de encuentro N01' },
+                  { key: 'n04', label: 'Punto de encuentro N04' },
+                  { key: 'n07', label: 'Punto de encuentro N07' },
+                ].map(({ key, label }) => (
+                  <div key={key} className="row between switch-row-esc" onClick={() => setEscenarioPuntos((p) => ({ ...p, [key]: !p[key as keyof typeof p] }))}>
+                    <span>{label}</span>
+                    <span className={`mui-switch ${escenarioPuntos[key as keyof typeof escenarioPuntos] ? 'checked' : ''}`}>
+                      <span className="mui-switch-track" />
+                      <span className="mui-switch-thumb" />
+                    </span>
+                  </div>
+                ))}
+                <button className="dd-trigger full" style={{ marginTop: 8 }}>
+                  <Search size={16} />
+                  <span style={{ flex: 1, textAlign: 'left' }}>Habilitar como refugio</span>
+                  <ChevronDown size={16} />
+                </button>
+                <small className="esc-hint">Mover un refugio fuera de su área contará al personal en la zona vecina</small>
+                <div className="esc-tag-list">
+                  {escenarioRefugios.map((r, i) => (
+                    <div key={i} className="esc-tag-item">
+                      <span className="esc-tag-bar" />
+                      <span className="esc-tag-text">{r}</span>
+                      <button onClick={() => setEscenarioRefugios((prev) => prev.filter((_, idx) => idx !== i))}><X size={14} /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* TURNO */}
+              <div className="esc-section-block">
+                <div className="esc-block-title">TURNO</div>
+                <button className="dd-trigger full">
+                  <Search size={16} />
+                  <span style={{ flex: 1, textAlign: 'left' }}>Fuera del turno</span>
+                  <ChevronDown size={16} />
+                </button>
+                <div className="esc-tag-list" style={{ marginTop: 6 }}>
+                  {escenarioFueraTurno.map((p, i) => (
+                    <div key={i} className="esc-tag-item">
+                      <span className="esc-tag-bar" />
+                      <span className="esc-tag-text">{p}</span>
+                      <button onClick={() => setEscenarioFueraTurno((prev) => prev.filter((_, idx) => idx !== i))}><X size={14} /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* DENSIDAD POR ÁREA */}
+              <div className="esc-section-block">
+                <div className="esc-block-title">DENSIDAD POR ÁREA</div>
+                {Object.entries(escenarioDensidad).map(([area, val]) => (
+                  <div key={area} className="row between density-row">
+                    <span className="density-label">{area}</span>
+                    <div className="density-stepper">
+                      <button onClick={() => setEscenarioDensidad((p) => ({ ...p, [area]: Math.max(0, p[area] - 1) }))}>
+                        <Minus size={14} />
+                      </button>
+                      <span className="density-val">{val}</span>
+                      <button onClick={() => setEscenarioDensidad((p) => ({ ...p, [area]: p[area] + 1 }))}>
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* DENSIDAD DE LA EVACUACIÓN */}
+              <div className="esc-section-block">
+                <div className="esc-block-title">DENSIDAD DE LA EVACUACIÓN</div>
+                <div className="row between switch-row-esc" onClick={() => setEscenarioMinuto10((v) => !v)}>
+                  <span>Declarar minuto 10</span>
+                  <span className={`mui-switch ${escenarioMinuto10 ? 'checked' : ''}`}>
+                    <span className="mui-switch-track" />
+                    <span className="mui-switch-thumb" />
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={60}
+                  value={escenarioSlider}
+                  onChange={(e) => setEscenarioSlider(+e.target.value)}
+                  style={{ width: '100%', marginTop: 8 }}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="esc-actions-wrap">
+                <button
+                  className="esc-primary-btn"
+                  onClick={() => setSidebarView({ type: 'escenario_comparacion' })}
+                >
+                  Aplicar y comparar
+                </button>
+                <div className="row gap-2" style={{ marginTop: 8 }}>
+                  <button className="esc-secondary-btn flex-1" onClick={() => {}}>Limpiar</button>
+                  <button className="esc-secondary-btn flex-1" onClick={() => setSidebarView(null)}>Descartar</button>
+                </div>
+              </div>
+            </div>
+          ) : sidebarView?.type === 'escenario_comparacion' ? (
+            /* SMF - V2: Comparación */
+            <div className="escenario-panel">
+              <div className="user-detail-topbar">
+                <button
+                  className="user-top-back-btn"
+                  onClick={() => setSidebarView({ type: 'escenario_condiciones' })}
+                  title="Volver"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div className="user-top-crumb">
+                  <span className="crumb-prefix">Inicio / Condicio... / </span>
+                  <span className="crumb-name">Compara...</span>
+                </div>
+                <button className="user-top-search-btn" onClick={() => setSearchOpen(true)}>
+                  <Search size={18} />
+                </button>
+              </div>
+
+              <h2 className="user-detail-title">Comparación</h2>
+              <button className="esc-primary-btn" style={{ marginBottom: 8 }} onClick={() => {}}>
+                Volver a medir
+              </button>
+              <button
+                className="esc-secondary-btn full"
+                style={{ marginBottom: 14 }}
+                onClick={() => setSidebarView({ type: 'escenario_condiciones' })}
+              >
+                Editar condiciones
+              </button>
+
+              <div className="esc-block-title">INDICADORES CLAVE</div>
+              <div className="comp-card-list">
+                <div className="comp-card red-bar">
+                  <b className="comp-card-title">Tiempo de despeje</b>
+                  <div className="comp-grid-2">
+                    <div><small>Base</small><p>No despejó</p></div>
+                    <div><small>Escenario</small><p>No despejó</p></div>
+                  </div>
+                  <span className="comp-note">No comparable: alguna corrida no despejó</span>
+                </div>
+
+                <div className="comp-card green-bar">
+                  <b className="comp-card-title">Personas sin contabilizar</b>
+                  <div className="comp-grid-2">
+                    <div><small>Base</small><p>35</p></div>
+                    <div><small>Escenario</small><p>12</p></div>
+                  </div>
+                  <span className="comp-note green">23 personas menos</span>
+                </div>
+
+                <div className="comp-card green-bar">
+                  <b className="comp-card-title">Equipo sin contabilizar</b>
+                  <div className="comp-grid-2">
+                    <div><small>Base</small><p>10</p></div>
+                    <div><small>Escenario</small><p>6</p></div>
+                  </div>
+                  <span className="comp-note green">4 equipos menos</span>
+                </div>
+
+                <div className="comp-card green-bar">
+                  <b className="comp-card-title">Reglas incumplidas</b>
+                  <div className="comp-grid-2">
+                    <div><small>Base</small><p>18</p></div>
+                    <div><small>Escenario</small><p>14</p></div>
+                  </div>
+                  <span className="comp-note green">4 incumplimientos menos</span>
+                </div>
+              </div>
+
+              <div className="esc-block-title" style={{ marginTop: 14 }}>CONGESTIÓN POR ZONA</div>
+              <div className="comp-card-list">
+                {[
+                  { name: 'Punto de encuentro N04', max: '15 personas más' },
+                  { name: 'Refugio R-02', max: '3 personas más' },
+                  { name: 'Nivel 1 - Galeria norte', max: '2 personas más' },
+                  { name: 'Rampa principal', max: '5 personas más' },
+                ].map((item, idx) => (
+                  <div key={idx} className="comp-congestion-card">
+                    <b className="comp-card-title">{item.name}</b>
+                    <div className="comp-grid-2">
+                      <div><small>Ocupación Máxi...</small><p>{item.max}</p></div>
+                      <div><small>Sobre Capacidad</small><p>Sin cambio</p></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : sidebarView?.type === 'zona_detail' ? (
+            /* SMF - V2: Zona Detail */
+            <div className="zona-detail-panel">
+              <div className="user-detail-topbar">
+                <button
+                  className="user-top-back-btn"
+                  onClick={() => setSidebarView(null)}
+                  title="Volver"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div className="user-top-crumb">
+                  <span className="crumb-prefix">Inicio / </span>
+                  <span className="crumb-name">{sidebarView.data.title}</span>
+                </div>
+                <button className="user-top-search-btn" onClick={() => setSearchOpen(true)}>
+                  <Search size={18} />
+                </button>
+              </div>
+
+              <h2 className="user-detail-title">{sidebarView.data.title} - {sidebarView.data.sub}</h2>
+              <button className="user-action-btn" style={{ marginBottom: 12 }}>
+                <Crosshair size={16} />
+                <span>Centrar en el mapa</span>
+              </button>
+
+              <div className="user-info-list">
+                <div className="user-info-row">
+                  <span className="info-label">Tipo</span>
+                  <span className="info-value bold">{sidebarView.data.status}</span>
+                </div>
+                <div className="user-info-row">
+                  <span className="info-label">Nivel</span>
+                  <span className="info-value bold">{sidebarView.data.nivel || 'N03'}</span>
+                </div>
+                <div className="user-info-row">
+                  <span className="info-label">Extensión</span>
+                  <span className="info-value bold">{sidebarView.data.ext || '51 tramos'}</span>
+                </div>
+                <div className="user-info-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
+                  <div className="row between">
+                    <span className="info-label">Aforo</span>
+                    <span className="info-value bold">{sidebarView.data.ratio}</span>
+                  </div>
+                  <div className="aforo-bar-track">
+                    <div className="aforo-bar-fill" style={{ width: '33%' }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="esc-block-title" style={{ marginTop: 10 }}>Alerta activa</div>
+              <div className="zona-alert-box">
+                <p>Camion T-03 no autorizado en Refugio R-01</p>
+                <p>Scoop ST-02 no autorizado en Refugio R-01</p>
+              </div>
+
+              <div className="esc-block-title" style={{ marginTop: 12 }}>Permanencia</div>
+              <div className="permanencia-chip-list">
+                <button
+                  className="permanencia-chip"
+                  onClick={() => setSidebarView({
+                    type: 'vehicle_detail',
+                    data: { name: 'Camion T-03', type: 'Acarreo', zone: 'Refugio R-01', level: 'N02', precision: '± 1.0 m' }
+                  })}
+                >
+                  Camion T-03
+                </button>
+                <button
+                  className="permanencia-chip"
+                  onClick={() => setSidebarView({
+                    type: 'vehicle_detail',
+                    data: { name: 'Scoop ST-02', type: 'Carga', zone: 'Refugio R-01', level: 'N02', precision: '± 1.2 m' }
+                  })}
+                >
+                  Scoop ST-02
+                </button>
+              </div>
+
+              <div className="row between hist-row" style={{ marginTop: 14 }}>
+                <span className="info-label">Historial</span>
+                <span className="info-value bold">Hace 15 minutos</span>
+              </div>
+            </div>
+          ) : sidebarView?.type === 'vehicle_detail' ? (
+            /* SMF - V2: Vehicle Detail */
+            <div className="vehicle-detail-panel">
+              <div className="user-detail-topbar">
+                <button
+                  className="user-top-back-btn"
+                  onClick={() => setSidebarView({ type: 'zona_detail', data: ZONAS_DATA[0] })}
+                  title="Volver"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div className="user-top-crumb">
+                  <span className="crumb-prefix">Inicio / Nivel 3 / </span>
+                  <span className="crumb-name">{sidebarView.data.name}...</span>
+                </div>
+                <button className="user-top-search-btn" onClick={() => setSearchOpen(true)}>
+                  <Search size={18} />
+                </button>
+              </div>
+
+              <h2 className="user-detail-title">{sidebarView.data.name}</h2>
+              <button className="user-action-btn" style={{ marginBottom: 12 }}>
+                <Crosshair size={16} />
+                <span>Centrar en el mapa</span>
+              </button>
+
+              <div className="user-info-list">
+                <div className="user-info-row">
+                  <span className="info-label">Camión</span>
+                  <span className="info-value bold">{sidebarView.data.type}</span>
+                </div>
+                <div className="user-info-row">
+                  <span className="info-label">Señal</span>
+                  <span className="info-value">
+                    <span className="user-signal-badge online">En línea</span>
+                  </span>
+                </div>
+                <div className="user-info-row">
+                  <span className="info-label">Última observación</span>
+                  <span className="info-value bold">00:00:00</span>
+                </div>
+                <div className="user-info-row">
+                  <span className="info-label">Zona</span>
+                  <span className="info-value bold">{sidebarView.data.zone}</span>
+                </div>
+                <div className="user-info-row">
+                  <span className="info-label">Nivel</span>
+                  <span className="info-value bold">{sidebarView.data.level}</span>
+                </div>
+                <div className="user-info-row">
+                  <span className="info-label">Precisión del fix</span>
+                  <span className="info-value bold">{sidebarView.data.precision}</span>
+                </div>
+                <div className="user-info-row">
+                  <span className="info-label">Recorrido reciente</span>
+                  <span className="info-value bold">5 min</span>
+                </div>
+              </div>
+
+              {/* Petición de auxilio */}
+              <div className="user-auxilio-section" style={{ position: 'relative' }}>
+                <div className="auxilio-section-header">
+                  <span className="auxilio-section-title">Petición de auxilio</span>
+                  <button
+                    className="auxilio-add-btn"
+                    onClick={() => setAuxilioAddOpen((o) => !o)}
+                    title="Agregar petición"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+
+                {/* Popover: Registrar petición de auxilio */}
+                {auxilioAddOpen && (
+                  <div className="dd-menu auxilio-register-popover">
+                    <div className="dd-group-title">Registrar petición de auxilio</div>
+                    {['SOS', 'Coacción', 'Hombre caído'].map((item) => (
+                      <button
+                        key={item}
+                        className="dd-item"
+                        onClick={() => {
+                          setVehicleAuxilios((prev) => prev.includes(item) ? prev : [item, ...prev])
+                          setAuxilioAddOpen(false)
+                        }}
+                      >
+                        <span>{item}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Filter Tabs: 3 sin resolver | 3 resueltas */}
+                <div className="auxilio-tabs-row">
+                  <button
+                    className={`auxilio-tab-btn ${auxilioTab === 'sin_resolver' ? 'active' : ''}`}
+                    onClick={() => setAuxilioTab('sin_resolver')}
+                  >
+                    3 sin resolver
+                  </button>
+                  <button
+                    className={`auxilio-tab-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
+                    onClick={() => setAuxilioTab('resueltas')}
+                  >
+                    3 resueltas
+                  </button>
+                </div>
+
+                {/* Multiple SOS cards */}
+                <div className="vehicle-auxilios-stack">
+                  {vehicleAuxilios.map((tipo) => (
+                    <div key={tipo} className="auxilio-card">
+                      <div className="auxilio-card-row1">
+                        <span className="auxilio-type-title">{tipo}</span>
+                        <div className="auxilio-status-group">
+                          <span className="auxilio-status-unattended">{auxilioHandled ? 'Atendido' : 'Sin atender'}</span>
+                          <span className="auxilio-status-critical">{auxilioResolved ? 'Resuelto' : 'Crítico'}</span>
+                        </div>
+                      </div>
+                      <div className="auxilio-card-row2">
+                        <Crosshair size={14} className="auxilio-icon" />
+                        <span>Camion T-03</span>
+                      </div>
+                      <div className="auxilio-card-row3">
+                        <span>Refugio R-0</span>
+                        <span>10:00:00</span>
+                        <span>hace 0 s</span>
+                      </div>
+                      <div className="auxilio-card-actions">
+                        <button
+                          className={`auxilio-action-btn ${auxilioHandled ? 'active' : ''}`}
+                          onClick={() => setAuxilioHandled((v) => !v)}
+                        >
+                          {auxilioHandled ? 'Atendido' : 'Atender'}
+                        </button>
+                        <button
+                          className={`auxilio-action-btn ${auxilioResolved ? 'active' : ''}`}
+                          onClick={() => setAuxilioResolved((v) => !v)}
+                        >
+                          {auxilioResolved ? 'Resuelto' : 'Resolver'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : selectedProj === '3D - Superficie' ? (
+            /* Surface Sidebar section */
+            <div className="surface-sidebar-panel">
+              <div
+                className="search"
+                onClick={() => setSearchOpen(true)}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: 'pointer' }}
+                {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
+              >
+                <span>Buscar</span><small>Ctrl + K</small><Search size={14} />
+              </div>
+
+              <div className="vis-block">
+                <button className="section-head" onClick={() => toggle('vis')}>
+                  <span>Modo de visualización</span>
+                  {open.vis ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                {open.vis && (
+                  <div className="vis-controls">
+                    <button
+                      className={`dd-trigger full ${ddOpen === 'proj' ? 'active' : ''}`}
+                      onClick={() => setDdOpen((d) => (d === 'proj' ? null : 'proj'))}
+                    >
+                      <span>{selectedProj}</span>
+                      <ChevronDown size={16} />
+                    </button>
+                    {ddOpen === 'proj' && (
+                      <div className="dd-menu">
+                        <div className="dd-group-title">PROYECCIÓN</div>
+                        {projections.map(({ id, label, icon: I }) => (
+                          <button
+                            key={id}
+                            className={`dd-item ${selectedProj === id ? 'active' : ''}`}
+                            onClick={() => {
+                              setSelectedProj(id)
+                              const pr = projections.find((p) => p.id === id)
+                              if (pr) setMode(pr.view)
+                              setDdOpen(null)
+                            }}
+                          >
+                            <I size={18} />
+                            <span>{label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="section" style={{ marginTop: 12 }}>
+                <div className="section-head">
+                  <span>Superficie exterior</span>
+                </div>
+                <div className="surface-stat-grid">
+                  <div className="surface-stat-box">
+                    <small>Personal exterior</small>
+                    <b>11 afuera</b>
+                  </div>
+                  <div className="surface-stat-box">
+                    <small>Precisión GPS</small>
+                    <b>±50 m</b>
+                  </div>
+                </div>
+
+                <div className="esc-block-title" style={{ marginTop: 14 }}>Personal y vehículos en exterior</div>
+                <div className="personal-list">
+                  {[
+                    { name: 'Juan García', role: 'Acarreo', area: 'Camión T-01' },
+                    { name: 'Ricardo Flores', role: 'Supervisión', area: 'Camioneta C-04' },
+                    { name: 'Carlos Martínez', role: 'Mecánico', area: 'Taller Exterior' },
+                    { name: 'Alejandro Ruiz', role: 'Operador', area: 'Cargador L-02' },
+                  ].map((p, idx) => (
+                    <div key={idx} className="zona-row">
+                      <span className="zona-bar" style={{ background: '#0284c7' }} />
+                      <div className="zona-info">
+                        <div className="zona-line1"><b>{p.name}</b></div>
+                        <div className="zona-line2">{p.role} &nbsp; {p.area}</div>
+                      </div>
+                      <span className="user-signal-badge online" style={{ fontSize: 11 }}>En línea</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1158,19 +1851,10 @@ export default function App() {
                           <span>{id === 'evacuacion' && isExp ? 'Terminar evaluación' : cfg.label}</span>
                         </button>
                         <div className="track-row-actions">
-                          {id === 'recorrido' && (
-                            <button
-                              title={recorridoPlayerVisible ? 'Ocultar reproductor' : 'Mostrar reproductor'}
-                              onClick={() => setRecorridoPlayerVisible((v) => !v)}
-                              style={{ opacity: recorridoPlayerVisible ? 1 : 0.4 }}
-                            >
-                              <Eye size={17} />
-                            </button>
-                          )}
                           <button title="Quitar" onClick={() => removeTrackingItem(id)}>
                             <CircleMinus size={18} />
                           </button>
-                          {id !== 'evacuacion' && (
+                          {id !== 'evacuacion' && id !== 'escenario' && (
                             <button
                               title={isExp ? 'Contraer' : 'Expandir'}
                               onClick={() => setExpandedTrack((prev) => ({ ...prev, [id]: !prev[id] }))}
@@ -1185,7 +1869,13 @@ export default function App() {
                       {isExp && id === 'zonas' && (
                         <div className="track-subpanel">
                           {ZONAS_DATA.map((z, idx) => (
-                            <div key={idx} className="zona-row">
+                            <div
+                              key={idx}
+                              className="zona-row personal-clickable-row"
+                              onClick={() => setSidebarView({ type: 'zona_detail', data: z })}
+                              style={{ cursor: 'pointer' }}
+                              title="Ver detalle de zona"
+                            >
                               <span className="zona-bar" style={{ background: z.color }} />
                               <div className="zona-info">
                                 <div className="zona-line1">
@@ -1355,10 +2045,15 @@ export default function App() {
                         </div>
                       )}
 
-                      {/* Expanded sub-panel for Escenario alterno */}
-                      {isExp && id === 'escenario' && (
+                      {/* Sub-panel for Escenario alterno */}
+                      {id === 'escenario' && (
                         <div className="track-subpanel">
-                          <div className="zona-row">
+                          <div
+                            className="zona-row personal-clickable-row"
+                            onClick={() => setSidebarView({ type: 'escenario_condiciones' })}
+                            style={{ cursor: 'pointer' }}
+                            title="Abrir condiciones del escenario"
+                          >
                             <span className="zona-bar neutral" />
                             <div className="zona-info">
                               <div className="zona-line1"><b>Condiciones del escenario</b></div>
@@ -1372,7 +2067,7 @@ export default function App() {
                   )
                 })}
 
-                {activeTrackings.length > 1 && (
+                {activeTrackings.length > 0 && (
                   <>
                     <div className="perf-divider" />
                     <button className="clear-track-btn" onClick={() => setActiveTrackings([])}>
@@ -1386,12 +2081,95 @@ export default function App() {
           </div>
 
           {/* 4. SIMULACIONES */}
-          <Section
-            title="Simulaciones"
-            open={!!open.sim}
-            onToggle={() => toggle('sim')}
-            onHover={showHelp('Simulaciones', 'Ejecución de modelos predictivos y escenarios.')}
-          />
+          <div
+            className="section sim-section"
+            {...showHelp('Simulaciones', 'Ejecución de modelos predictivos y escenarios.')}
+          >
+            <div className="section-head" onClick={() => toggle('sim')}>
+              <span>Simulaciones</span>
+              <div className="section-head-actions" onClick={(e) => e.stopPropagation()}>
+                <button
+                  className="plus-trigger"
+                  aria-label="Agregar simulación"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))
+                  }}
+                >
+                  <CirclePlus size={17} />
+                </button>
+                <button
+                  className="accordion-chevron-btn"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggle('sim')
+                  }}
+                  aria-label={open.sim !== false ? 'Ocultar Simulaciones' : 'Mostrar Simulaciones'}
+                >
+                  {open.sim !== false ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Popover: AGREGAR SIMULACIÓN */}
+            {ddOpen === 'addSim' && (
+              <div className="dd-menu sim-add-menu">
+                {(['VENTILACIÓN', 'ENERGÍA', 'COMUNICACIONES', 'SEGURIDAD', 'PERSONAL'] as const).map((cat) => {
+                  const items = SIMULATION_CATALOG.filter((s) => s.category === cat)
+                  return (
+                    <div key={cat} className="sim-group-block">
+                      <div className="sim-category-title">{cat}</div>
+                      {items.map((sim) => {
+                        const Icon = sim.icon
+                        return (
+                          <button
+                            key={sim.id}
+                            className="sim-cat-item"
+                            onClick={() => addSimulationItem(sim.id)}
+                          >
+                            <Icon size={16} style={{ color: sim.color }} />
+                            <span>{sim.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Active Simulations List */}
+            {open.sim !== false && activeSimulations.length > 0 && (
+              <div className="section-body sim-body">
+                {activeSimulations.map((id) => {
+                  const sim = SIMULATION_CATALOG.find((s) => s.id === id)
+                  if (!sim) return null
+                  const Icon = sim.icon
+                  return (
+                    <div key={id} className="sim-row-item">
+                      <div className="sim-row-left">
+                        <Icon size={18} style={{ color: sim.color }} />
+                        <span>{sim.label}</span>
+                      </div>
+                      <button
+                        className="sim-remove-btn"
+                        title="Quitar simulación"
+                        onClick={() => removeSimulationItem(id)}
+                      >
+                        <CircleMinus size={18} />
+                      </button>
+                    </div>
+                  )
+                })}
+
+                <div className="perf-divider" />
+                <button className="clear-track-btn" onClick={() => setActiveSimulations([])}>
+                  <Trash size={17} />
+                  <span>Limpiar lista de simulación</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <Section
             title="Análisis"
