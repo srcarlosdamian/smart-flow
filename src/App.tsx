@@ -2636,18 +2636,20 @@ export default function App() {
             <div className="section-head" onClick={() => toggle('track')}>
               <span>Tracking</span>
               <div className="section-head-actions" onClick={(e) => e.stopPropagation()}>
-                <button
-                  className="section-action-btn"
-                  title="Eliminar todos los elementos de tracking"
-                  {...showHelp('Eliminar tracking', 'Elimina todos los elementos de seguimiento activos de la vista 3D.')}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setActiveTrackings([])
-                    setExpandedTrack({})
-                  }}
-                >
-                  <Trash size={15} />
-                </button>
+                {activeTrackings.length > 0 && (
+                  <button
+                    className="section-action-btn"
+                    title="Eliminar todos los elementos de tracking"
+                    {...showHelp('Eliminar tracking', 'Elimina todos los elementos de seguimiento activos de la vista 3D.')}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setActiveTrackings([])
+                      setExpandedTrack({})
+                    }}
+                  >
+                    <Trash size={15} />
+                  </button>
+                )}
                 <button
                   className="section-action-btn"
                   title="Agregar tracking"
@@ -2977,17 +2979,19 @@ export default function App() {
             <div className="section-head" onClick={() => toggle('sim')}>
               <span>Simulaciones</span>
               <div className="section-head-actions" onClick={(e) => e.stopPropagation()}>
-                <button
-                  className="section-action-btn"
-                  title="Eliminar todas las simulaciones"
-                  {...showHelp('Eliminar simulaciones', 'Elimina todas las simulaciones activas de la vista 3D.')}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setActiveSimulations([])
-                  }}
-                >
-                  <Trash size={15} />
-                </button>
+                {activeSimulations.length > 0 && (
+                  <button
+                    className="section-action-btn"
+                    title="Eliminar todas las simulaciones"
+                    {...showHelp('Eliminar simulaciones', 'Elimina todas las simulaciones activas de la vista 3D.')}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setActiveSimulations([])
+                    }}
+                  >
+                    <Trash size={15} />
+                  </button>
+                )}
                 <button
                   className="section-action-btn"
                   title="Agregar simulación"
