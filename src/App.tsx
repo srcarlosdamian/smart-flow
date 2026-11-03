@@ -534,11 +534,11 @@ export default function App() {
     { id: 'cam-right', title: 'Derecha', category: 'Vista', sub: 'Cámara', icon: SquareArrowRight, action: () => setMode('perspective') },
     { id: 'cam-iso', title: 'Isométrica', category: 'Vista', sub: 'Cámara', icon: Box, action: () => setMode('isometric') },
     { id: 'cam-fit', title: 'Ajustar todo', category: 'Vista', sub: 'Cámara', icon: Fullscreen, action: () => { setZoom(50); setMode('perspective') } },
-    { id: 'proj-3d', title: '3D – Perspectiva', category: 'Vista', sub: 'Proyección', icon: Box, active: mode === 'perspective', action: () => setMode('perspective') },
-    { id: 'proj-2d', title: '2D – Vista superior', category: 'Vista', sub: 'Proyección', icon: SquareArrowUp, active: mode === 'top', action: () => setMode('top') },
-    { id: 'proj-2d-imm', title: '2D inmersivo', category: 'Vista', sub: 'Cambia a vista superior (2D)', icon: Layers2, disabled: true },
-    { id: 'proj-diagram', title: 'Diagrama de planta', category: 'Vista', sub: 'Proyección', icon: Cable },
-    { id: 'proj-surface', title: 'Superficie', category: 'Vista', sub: 'Proyección', icon: Globe },
+    { id: 'proj-3d', title: '3D – Perspectiva', category: 'Vista', sub: 'Proyección', icon: Box, active: selectedProj === '3D - Perspectiva', action: () => { setSelectedProj('3D - Perspectiva'); setMode('perspective') } },
+    { id: 'proj-2d', title: '2D – Vista superior', category: 'Vista', sub: 'Proyección', icon: SquareArrowUp, active: selectedProj === '2D - Vista superior', action: () => { setSelectedProj('2D - Vista superior'); setMode('top') } },
+    { id: 'proj-2d-imm', title: '2D inmersivo', category: 'Vista', sub: 'Cambia a vista superior (2D)', icon: Layers2, active: selectedProj === '2D - Vista superior', action: () => { setSelectedProj('2D - Vista superior'); setMode('top') } },
+    { id: 'proj-diagram', title: 'Diagrama de planta', category: 'Vista', sub: 'Proyección', icon: Cable, active: selectedProj === '2D - Diagrama de planta', action: () => { setSelectedProj('2D - Diagrama de planta'); setMode('top') } },
+    { id: 'proj-surface', title: 'Superficie', category: 'Vista', sub: 'Proyección', icon: Globe, active: selectedProj === '3D - Superficie', action: () => { setSelectedProj('3D - Superficie'); setMode('perspective') } },
     { id: 'panel-perf', title: 'Estadísticas de rendimiento', category: 'Vista', sub: 'Paneles', icon: CircleGauge, action: () => setOpen((o) => ({ ...o, perf: true })) },
 
     // Tracking
@@ -578,7 +578,7 @@ export default function App() {
     // Ingeniería
     { id: 'ing-herramientas', title: 'Herramientas de ingeniería', category: 'Ingeniería', sub: 'Herramientas', icon: RulerDimensionLine, active: true },
     { id: 'ing-cad', title: 'Laboratorio de importación CAD', category: 'Ingeniería', sub: 'Herramientas', icon: Box },
-  ], [mode])
+  ], [mode, selectedProj])
 
   const filteredCommands = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
