@@ -1560,8 +1560,12 @@ export default function App() {
                         boxShadow: 'none',
                       }}
                       onClick={() => {
-                        setInteriorView('bombeo')
-                        setSidebarView({ type: 'interior', data: INTERIORES_DATA[2] })
+                        if (sidebarView.data.id === 'bombeo') {
+                          setInteriorView('bombeo')
+                          setSidebarView({ type: 'interior', data: INTERIORES_DATA[2] })
+                        } else {
+                          setZoom(95)
+                        }
                       }}
                     >
                       <span>Entrar</span>
@@ -3325,7 +3329,7 @@ export default function App() {
                 title="Importar modelo 3D (GLB, GLTF, OBJ)"
               >
                 <div className="interior-item-left">
-                  <Upload size={18} style={{ color: '#1e293b' }} />
+                  <Upload size={18} style={{ color: 'var(--text)' }} />
                   <span className="interior-item-title">Importar modelo</span>
                 </div>
               </div>
