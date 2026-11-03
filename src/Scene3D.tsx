@@ -305,7 +305,8 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
 
     let raf = 0
     const tick = () => {
-      const { mode: m, zoom: z } = state.current
+      const { mode: m, zoom: z, theme: currentTheme, activeSimulations: curSims } = state.current
+      const curP = PALETTE[currentTheme]
       const dist = 38 * (50 / z)
       let desired: THREE.Vector3
       if (m === 'perspective') desired = new THREE.Vector3(Math.sin(yaw) * dist, 12 + pitchOff * 24, Math.cos(yaw) * dist - 6)
@@ -319,7 +320,7 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
 
       // Update active 3D simulations
       const time = performance.now() * 0.001
-      simCtrl.update(time, state.current.activeSimulations || [])
+      simCtrl.update(time, curSims || [])
 
       // Update interactive 3D facilities selection contours
       const selectedId = state.current.selectedObjectId
@@ -339,9 +340,7 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
       })
 
       // Directly apply dynamic simulation visual effects onto the 3D mine lines
-      const activeSims = state.current.activeSimulations || []
-      const currentTheme = state.current.theme
-      const curP = PALETTE[currentTheme]
+      const activeSims = curSims || []
 
       if (matsRef.current && matsRef.current.neutralMats.length > 0) {
         if (activeSims.includes('calor')) {
