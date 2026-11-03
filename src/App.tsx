@@ -61,7 +61,7 @@ const NEXO_MORE_CHATS = [
 interface CommandItem {
   id: string
   title: string
-  category: 'Vista' | 'Tracking' | 'Simulaciones' | 'Análisis' | 'Interiores' | 'Ingeniería'
+  category: 'Vista' | 'Tracking' | 'Simulaciones' | 'Análisis' | 'Interiores'
   sub: string
   icon: any
   iconColor?: string
@@ -574,10 +574,6 @@ export default function App() {
     { id: 'int-bombeo', title: 'Sala de bombeo', category: 'Interiores', sub: 'En la mina', icon: Droplets, iconColor: '#03a9f4' },
     { id: 'int-chancador', title: 'Chancador', category: 'Interiores', sub: 'En la mina', icon: Mountain, iconColor: '#ff7043' },
     { id: 'int-subestacion', title: 'Sala de subestación', category: 'Interiores', sub: 'Selecciona una subestación en el visor para entrar', icon: Zap, iconColor: '#fbc02d', disabled: true },
-
-    // Ingeniería
-    { id: 'ing-herramientas', title: 'Herramientas de ingeniería', category: 'Ingeniería', sub: 'Herramientas', icon: RulerDimensionLine, active: true },
-    { id: 'ing-cad', title: 'Laboratorio de importación CAD', category: 'Ingeniería', sub: 'Herramientas', icon: Box },
   ], [mode, selectedProj])
 
   const filteredCommands = useMemo(() => {
@@ -2549,7 +2545,7 @@ export default function App() {
 
       <ul
         className="glass levels"
-        {...showHelp('Ingeniería', 'Acceso a las capas estructurales, niveles (L1 General a L5 Interior), rampas, cotas y parámetros técnicos del diseño de la mina.')}
+        {...showHelp('Niveles', 'Acceso a las capas estructurales, niveles (L1 General a L5 Interior), rampas, cotas y parámetros técnicos del diseño de la mina.')}
       >
         {levels.map(([k, n]) => (
           <li key={k} className={level === k ? 'on' : ''} onClick={() => setLevel(k)}><b>{k}</b> {n}</li>
@@ -2646,7 +2642,7 @@ export default function App() {
               {filteredCommands.length === 0 ? (
                 <div className="cmd-empty">No se encontraron resultados para "{searchQuery}"</div>
               ) : (
-                (['Vista', 'Tracking', 'Simulaciones', 'Análisis', 'Interiores', 'Ingeniería'] as const).map((cat) => {
+                (['Vista', 'Tracking', 'Simulaciones', 'Análisis', 'Interiores'] as const).map((cat) => {
                   const itemsInCat = filteredCommands.filter((c) => c.category === cat)
                   if (itemsInCat.length === 0) return null
                   return (
