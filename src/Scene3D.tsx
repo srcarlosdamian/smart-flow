@@ -13,8 +13,24 @@ interface Props {
 }
 
 const PALETTE = {
-  dark: { bg: 0x0a1c30, floor: 0x0a1c30, fine: 0x0d2842, coarse: 0x071728, fineOp: 0.14, coarseOp: 0.24 },
-  light: { bg: 0xdfe7ef, floor: 0xdfe7ef, fine: 0xd5dee8, coarse: 0xc2cdd9, fineOp: 0.30, coarseOp: 0.48 },
+  dark: {
+    bg: 0x0a1c30,
+    floor: 0x0a1c30,
+    fine: 0x0d2842,
+    coarse: 0x071728,
+    fineOp: 0.14,
+    coarseOp: 0.24,
+    neutralMine: 0x94a3b8, // Neutral slate-gray tone
+  },
+  light: {
+    bg: 0xdfe7ef,
+    floor: 0xdfe7ef,
+    fine: 0xd5dee8,
+    coarse: 0xc2cdd9,
+    fineOp: 0.30,
+    coarseOp: 0.48,
+    neutralMine: 0x64748b, // Neutral slate-gray tone
+  },
 }
 
 export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
@@ -26,6 +42,7 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
     floorMat: THREE.MeshBasicMaterial
     fineMat: THREE.LineBasicMaterial
     coarseMat: THREE.LineBasicMaterial
+    neutralMats: THREE.Material[]
   } | null>(null)
 
   useEffect(() => {
@@ -76,6 +93,8 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
 
         // Remove any flat giant background plane (Mesh 0 has span 2000x2000)
         const toRemove: THREE.Object3D[] = []
+        const neutralMats: THREE.Material[] = []
+
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh
@@ -90,11 +109,36 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
             }
             mesh.castShadow = true
             mesh.receiveShadow = true
+
+            // Convert blue materials of the 3D model into neutral slate tone
+            const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+            const updated = mats.map((mat) => {
+              if (!mat) return mat
+              if ('color' in mat && (mat as any).color instanceof THREE.Color) {
+                const c = (mat as any).color as THREE.Color
+                // Detect blue tones in the mine mesh (dominant blue channel)
+                if (c.b > 0.45 && c.b > c.r + 0.2) {
+                  const cloned = mat.clone() as THREE.MeshBasicMaterial
+                  cloned.color.setHex(p.neutralMine)
+                  if (cloned.opacity < 0.35) {
+                    cloned.opacity = 0.45
+                  }
+                  neutralMats.push(cloned)
+                  return cloned
+                }
+              }
+              return mat
+            })
+            mesh.material = Array.isArray(mesh.material) ? updated : updated[0]
           }
         })
         toRemove.forEach((obj) => {
           if (obj.parent) obj.parent.remove(obj)
         })
+
+        if (matsRef.current) {
+          matsRef.current.neutralMats = neutralMats
+        }
 
         // Calculate bounding box of the visual mine network and equipment
         const box = new THREE.Box3().setFromObject(model)
@@ -121,7 +165,7 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
       }
     )
 
-    matsRef.current = { scene, floorMat, fineMat, coarseMat }
+    matsRef.current = { scene, floorMat, fineMat, coarseMat, neutralMats: [] }
 
     // Look slightly below center so the horizon sits around ~42% from top, matching Figma
     const target = new THREE.Vector3(0, 2.5, -6)
@@ -202,6 +246,11 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
     m.fineMat.opacity = p.fineOp
     m.coarseMat.color.setHex(p.coarse)
     m.coarseMat.opacity = p.coarseOp
+    m.neutralMats.forEach((mat) => {
+      if ('color' in mat && (mat as any).color instanceof THREE.Color) {
+        ;(mat as any).color.setHex(p.neutralMine)
+      }
+    })
   }, [theme])
 
   return <div ref={ref} className="scene" />
