@@ -320,6 +320,20 @@ export interface WhatIfScenarioData {
   mitigations: { id: string; text: string }[]
 }
 
+const WHAT_IF_TARGETS = [
+  { id: 'CD-MT-01', label: 'CD-MT-01 (Subestación Principal MT)' },
+  { id: 'V-PH-01', label: 'V-PH-01 (Ventilador Principal L1)' },
+  { id: 'CD-MT-T-01', label: 'CD-MT-T-01 (Transformador de Potencia)' },
+  { id: 'SM-01', label: 'SM-01 (Subestación Móvil L2)' },
+  { id: 'V-PV-01', label: 'V-PV-01 (Ventilador Primario)' },
+]
+
+const WHAT_IF_ACTIONS = [
+  { id: 'desconexion', label: 'Desconexión / Corte de kVA radial' },
+  { id: 'ventilador', label: 'Parada no programada de ventilador' },
+  { id: 'galeria', label: 'Cierre de galería / Falla de compuerta' },
+]
+
 const WHAT_IF_SCENARIOS: Record<string, WhatIfScenarioData> = {
   'CD-MT-01': {
     title: '¿Qué pasa si desconecto CD-MT-01?',
@@ -624,7 +638,7 @@ export default function App() {
   const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
   const [selectedCam, setSelectedCam] = useState<string>('')
   const [zoom, setZoom] = useState(50)
-  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | 'shiftStart' | 'shiftEnd' | null>(null)
+  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | 'shiftStart' | 'shiftEnd' | 'whatif_target' | 'whatif_action' | null>(null)
   const [nexoOpen, setNexoOpen] = useState(false)
   const [nexoMoreOpen, setNexoMoreOpen] = useState(false)
   const [nexoMoreView, setNexoMoreView] = useState<'main' | 'more'>('main')
@@ -3091,28 +3105,64 @@ export default function App() {
           >
             <div className="whatif-config-box">
               <label className="field-label">Componente o nodo a alterar</label>
-              <select
-                className="field full"
-                value={whatIfTarget}
-                onChange={(e) => setWhatIfTarget(e.target.value)}
-              >
-                <option value="CD-MT-01">CD-MT-01 (Subestación Principal MT)</option>
-                <option value="V-PH-01">V-PH-01 (Ventilador Principal L1)</option>
-                <option value="CD-MT-T-01">CD-MT-T-01 (Transformador de Potencia)</option>
-                <option value="SM-01">SM-01 (Subestación Móvil L2)</option>
-                <option value="V-PV-01">V-PV-01 (Ventilador Primario)</option>
-              </select>
+              <div style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className={`dd-trigger full ${ddOpen === 'whatif_target' ? 'active' : ''}`}
+                  onClick={() => setDdOpen((d) => (d === 'whatif_target' ? null : 'whatif_target'))}
+                >
+                  <span>{WHAT_IF_TARGETS.find((t) => t.id === whatIfTarget)?.label || whatIfTarget}</span>
+                  <ChevronDown size={16} />
+                </button>
+                {ddOpen === 'whatif_target' && (
+                  <div className="dd-menu" style={{ width: '100%', top: 'calc(100% + 4px)', left: 0 }}>
+                    <div className="dd-group-title">COMPONENTE O NODO</div>
+                    {WHAT_IF_TARGETS.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        className={`dd-item ${whatIfTarget === t.id ? 'selected' : ''}`}
+                        onClick={() => {
+                          setWhatIfTarget(t.id)
+                          setDdOpen(null)
+                        }}
+                      >
+                        <span>{t.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-              <label className="field-label" style={{ marginTop: 8 }}>Tipo de evento simulado</label>
-              <select
-                className="field full"
-                value={whatIfAction}
-                onChange={(e) => setWhatIfAction(e.target.value)}
-              >
-                <option value="desconexion">Desconexión / Corte de kVA radial</option>
-                <option value="ventilador">Parada no programada de ventilador</option>
-                <option value="galeria">Cierre de galería / Falla de compuerta</option>
-              </select>
+              <label className="field-label" style={{ marginTop: 10 }}>Tipo de evento simulado</label>
+              <div style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className={`dd-trigger full ${ddOpen === 'whatif_action' ? 'active' : ''}`}
+                  onClick={() => setDdOpen((d) => (d === 'whatif_action' ? null : 'whatif_action'))}
+                >
+                  <span>{WHAT_IF_ACTIONS.find((a) => a.id === whatIfAction || a.label === whatIfAction)?.label || whatIfAction}</span>
+                  <ChevronDown size={16} />
+                </button>
+                {ddOpen === 'whatif_action' && (
+                  <div className="dd-menu" style={{ width: '100%', top: 'calc(100% + 4px)', left: 0 }}>
+                    <div className="dd-group-title">TIPO DE EVENTO</div>
+                    {WHAT_IF_ACTIONS.map((a) => (
+                      <button
+                        key={a.id}
+                        type="button"
+                        className={`dd-item ${whatIfAction === a.id || whatIfAction === a.label ? 'selected' : ''}`}
+                        onClick={() => {
+                          setWhatIfAction(a.id)
+                          setDdOpen(null)
+                        }}
+                      >
+                        <span>{a.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <label className="field-label" style={{ marginTop: 8 }}>Ejes de simulación activos</label>
               <div className="whatif-axes-check-list">
