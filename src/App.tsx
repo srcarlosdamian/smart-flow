@@ -1351,23 +1351,22 @@ export default function App() {
                     </div>
 
                     <button
-                      className="cta no-shadow"
+                      className="cta full no-shadow"
                       style={{
                         marginTop: 10,
-                        width: '100%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 8,
-                        padding: '10px 14px',
-                        borderRadius: 8,
-                        background: 'linear-gradient(135deg, #0284c7 0%, #00b4d8 100%)',
+                        padding: '12px 18px',
+                        borderRadius: 12,
+                        background: 'linear-gradient(90deg, #1253dd, #08ddf0)',
                         color: '#fff',
                         border: 'none',
-                        fontWeight: 600,
+                        fontWeight: 700,
                         cursor: 'pointer',
                         boxShadow: 'none',
-                        fontSize: 13,
+                        fontSize: 13.5,
                       }}
                       onClick={() => {
                         setNexoOpen(true)
@@ -1463,18 +1462,17 @@ export default function App() {
                     <button
                       className="cta full no-shadow"
                       style={{
-                        marginTop: 6,
-                        width: '100%',
+                        marginTop: 8,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '11px 16px',
-                        borderRadius: 8,
-                        background: 'linear-gradient(135deg, #0284c7 0%, #00b4d8 100%)',
+                        padding: '12px 18px',
+                        borderRadius: 12,
+                        background: 'linear-gradient(90deg, #1253dd, #08ddf0)',
                         color: '#fff',
                         border: 'none',
-                        fontWeight: 600,
-                        fontSize: 13.5,
+                        fontWeight: 700,
+                        fontSize: 14,
                         cursor: 'pointer',
                         boxShadow: 'none',
                       }}
@@ -1512,14 +1510,22 @@ export default function App() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
                   <button
                     className="cta full no-shadow"
-                    style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, borderRadius: 8, boxShadow: 'none' }}
+                    style={{
+                      padding: '12px 18px',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      borderRadius: 12,
+                      background: 'linear-gradient(90deg, #1253dd, #08ddf0)',
+                      color: '#fff',
+                      border: 'none',
+                    }}
                     onClick={() => setSidebarView(null)}
                   >
                     Editar ajustes
                   </button>
                   <button
                     className="esc-secondary-btn full no-shadow"
-                    style={{ padding: '9px 12px', fontSize: 13, borderRadius: 8, boxShadow: 'none' }}
+                    style={{ padding: '11px 18px', fontSize: 13.5, fontWeight: 600, borderRadius: 12, boxShadow: 'none' }}
                     onClick={() => setSidebarView(null)}
                   >
                     Descartar escenario
