@@ -646,6 +646,7 @@ export default function App() {
           mode={selectedProj === '2D - Vista superior' ? 'top' : mode}
           zoom={zoom}
           theme={theme}
+          activeSimulations={activeSimulations}
           onZoomChange={setZoom}
         />
       )}

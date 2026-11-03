@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { createSimulations } from './simulations3D'
 
 export type ViewMode = 'perspective' | 'isometric' | 'top'
 export type Theme = 'dark' | 'light'
@@ -9,6 +10,7 @@ interface Props {
   mode: ViewMode
   zoom: number
   theme: Theme
+  activeSimulations?: string[]
   onZoomChange?: (newZoom: number) => void
 }
 
@@ -33,10 +35,10 @@ const PALETTE = {
   },
 }
 
-export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
+export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomChange }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const state = useRef({ mode, zoom, theme, onZoomChange })
-  state.current = { mode, zoom, theme, onZoomChange }
+  const state = useRef({ mode, zoom, theme, activeSimulations, onZoomChange })
+  state.current = { mode, zoom, theme, activeSimulations, onZoomChange }
   const matsRef = useRef<{
     scene: THREE.Scene
     floorMat: THREE.MeshBasicMaterial
@@ -167,6 +169,9 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
 
     matsRef.current = { scene, floorMat, fineMat, coarseMat, neutralMats: [] }
 
+    // Initialize 3D Simulation Overlay Layer
+    const simCtrl = createSimulations(scene)
+
     // Look slightly below center so the horizon sits around ~42% from top, matching Figma
     const target = new THREE.Vector3(0, 2.5, -6)
     const camPos = new THREE.Vector3(0, 14, 38)
@@ -218,6 +223,11 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
       camera.lookAt(target)
       camera.fov = m === 'isometric' ? 25 : 45
       camera.updateProjectionMatrix()
+
+      // Update active 3D simulations
+      const time = performance.now() * 0.001
+      simCtrl.update(time, state.current.activeSimulations || [])
+
       renderer.render(scene, camera)
       raf = requestAnimationFrame(tick)
     }
@@ -226,6 +236,7 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
     return () => {
       cancelAnimationFrame(raf)
       ro.disconnect()
+      simCtrl.dispose()
       el.removeEventListener('pointerdown', down)
       removeEventListener('pointerup', up)
       removeEventListener('pointermove', move)
