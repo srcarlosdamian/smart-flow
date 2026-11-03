@@ -12,6 +12,7 @@ import {
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
   BarChart3, Magnet, X, DoorOpen,
+  Clock, TrendingDown, TrendingUp, Target, SlidersHorizontal,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -285,6 +286,188 @@ const INTERIORES_DATA: InteriorItem[] = [
   },
 ]
 
+export interface WhatIfConsequence {
+  id: string
+  level: 'critical' | 'high' | 'medium'
+  levelLabel: string
+  title: string
+  desc: string
+  hasTarget?: boolean
+  coords?: [number, number, number]
+}
+
+export interface WhatIfScenarioData {
+  title: string
+  elementLabel: string
+  ms: number
+  kpis: { label: string; val: string }[]
+  beforeAfter: {
+    label: string
+    before: string
+    after: string
+    unit: string
+    trend?: 'down' | 'up'
+    trendColor?: string
+  }[]
+  consequences: WhatIfConsequence[]
+  mitigations: { id: string; text: string }[]
+}
+
+const WHAT_IF_SCENARIOS: Record<string, WhatIfScenarioData> = {
+  'CD-MT-01': {
+    title: '¿Qué pasa si desconecto CD-MT-01?',
+    elementLabel: 'Subestación Principal CD-MT-01',
+    ms: 16,
+    kpis: [
+      { label: 'Subestaciones sin suministro', val: '5' },
+      { label: 'Ventiladores fuera', val: '6 / 15' },
+      { label: 'Zonas bajo el mínimo', val: '8 / 8' },
+      { label: 'Personas en riesgo', val: '4' },
+      { label: 'Variación de caudal total', val: '-35%' },
+    ],
+    beforeAfter: [
+      { label: 'Caudal total inyectado', before: '925', after: '600', unit: 'm3/s', trend: 'down', trendColor: '#ff9800' },
+      { label: 'Zonas con ventilación conforme', before: '0', after: '0', unit: 'de 8' },
+      { label: 'Personal en zona degradada', before: '30.0', after: '30.0', unit: 'personas' },
+      { label: 'Margen mínimo hasta umbral', before: '1.9', after: '1.0', unit: 'min', trend: 'down', trendColor: '#f44336' },
+      { label: 'Potencia de ventilación', before: '2425', after: '1580', unit: 'kW', trend: 'down', trendColor: '#4caf50' },
+      { label: 'Carga desconectada', before: '0', after: '1373', unit: 'kVA', trend: 'up', trendColor: '#f44336' },
+    ],
+    consequences: [
+      {
+        id: 'c1',
+        level: 'critical',
+        levelLabel: 'Crítico',
+        title: '5 subestaciones sin suministro',
+        desc: 'CD-MT-01, CD-MT-T-01, SM-01, SM-03, ENDIS-02. Carga desconectada: 1373 kVA.',
+        hasTarget: false,
+      },
+      {
+        id: 'c2',
+        level: 'critical',
+        levelLabel: 'Crítico · a los 2.3 h',
+        title: 'Nivel 2 - Este pierde 50% de caudal',
+        desc: 'Caudal de 0 a 0 m3/s (requerido 43 m3/s). 4 personas en zona. Margen hasta umbral: 2 h.',
+        hasTarget: true,
+        coords: [-9, 6.8, -6.5],
+      },
+      {
+        id: 'c3',
+        level: 'critical',
+        levelLabel: 'Crítico · a los 0:59 min',
+        title: 'Nivel 4 - Oeste pierde 100% de caudal',
+        desc: 'Caudal de 27 a 0 m3/s (requerido 43 m3/s). 4 personas en zona. Margen hasta umbral: 1 min.',
+        hasTarget: true,
+        coords: [12, 2.5, -4.5],
+      },
+      {
+        id: 'c4',
+        level: 'critical',
+        levelLabel: 'Crítico · a los 32:34 min',
+        title: 'Nivel 1 - Oeste pierde 9% de caudal',
+        desc: 'Caudal de 1 a 1 m3/s (requerido 43 m3/s). 4 personas en zona. Margen hasta umbral: 33 min.',
+        hasTarget: true,
+        coords: [-14, 10, -4],
+      },
+      {
+        id: 'c5',
+        level: 'high',
+        levelLabel: 'Alto',
+        title: 'V-PH-01 se detiene por falta de suministro',
+        desc: 'Alimentado desde CD-MT-T-01, Caudal perdido: 90 m3/s.',
+        hasTarget: true,
+        coords: [0, 14, -5],
+      },
+      {
+        id: 'c6',
+        level: 'high',
+        levelLabel: 'Alto',
+        title: 'V-PH-02 se detiene por falta de suministro',
+        desc: 'Alimentado desde CD-MT-T-01, Caudal perdido: 90 m3/s.',
+        hasTarget: true,
+        coords: [-4, 11, -5],
+      },
+      {
+        id: 'c7',
+        level: 'high',
+        levelLabel: 'Alto',
+        title: 'V-PV-01 se detiene por falta de suministro',
+        desc: 'Alimentado desde CD-MT-01. Caudal perdido: 70 m3/s.',
+        hasTarget: true,
+        coords: [4, 9, -5],
+      },
+      {
+        id: 'c8',
+        level: 'medium',
+        levelLabel: 'Medio',
+        title: 'V-SA-01 se detiene por falta de suministro',
+        desc: 'Alimentado desde SM-01. Caudal perdido: 25 m3/s.',
+        hasTarget: true,
+        coords: [-12, 10, -5],
+      },
+      {
+        id: 'c9',
+        level: 'medium',
+        levelLabel: 'Medio',
+        title: 'V-SA-03 se detiene por falta de suministro',
+        desc: 'Alimentado desde SM-03. Caudal perdido: 25 m3/s.',
+        hasTarget: true,
+        coords: [10, 2.8, -5],
+      },
+    ],
+    mitigations: [
+      { id: 'm1', text: 'Subir frecuencia de ventiladores operativos (V-PH-03 a 60 Hz) para compensar déficits.' },
+      { id: 'm2', text: 'Restringir el ingreso de equipos diésel a Nivel 2 y Nivel 4.' },
+      { id: 'm3', text: 'Reubicar al personal hacia sectores con ventilación conforme.' },
+      { id: 'm4', text: 'Transferir cargas críticas a subestación móvil de respaldo SM-02 antes de la maniobra.' },
+    ],
+  },
+  'V-PH-01': {
+    title: '¿Qué pasa si falla el ventilador V-PH-01?',
+    elementLabel: 'Ventilador Principal V-PH-01',
+    ms: 12,
+    kpis: [
+      { label: 'Subestaciones sin suministro', val: '0' },
+      { label: 'Ventiladores fuera', val: '1 / 15' },
+      { label: 'Zonas bajo el mínimo', val: '2 / 8' },
+      { label: 'Personas en riesgo', val: '2' },
+      { label: 'Variación de caudal total', val: '-11%' },
+    ],
+    beforeAfter: [
+      { label: 'Caudal total inyectado', before: '925', after: '835', unit: 'm3/s', trend: 'down', trendColor: '#ff9800' },
+      { label: 'Zonas con ventilación conforme', before: '8', after: '6', unit: 'de 8' },
+      { label: 'Personal en zona degradada', before: '0.0', after: '4.0', unit: 'personas' },
+      { label: 'Margen mínimo hasta umbral', before: '1.9', after: '1.4', unit: 'min', trend: 'down', trendColor: '#ff9800' },
+      { label: 'Potencia de ventilación', before: '2425', after: '2100', unit: 'kW', trend: 'down', trendColor: '#4caf50' },
+      { label: 'Carga desconectada', before: '0', after: '0', unit: 'kVA' },
+    ],
+    consequences: [
+      {
+        id: 'cv1',
+        level: 'critical',
+        levelLabel: 'Crítico · a los 4:10 min',
+        title: 'Nivel 1 - Galería Norte pierde 30% de caudal',
+        desc: 'Caudal cae de 90 a 62 m3/s. 2 personas en zona.',
+        hasTarget: true,
+        coords: [-14, 10, -4],
+      },
+      {
+        id: 'cv2',
+        level: 'high',
+        levelLabel: 'Alto',
+        title: 'V-PH-01 detenido por disparo de protección',
+        desc: 'Caudal perdido: 90 m3/s directo en tiro principal.',
+        hasTarget: true,
+        coords: [0, 14, -5],
+      },
+    ],
+    mitigations: [
+      { id: 'mv1', text: 'Activar ventilador de relevo V-PH-02 a 58 Hz en menos de 5 minutos.' },
+      { id: 'mv2', text: 'Suspender operaciones de acarreo en Rampa Nivel 1.' },
+    ],
+  },
+}
+
 export interface PersonalItem {
   id: string
   name: string
@@ -440,11 +623,15 @@ export default function App() {
   const [nexoVoice, setNexoVoice] = useState(false)
   const [nexoPrompt, setNexoPrompt] = useState('')
   const [nexoMessages, setNexoMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
-  const [open, setOpen] = useState<Record<string, boolean>>({ interiores: true })
+  const [open, setOpen] = useState<Record<string, boolean>>({ interiores: true, ana: true })
   const [selectedInterior, setSelectedInterior] = useState<InteriorItem | null>(null)
+  const [whatIfView, setWhatIfView] = useState<'result' | 'config'>('result')
+  const [whatIfTarget, setWhatIfTarget] = useState('CD-MT-01')
+  const [whatIfAction, setWhatIfAction] = useState('desconexion')
+  const [whatIfHorizon, setWhatIfHorizon] = useState(60)
+  const [whatIfAxes, setWhatIfAxes] = useState({ carga: true, vent: true, dilucion: true })
   const [perfLevel, setPerfLevel] = useState<'Bajo' | 'Medio' | 'Alto'>('Bajo')
   const [autoPerf, setAutoPerf] = useState(false)
-  const [factor, setFactor] = useState(1.3)
   const [level, setLevel] = useState('L1')
   const [activeTool, setActiveTool] = useState<string>('')
   const [helpInfo, setHelpInfo] = useState<{ title: string; desc: string } | null>(null)
@@ -2254,26 +2441,205 @@ export default function App() {
             )}
           </div>
 
+          {/* 5. ANÁLISIS: What-If Simulation Engine matching SmartFlow 5.0 spec */}
           <Section
             title="Análisis"
             open={!!open.ana}
             onToggle={() => toggle('ana')}
-            onHover={showHelp('Análisis', 'Evaluación de datos operativos, métricas de rendimiento y reportes de la mina.')}
+            onHover={showHelp('Análisis What-If', 'Simulador predictivo ¿Qué pasa si...?: modela fallas de subestaciones, paradas de ventilación y dilución ambiental.')}
           >
-            <select className="field full"><option>Buscar por zona, nivel o equipo</option></select>
-            <ul className="tag-list">
-              <li><span>L3 - Zona Norte</span><Minus size={16} /></li>
-              <li><span>V-PH-01 (Ventilador Principal)</span><Minus size={16} /></li>
-            </ul>
-            <select className="field full"><option>Falla de equipo</option><option>Evacuación de emergencia</option></select>
-            <div className="row between"><span>Concentración en la fuente</span><b>{factor.toFixed(1)} x</b></div>
-            <input type="range" min={1} max={3} step={0.1} value={factor} onChange={(e) => setFactor(+e.target.value)} />
-            <select className="field full"><option>Métrica de impacto</option></select>
-            <ul className="tag-list">
-              <li><span>Red de ventilación</span><Minus size={16} /></li>
-              <li><span>Rutas de personal</span><Minus size={16} /></li>
-            </ul>
-            <button className="cta">Simular escenario</button>
+            {whatIfView === 'config' ? (
+              /* Minimalist Scenario Builder */
+              <div className="whatif-config-box">
+                <div className="esc-block-title">SIMULACIÓN WHAT-IF (¿QUÉ PASA SI...?)</div>
+                
+                <label className="field-label">Componente o nodo a alterar</label>
+                <select
+                  className="field full"
+                  value={whatIfTarget}
+                  onChange={(e) => setWhatIfTarget(e.target.value)}
+                >
+                  <option value="CD-MT-01">CD-MT-01 (Subestación Principal MT)</option>
+                  <option value="V-PH-01">V-PH-01 (Ventilador Principal L1)</option>
+                  <option value="CD-MT-T-01">CD-MT-T-01 (Transformador de Potencia)</option>
+                  <option value="SM-01">SM-01 (Subestación Móvil L2)</option>
+                  <option value="V-PV-01">V-PV-01 (Ventilador Primario)</option>
+                </select>
+
+                <label className="field-label" style={{ marginTop: 8 }}>Tipo de evento simulado</label>
+                <select
+                  className="field full"
+                  value={whatIfAction}
+                  onChange={(e) => setWhatIfAction(e.target.value)}
+                >
+                  <option value="desconexion">Desconexión / Corte de kVA radial</option>
+                  <option value="ventilador">Parada no programada de ventilador</option>
+                  <option value="galeria">Cierre de galería / Falla de compuerta</option>
+                </select>
+
+                <label className="field-label" style={{ marginTop: 8 }}>Ejes de simulación activos</label>
+                <div className="whatif-axes-toggle-row">
+                  <button
+                    className={`whatif-axis-pill ${whatIfAxes.carga ? 'active' : ''}`}
+                    onClick={() => setWhatIfAxes((a) => ({ ...a, carga: !a.carga }))}
+                  >
+                    Flujo de carga radial
+                  </button>
+                  <button
+                    className={`whatif-axis-pill ${whatIfAxes.vent ? 'active' : ''}`}
+                    onClick={() => setWhatIfAxes((a) => ({ ...a, vent: !a.vent }))}
+                  >
+                    Red de ventilación
+                  </button>
+                  <button
+                    className={`whatif-axis-pill ${whatIfAxes.dilucion ? 'active' : ''}`}
+                    onClick={() => setWhatIfAxes((a) => ({ ...a, dilucion: !a.dilucion }))}
+                  >
+                    Dilución por zona
+                  </button>
+                </div>
+
+                <div className="row between" style={{ marginTop: 12, fontSize: 13 }}>
+                  <span className="field-label">Horizonte de tiempo</span>
+                  <b className="mono">{whatIfHorizon} min</b>
+                </div>
+                <input
+                  type="range"
+                  min={15}
+                  max={120}
+                  step={15}
+                  value={whatIfHorizon}
+                  onChange={(e) => setWhatIfHorizon(+e.target.value)}
+                  style={{ width: '100%', marginTop: 4 }}
+                />
+
+                <button
+                  className="cta"
+                  style={{ marginTop: 14 }}
+                  onClick={() => setWhatIfView('result')}
+                >
+                  <Play size={16} />
+                  <span>Simular escenario What-If</span>
+                </button>
+              </div>
+            ) : (
+              /* Scenario Results (matching exact media_1793677871588_03d17cbf.png) */
+              <div className="whatif-result-container">
+                {(() => {
+                  const sc = WHAT_IF_SCENARIOS[whatIfTarget] || WHAT_IF_SCENARIOS['CD-MT-01']
+                  return (
+                    <>
+                      <div className="whatif-header-row">
+                        <span className="whatif-main-title">Resultado del escenario</span>
+                        <button
+                          className="whatif-close-btn"
+                          onClick={() => setWhatIfView('config')}
+                          title="Volver a configurar"
+                          aria-label="Volver a configurar"
+                        >
+                          <X size={17} />
+                        </button>
+                      </div>
+
+                      <h4 className="whatif-question-title">{sc.title}</h4>
+
+                      {/* 3 Ejes Chips */}
+                      <div className="whatif-chips-group">
+                        <span className="whatif-chip">Flujo de carga radial</span>
+                        <span className="whatif-chip">Red de ventilación</span>
+                        <span className="whatif-chip">Dilución por zona</span>
+                      </div>
+
+                      {/* Time & Horizon resolution */}
+                      <div className="whatif-meta-line">
+                        <Clock size={13} className="whatif-clock-icon" />
+                        <span>Resuelto en {sc.ms} ms · horizonte {whatIfHorizon} min</span>
+                      </div>
+
+                      {/* Antes y después comparison */}
+                      <div className="whatif-section-title">Antes y después</div>
+                      <div className="whatif-compare-list">
+                        {sc.beforeAfter.map((row, idx) => (
+                          <div key={idx} className="whatif-compare-row">
+                            <span className="whatif-compare-label">{row.label}</span>
+                            <div className="whatif-compare-values">
+                              <span className="mono">{row.before}</span>
+                              <span className="whatif-arrow">→</span>
+                              <b className="mono" style={{ color: row.trendColor || 'inherit' }}>
+                                {row.after}
+                              </b>
+                              <span className="whatif-unit">{row.unit}</span>
+                              {row.trend === 'down' && (
+                                <TrendingDown size={14} style={{ color: row.trendColor, marginLeft: 2 }} />
+                              )}
+                              {row.trend === 'up' && (
+                                <TrendingUp size={14} style={{ color: row.trendColor, marginLeft: 2 }} />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Consecuencias proyectadas */}
+                      <div className="whatif-section-title" style={{ marginTop: 14 }}>
+                        Consecuencias proyectadas ({sc.consequences.length})
+                      </div>
+                      <div className="whatif-consequences-stack">
+                        {sc.consequences.map((c) => (
+                          <div key={c.id} className="whatif-consequence-card">
+                            <span
+                              className={`whatif-severity-dot ${c.level}`}
+                              title={c.levelLabel}
+                            />
+                            <div className="whatif-consequence-info">
+                              <b className="whatif-consequence-title">{c.title}</b>
+                              <p className="whatif-consequence-desc">{c.desc}</p>
+                              <span className={`whatif-severity-tag ${c.level}`}>
+                                {c.levelLabel}
+                              </span>
+                            </div>
+                            {c.hasTarget && (
+                              <button
+                                className="whatif-target-btn"
+                                title="Centrar en el visor 3D"
+                                onClick={() => {
+                                  if (c.coords) {
+                                    setZoom(100)
+                                  }
+                                }}
+                              >
+                                <Target size={16} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Acciones recomendadas (Mitigación) */}
+                      <div className="whatif-section-title" style={{ marginTop: 14 }}>
+                        Acciones recomendadas (Mitigación)
+                      </div>
+                      <div className="whatif-mitigations-list">
+                        {sc.mitigations.map((m) => (
+                          <div key={m.id} className="whatif-mitigation-item">
+                            <div className="whatif-mitigation-bullet">•</div>
+                            <span>{m.text}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <button
+                        className="whatif-reconfig-btn"
+                        onClick={() => setWhatIfView('config')}
+                      >
+                        <SlidersHorizontal size={15} />
+                        <span>Modificar parámetros de maniobra</span>
+                      </button>
+                    </>
+                  )
+                })()}
+              </div>
+            )}
           </Section>
 
           <Section
