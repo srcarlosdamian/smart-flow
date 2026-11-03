@@ -98,7 +98,7 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
         const neutralMats: THREE.Material[] = []
 
         model.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh) {
+          if ((child as THREE.Mesh).isMesh || (child as any).isLine || (child as any).isLineSegments) {
             const mesh = child as THREE.Mesh
             if (mesh.geometry) {
               mesh.geometry.computeBoundingBox()
@@ -112,24 +112,31 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
             mesh.castShadow = true
             mesh.receiveShadow = true
 
-            // Convert blue materials of the 3D model into neutral slate tone
+            // Convert all blue/colored mine lines and tunnels to neutral slate tone
+            if (mesh.geometry && mesh.geometry.attributes.color) {
+              mesh.geometry.deleteAttribute('color')
+            }
+
             const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
             const updated = mats.map((mat) => {
               if (!mat) return mat
-              if ('color' in mat && (mat as any).color instanceof THREE.Color) {
-                const c = (mat as any).color as THREE.Color
-                // Detect blue tones in the mine mesh (dominant blue channel)
-                if (c.b > 0.45 && c.b > c.r + 0.2) {
-                  const cloned = mat.clone() as THREE.MeshBasicMaterial
-                  cloned.color.setHex(p.neutralMine)
-                  if (cloned.opacity < 0.35) {
-                    cloned.opacity = 0.45
+              const cloned = mat.clone()
+              if ('vertexColors' in cloned) {
+                cloned.vertexColors = false
+              }
+              if ('color' in cloned && (cloned as any).color instanceof THREE.Color) {
+                const c = (cloned as any).color as THREE.Color
+                // If it is the main gallery/tunnel network (mesh_82 has >1000 verts) or has blue/cyan tint, make neutral
+                const vertCount = mesh.geometry?.attributes.position?.count || 0
+                if (vertCount > 500 || (c.b > 0.45 && c.b > c.r + 0.15) || c.getHexString() === '00d4ff') {
+                  c.setHex(p.neutralMine)
+                  if ('opacity' in cloned && typeof (cloned as any).opacity === 'number' && (cloned as any).opacity < 0.4) {
+                    ;(cloned as any).opacity = 0.55
                   }
-                  neutralMats.push(cloned)
-                  return cloned
+                  neutralMats.push(cloned as THREE.Material)
                 }
               }
-              return mat
+              return cloned
             })
             mesh.material = Array.isArray(mesh.material) ? updated : updated[0]
           }
@@ -227,6 +234,57 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
       // Update active 3D simulations
       const time = performance.now() * 0.001
       simCtrl.update(time, state.current.activeSimulations || [])
+
+      // Directly apply dynamic simulation visual effects onto the 3D mine lines
+      const activeSims = state.current.activeSimulations || []
+      const currentTheme = state.current.theme
+      const curP = PALETTE[currentTheme]
+
+      if (matsRef.current && matsRef.current.neutralMats.length > 0) {
+        if (activeSims.includes('calor')) {
+          // Heatmap: warm orange/red thermal gradient on mine lines
+          const pulse = (Math.sin(time * 2.5) + 1) * 0.5
+          const heatCol = new THREE.Color(0xd97706).lerp(new THREE.Color(0xdc2626), pulse)
+          matsRef.current.neutralMats.forEach((m) => {
+            if ('color' in m && (m as any).color) {
+              (m as any).color.copy(heatCol)
+            }
+          })
+        } else if (activeSims.includes('aire')) {
+          // Airflow: animated blue / cyan wind flow along lines
+          const pulse = (Math.sin(time * 3.0) + 1) * 0.5
+          const airCol = new THREE.Color(0x0284c7).lerp(new THREE.Color(0x00e5ff), pulse)
+          matsRef.current.neutralMats.forEach((m) => {
+            if ('color' in m && (m as any).color) {
+              (m as any).color.copy(airCol)
+            }
+          })
+        } else if (activeSims.includes('energia')) {
+          // Power: electric high-voltage amber/gold
+          const pulse = (Math.sin(time * 4.0) + 1) * 0.5
+          const pwrCol = new THREE.Color(0xf59e0b).lerp(new THREE.Color(0xfef08a), pulse)
+          matsRef.current.neutralMats.forEach((m) => {
+            if ('color' in m && (m as any).color) {
+              (m as any).color.copy(pwrCol)
+            }
+          })
+        } else if (activeSims.includes('red')) {
+          // Network flow: violet/purple
+          const netCol = new THREE.Color(0xa855f7)
+          matsRef.current.neutralMats.forEach((m) => {
+            if ('color' in m && (m as any).color) {
+              (m as any).color.copy(netCol)
+            }
+          })
+        } else {
+          // Neutral slate tone
+          matsRef.current.neutralMats.forEach((m) => {
+            if ('color' in m && (m as any).color) {
+              (m as any).color.setHex(curP.neutralMine)
+            }
+          })
+        }
+      }
 
       renderer.render(scene, camera)
       raf = requestAnimationFrame(tick)

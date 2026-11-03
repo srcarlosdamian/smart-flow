@@ -2673,3 +2673,764 @@ input[type=range] { width: 100%; accent-color: #1976d2; }
   border-color: #0288d1;
   color: #0288d1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* SELECT & DROPDOWN ENHANCEMENTS (Translucent white with custom crisp chevron) */
+/* -------------------------------------------------------------------------- */
+select,
+.field,
+.field.full,
+.whatif-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-color: rgba(255, 255, 255, 0.90) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  color: #0f172a !important;
+  font-family: inherit;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  padding: 10px 38px 10px 14px !important;
+  border-radius: 9px !important;
+  border: 1px solid rgba(0, 0, 0, 0.16) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 12px) center !important;
+  background-size: 16px !important;
+  box-sizing: border-box !important;
+}
+
+select:hover,
+.field:hover,
+.field.full:hover {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(0, 0, 0, 0.28) !important;
+}
+
+select:focus,
+.field:focus,
+.field.full:focus {
+  outline: none !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.22) !important;
+  background-color: #ffffff !important;
+}
+
+select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  font-size: 13px !important;
+  padding: 6px 10px !important;
+}
+
+/* Semi-transparent white readable background for all popup menus */
+.dd-menu,
+.track-add-menu,
+.zoom-menu,
+.nexo-settings-menu,
+.nexo-more-menu {
+  background: rgba(255, 255, 255, 0.93) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+.dd-item {
+  color: #1e293b !important;
+}
+
+.dd-item:hover {
+  background: rgba(2, 132, 199, 0.08) !important;
+  color: #0284c7 !important;
+}
+
+/* Tracking header without chevron */
+.tracking-header-no-chevron {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* -------------------------------------------------------------------------- */
+/* INTERIOR VIEW & SIDEBAR STYLES */
+/* -------------------------------------------------------------------------- */
+.interior-bombeo-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  z-index: 5;
+}
+
+.bombeo-top-badge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.bombeo-badge-sub {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.bombeo-badge-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.bombeo-badge-icon {
+  color: #0284c7;
+}
+
+.bombeo-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 380px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #334155;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.15s ease;
+}
+
+.bombeo-close-btn:hover {
+  background: #ffffff;
+  color: #0f172a;
+  transform: scale(1.06);
+}
+
+.bombeo-3d-badge {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(6px);
+  border: 2px solid #334155;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+}
+
+.bombeo-3d-badge:hover,
+.bombeo-3d-badge.selected {
+  transform: translate(-50%, -105%) scale(1.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.bombeo-3d-badge.marcha {
+  border-color: #00e676;
+}
+
+.bombeo-3d-badge.marcha .badge-flow {
+  color: #00e676;
+  font-size: 11px;
+}
+
+.bombeo-3d-badge.falla {
+  border-color: #ef4444;
+}
+
+.bombeo-3d-badge.falla .badge-alarm {
+  color: #ef4444;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  animation: pulse 1.5s infinite;
+}
+
+.bombeo-3d-sump-badge {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: rgba(2, 132, 199, 0.9);
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.5);
+  pointer-events: none;
+  z-index: 8;
+}
+
+.bombeo-bottom-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(15, 23, 42, 0.6);
+  padding: 4px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  z-index: 8;
+}
+
+.bombeo-pump-overlay-card {
+  position: absolute;
+  bottom: 60px;
+  left: 32px;
+  width: 290px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.overlay-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.overlay-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.overlay-close {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.overlay-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.overlay-metric {
+  background: rgba(0, 0, 0, 0.03);
+  padding: 6px 8px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.overlay-metric .m-label {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.overlay-metric .m-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ask-nexo-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  background: linear-gradient(90deg, rgba(2, 132, 199, 0.1), rgba(14, 165, 233, 0.15));
+  color: #0284c7;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ask-nexo-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+/* Pumping Station Sidebar Telemetry */
+.bombeo-sidebar-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.bombeo-kpi-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.bombeo-kpi-item .kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.04em;
+}
+
+.bombeo-kpi-item .kpi-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.kpi-mini-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.fill-cyan {
+  height: 100%;
+  background: #0284c7;
+}
+
+.highlight-cyan { color: #0284c7 !important; }
+.highlight-green { color: #16a34a !important; }
+.highlight-red { color: #ef4444 !important; }
+.highlight-orange { color: #f97316 !important; }
+.highlight-amber { color: #f59e0b !important; }
+
+.bombeo-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.bombeo-pumps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.bombeo-pump-card {
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bombeo-pump-card:hover,
+.bombeo-pump-card.active {
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+}
+
+.pump-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.pump-name-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pump-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.pump-status-dot.marcha { background: #00e676; }
+.pump-status-dot.falla { background: #ef4444; }
+
+.pump-name {
+  font-weight: 700;
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.pump-status-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pump-status-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.pump-status-badge.marcha { background: rgba(0, 230, 118, 0.15); color: #00a854; }
+.pump-status-badge.reserva { background: rgba(148, 163, 184, 0.15); color: #64748b; }
+.pump-status-badge.falla { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+
+.pump-temp {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.pump-card-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.pump-card-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pump-bar-fill {
+  height: 100%;
+  background: #0284c7;
+}
+
+.pump-bar-fill.marcha { background: #00e676; }
+.pump-bar-fill.reserva { background: #94a3b8; }
+.pump-bar-fill.falla { background: #ef4444; }
+
+.bombeo-exit-btn {
+  width: 100%;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.04);
+  color: #334155;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.15s ease;
+}
+
+.bombeo-exit-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #0f172a;
+}
+
+/* -------------------------------------------------------------------------- */
+/* WORKSPACE AI KPIS STRIP (Matching Nexo Implementation Guide p.6, 8, 12, 18) */
+/* -------------------------------------------------------------------------- */
+.workspace-ai-kpis-strip {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 8;
+  user-select: none;
+}
+
+.ai-kpi-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-kpi-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ai-kpi-val {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.ai-kpi-val small {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.ai-kpi-sparkline {
+  width: 44px;
+  height: 14px;
+  margin-top: 2px;
+}
+
+.ai-kpi-sparkline.forecast {
+  width: 60px;
+}
+
+.ai-kpi-divider {
+  width: 1px;
+  height: 26px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.health-score-item {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.health-score-item:hover {
+  background: rgba(2, 132, 199, 0.08);
+}
+
+.ai-kpi-head-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-nexo-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #1253dd, #08ddf0);
+  color: #ffffff;
+}
+
+.ai-kpi-val-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* SUBTLE 3D POINTS OF INTEREST WITH ANCHORED DROPDOWNS (Nexo PDF p.10, 11)   */
+/* -------------------------------------------------------------------------- */
+.poi-subtle-indicator {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  z-index: 9;
+  pointer-events: auto;
+}
+
+.poi-center-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0284c7;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 6px rgba(2, 132, 199, 0.6);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+}
+
+.poi-subtle-indicator.alerta .poi-center-dot {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+}
+
+.poi-circle-pulse {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  top: -7px;
+  left: -7px;
+  border-radius: 50%;
+  border: 2px solid #ef4444;
+  opacity: 0.7;
+  animation: poiPulse 2s infinite ease-out;
+}
+
+@keyframes poiPulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.poi-mini-tag {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.poi-anchored-dropdown {
+  position: absolute;
+  width: 280px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
+  z-index: 12;
+  user-select: none;
+}
+
+.poi-dropdown-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.poi-dropdown-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.poi-dropdown-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.poi-close-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.poi-dropdown-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 8px 0;
+}
+
+.poi-dropdown-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.poi-grid-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+
+.poi-grid-row .poi-k {
+  color: #64748b;
+}
+
+.poi-grid-row .poi-v {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.poi-dropdown-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.poi-ask-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  background: linear-gradient(90deg, #1253dd, #08ddf0);
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.poi-enter-scene-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+}
