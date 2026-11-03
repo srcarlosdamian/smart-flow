@@ -90,7 +90,8 @@ export function createSimulations(scene: THREE.Scene): SimulationsController {
     speed: number
   }
   const airArrows: AirArrow[] = []
-  const arrowGeo = new THREE.ConeGeometry(0.35, 1.1, 8)
+  // Fine scale velocity arrow cones matching the 3D mine wireframe
+  const arrowGeo = new THREE.ConeGeometry(0.08, 0.28, 6)
   arrowGeo.rotateX(Math.PI / 2) // Point forward along trajectory
 
   airSplines.forEach((_, sIdx) => {
@@ -196,11 +197,12 @@ export function createSimulations(scene: THREE.Scene): SimulationsController {
 
   powerCables.forEach((pts) => {
     const curve = new THREE.CatmullRomCurve3(pts)
-    const geo = new THREE.TubeGeometry(curve, 32, 0.14, 8, false)
+    // Scaled-down cable matching 3D mine lines
+    const geo = new THREE.TubeGeometry(curve, 32, 0.02, 6, false)
     const mat = new THREE.MeshBasicMaterial({
       color: 0xffd600,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.85,
     })
     const tube = new THREE.Mesh(geo, mat)
     energiaGroup.add(tube)
@@ -214,7 +216,8 @@ export function createSimulations(scene: THREE.Scene): SimulationsController {
     speed: number
   }
   const energyPulses: EnergyPulse[] = []
-  const pulseGeo = new THREE.SphereGeometry(0.32, 8, 8)
+  // Fine scale pulse spheres matching 3D mine wireframe
+  const pulseGeo = new THREE.SphereGeometry(0.06, 8, 8)
   const pulseMat = new THREE.MeshBasicMaterial({
     color: 0xffff00,
     transparent: true,
@@ -245,7 +248,7 @@ export function createSimulations(scene: THREE.Scene): SimulationsController {
     new THREE.Vector3(4, 1.8, -4),
   ]
   subNodes.forEach((pos) => {
-    const ringGeo = new THREE.RingGeometry(0.5, 0.7, 16)
+    const ringGeo = new THREE.RingGeometry(0.12, 0.22, 16)
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0xffd600,
       side: THREE.DoubleSide,
@@ -353,58 +356,50 @@ export function createSimulations(scene: THREE.Scene): SimulationsController {
   geocercasGroup.name = 'sim_geocercas'
   masterGroup.add(geocercasGroup)
 
+  // Small circular geofences distributed across the 3D mine lines
   const geofences = [
-    { pos: new THREE.Vector3(12, 2.5, -4.5), size: new THREE.Vector3(10, 4.2, 8), color: 0xf44336 }, // Danger / Voladura
-    { pos: new THREE.Vector3(-9, 6.8, -6.5), size: new THREE.Vector3(9, 4.5, 7.5), color: 0x00b0ff }, // Taller Mecánico
-    { pos: new THREE.Vector3(0, 5.2, -6), size: new THREE.Vector3(6.5, 3.8, 6.5), color: 0x00e676 }, // Refugio R-01
-    { pos: new THREE.Vector3(6, 2.8, -8), size: new THREE.Vector3(8, 4.2, 6.5), color: 0xff9800 }, // Chancador
+    { pos: new THREE.Vector3(12, 2.5, -4.5), radius: 1.8, height: 1.2, color: 0xf44336 }, // Danger / Voladura
+    { pos: new THREE.Vector3(-9, 6.8, -6.5), radius: 2.0, height: 1.2, color: 0x00b0ff }, // Taller Mecánico
+    { pos: new THREE.Vector3(0, 5.2, -6), radius: 1.6, height: 1.2, color: 0x00e676 }, // Refugio R-01
+    { pos: new THREE.Vector3(6, 2.8, -8), radius: 1.9, height: 1.2, color: 0xff9800 }, // Chancador
+    { pos: new THREE.Vector3(-14, 10, -4), radius: 1.5, height: 1.0, color: 0x00e676 }, // Galería N1
+    { pos: new THREE.Vector3(-4, 7.5, -7), radius: 1.6, height: 1.0, color: 0x0284c7 }, // Subestación
+    { pos: new THREE.Vector3(2, 4.5, -5), radius: 1.7, height: 1.0, color: 0xf44336 }, // Rampa Este
+    { pos: new THREE.Vector3(16, 1.8, -3), radius: 1.5, height: 1.0, color: 0x00e676 }, // Punto Encuentro
+    { pos: new THREE.Vector3(-6, 3.5, -5), radius: 1.6, height: 1.0, color: 0xff9800 }, // Polvorín
+    { pos: new THREE.Vector3(-16, 2, -6), radius: 1.4, height: 1.0, color: 0x00b0ff }, // Nivel 4 Frente
   ]
 
   geofences.forEach((gf) => {
-    // Translucent bounding volume
-    const boxGeo = new THREE.BoxGeometry(gf.size.x, gf.size.y, gf.size.z)
-    const boxMat = new THREE.MeshBasicMaterial({
+    // Translucent circular cylinder volume
+    const cylGeo = new THREE.CylinderGeometry(gf.radius, gf.radius, gf.height, 24, 1, false)
+    const cylMat = new THREE.MeshBasicMaterial({
       color: gf.color,
       transparent: true,
       opacity: 0.18,
       depthWrite: false,
     })
-    const box = new THREE.Mesh(boxGeo, boxMat)
-    box.position.copy(gf.pos)
-    geocercasGroup.add(box)
+    const cyl = new THREE.Mesh(cylGeo, cylMat)
+    cyl.position.copy(gf.pos)
+    geocercasGroup.add(cyl)
 
-    // Bright perimeter line wireframe
-    const edgesGeo = new THREE.EdgesGeometry(boxGeo)
-    const edgesMat = new THREE.LineBasicMaterial({
+    // Glowing perimeter circle wireframe (top and bottom rings)
+    const ringGeo = new THREE.RingGeometry(gf.radius - 0.04, gf.radius + 0.02, 32)
+    const ringMat = new THREE.MeshBasicMaterial({
       color: gf.color,
+      side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.95,
-      linewidth: 2,
     })
-    const edges = new THREE.LineSegments(edgesGeo, edgesMat)
-    edges.position.copy(gf.pos)
-    geocercasGroup.add(edges)
+    const bottomRing = new THREE.Mesh(ringGeo, ringMat)
+    bottomRing.position.set(gf.pos.x, gf.pos.y - gf.height / 2, gf.pos.z)
+    bottomRing.rotation.x = Math.PI / 2
+    geocercasGroup.add(bottomRing)
 
-    // Corner beacon lines
-    const halfX = gf.size.x / 2
-    const halfZ = gf.size.z / 2
-    const corners = [
-      new THREE.Vector3(gf.pos.x - halfX, gf.pos.y, gf.pos.z - halfZ),
-      new THREE.Vector3(gf.pos.x + halfX, gf.pos.y, gf.pos.z - halfZ),
-      new THREE.Vector3(gf.pos.x - halfX, gf.pos.y, gf.pos.z + halfZ),
-      new THREE.Vector3(gf.pos.x + halfX, gf.pos.y, gf.pos.z + halfZ),
-    ]
-    corners.forEach((cPos) => {
-      const beaconGeo = new THREE.CylinderGeometry(0.08, 0.08, gf.size.y, 8)
-      const beaconMat = new THREE.MeshBasicMaterial({
-        color: gf.color,
-        transparent: true,
-        opacity: 0.8,
-      })
-      const beacon = new THREE.Mesh(beaconGeo, beaconMat)
-      beacon.position.copy(cPos)
-      geocercasGroup.add(beacon)
-    })
+    const topRing = new THREE.Mesh(ringGeo, ringMat)
+    topRing.position.set(gf.pos.x, gf.pos.y + gf.height / 2, gf.pos.z)
+    topRing.rotation.x = Math.PI / 2
+    geocercasGroup.add(topRing)
   })
 
   // -------------------------------------------------------------

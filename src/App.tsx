@@ -7,11 +7,11 @@ import {
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Minus,
   Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot, Settings,
-  EllipsisVertical, Ellipsis, TextAlignStart, Pin, PictureInPicture2, SquareArrowOutUpRight,
+  EllipsisVertical, Ellipsis, TextAlignStart, Pin, SquareArrowOutUpRight,
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, DoorOpen, Sparkles, Target,
+  X, Sparkles, Target, CheckCheck, Upload, Download, Camera,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -175,7 +175,7 @@ const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; co
   { id: 'perimetros', label: 'Perímetros', menuLabel: 'Perímetros', color: '#f44336', icon: CircleGauge },
   { id: 'recorrido', label: 'Recorrido', menuLabel: 'Recorrido', color: '#7c4dff', icon: Waypoints },
   { id: 'escenario', label: 'Escenario alterno', menuLabel: 'Escenario alterno', color: '#00bfa5', icon: AudioWaveform },
-  { id: 'evacuacion', label: 'Declarar evaluación', menuLabel: 'Declarar evacuación', color: '#ff5252', icon: Siren },
+  { id: 'evacuacion', label: 'Declarar evacuación', menuLabel: 'Declarar evacuación', color: '#ff5252', icon: Siren },
 ]
 
 const ZONAS_DATA = [
@@ -292,24 +292,6 @@ const INTERIORES_DATA: InteriorItem[] = [
     ],
   },
 ]
-
-const V_SA_01_EQUIPO: InteriorItem = {
-  id: 'v-sa-01',
-  title: 'Bearings · Rodamiento delantero',
-  subTitle: 'Ventilador V-SA-01',
-  category: 'Equipo',
-  icon: Wind,
-  iconColor: '#f59e0b',
-  locationLabel: 'SKF 6310 ball bearing · V-SA-01',
-  level: 'L1',
-  metrics: [
-    { label: 'Temperatura', value: '52.01 °C ▲ +0.32°C/min', valueColor: '#f59e0b' },
-    { label: 'Vibración', value: '3.68 mm/s (umbral: 2.8)', valueColor: '#ef4444' },
-    { label: 'Horas de operación', value: '13,078 h' },
-    { label: 'Predicción de falla', value: '18.55 d (fuera de umbral)', valueColor: '#ef4444' },
-    { label: 'Salud', value: '72%', bar: { current: 72, max: 100 }, valueColor: '#f59e0b' },
-  ],
-}
 
 export interface WhatIfConsequence {
   id: string
@@ -526,6 +508,7 @@ export type SidebarView =
   | { type: 'escenario_comparacion' }
   | { type: 'zona_detail'; data: (typeof ZONAS_DATA)[0] }
   | { type: 'vehicle_detail'; data: VehicleDetailItem }
+  | { type: 'evacuacion_alertas' }
 
 const PERSONAL_RECORRIDO: PersonalItem[] = [
   {
@@ -683,6 +666,27 @@ export default function App() {
   const toggleTrackItem = (id: string) => {
     setExpandedTrack((prev) => (prev[id] ? {} : { [id]: true }))
   }
+
+  const [whatIfPlaying, setWhatIfPlaying] = useState(false)
+  const [whatIfTime, setWhatIfTime] = useState(1800)
+
+  useEffect(() => {
+    let t: any = null
+    if (whatIfPlaying) {
+      t = setInterval(() => {
+        setWhatIfTime((prev) => (prev >= 1800 ? 0 : prev + 1))
+      }, 1000)
+    }
+    return () => clearInterval(t)
+  }, [whatIfPlaying])
+
+  // Evacuacion state
+  const [evacuacionActiva, setEvacuacionActiva] = useState(false)
+  const [evacTab, setEvacTab] = useState<'sin_cerrar' | 'resueltas'>('sin_cerrar')
+  const [evacAlerts, setEvacAlerts] = useState([
+    { id: 'evac1', type: 'Evacuación', level: 'Crítico', status: 'Sin atender', loc: 'Toda la mina', sub: 'Fuera de zona  0:00:00  hace 0 s', icon: Siren },
+    { id: 'evac2', type: 'Hombre caído', level: 'Crítico', status: 'Sin atender', loc: 'Nivel 2 - Taller mecánico', sub: 'Carlos Mendoza  10:00:00  hace 1 min', icon: CircleAlert },
+  ])
 
   // Escenario alterno state
   const [escenarioCierres, setEscenarioCierres] = useState<string[]>(['Nivel 2 - Taller mecanico', 'Frente de voladura'])
@@ -1009,6 +1013,10 @@ export default function App() {
             theme={theme}
             activeSimulations={activeSimulations}
             onZoomChange={setZoom}
+            onSelectObject={() => {
+              setInteriorView('bombeo')
+              setSidebarView({ type: 'interior', data: INTERIORES_DATA[2] })
+            }}
           />
         </>
       )}
@@ -1256,74 +1264,90 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
 
+                    {/* AI Metric Card */}
                     <div
-                      className="bombeo-ai-insight-box"
+                      className="user-ai-gradient-card"
+                      style={{ cursor: 'pointer' }}
                       onClick={() => {
                         setNexoOpen(true)
                         sendNexoMessage('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')
                       }}
                       title="Abrir recomendación con Nexo IA"
                     >
-                      <div className="ai-insight-header">
-                        <Sparkles size={14} className="ai-insight-sparkle" />
-                        <span className="ai-insight-title">Diagnóstico Nexo IA</span>
-                        <span className="ai-insight-badge">1 alerta</span>
-                      </div>
-                      <p className="ai-insight-text">
-                        BA-04 en sobretemperatura (81°C). Nexo sugiere encender BA-03 para resguardar margen del sumidero.
-                      </p>
-                      <div className="ai-insight-action">
-                        <span>Consultar con Nexo IA →</span>
-                      </div>
-                    </div>
-
-                    <div className="bombeo-sidebar-kpis">
-                      <div className="bombeo-kpi-item">
-                        <div className="kpi-label">NIVEL SUMIDERO</div>
-                        <div className="kpi-val highlight-cyan">64%</div>
-                        <div className="kpi-mini-bar"><div className="fill-cyan" style={{ width: '64%' }} /></div>
-                      </div>
-                      <div className="bombeo-kpi-item">
-                        <div className="kpi-label">EN MARCHA</div>
-                        <div className="kpi-val highlight-green">2 / 4</div>
-                      </div>
-                      <div className="bombeo-kpi-item">
-                        <div className="kpi-label">CAUDAL TOTAL</div>
-                        <div className="kpi-val">152 <small>L/s</small></div>
-                      </div>
-                      <div className="bombeo-kpi-item">
-                        <div className="kpi-label">EN FALLA</div>
-                        <div className="kpi-val highlight-red">1</div>
-                      </div>
-                    </div>
-
-                    <div className="bombeo-section-title">BOMBAS (4)</div>
-                    <div className="bombeo-pumps-list">
-                      {PUMPS_SIDEBAR.map((p) => (
-                        <div
-                          key={p.id}
-                          className={`bombeo-pump-card ${selectedPump === p.id ? 'active' : ''}`}
-                          onClick={() => setSelectedPump(p.id)}
-                        >
-                          <div className="pump-card-header">
-                            <div className="pump-name-group">
-                              <span className={`pump-status-dot ${p.status}`} />
-                              <span className="pump-name">{p.id}</span>
-                            </div>
-                            <div className="pump-status-pill-group">
-                              <span className={`pump-status-badge ${p.status}`}>{p.statusText}</span>
-                              <span className="pump-temp">{p.temp}</span>
-                            </div>
-                          </div>
-                          <div className="pump-card-details">
-                            <span className="pump-telemetry">{p.flow}</span>
-                            <span className="pump-hours">{p.hours}</span>
-                          </div>
-                          <div className="pump-card-bar">
-                            <div className={`pump-bar-fill ${p.status}`} style={{ width: `${p.barPercent}%` }} />
-                          </div>
+                      <div className="user-ai-card-top">
+                        <div className="user-ai-tag">
+                          <Sparkles size={14} />
+                          <span>Nexo IA · Diagnóstico Sala de Bombeo</span>
                         </div>
-                      ))}
+                        <span className="user-ai-status" style={{ background: '#fee2e2', color: '#dc2626' }}>1 Alerta</span>
+                      </div>
+                      <div className="user-ai-card-body">
+                        <div className="user-ai-metric-row">
+                          <span className="user-ai-lbl">Estado BA-04:</span>
+                          <b className="user-ai-val" style={{ color: '#dc2626' }}>Sobretemperatura (81°C)</b>
+                        </div>
+                        <div className="user-ai-metric-row">
+                          <span className="user-ai-lbl">Recomendación:</span>
+                          <b className="user-ai-val">Conmutar a BA-03 (Reserva)</b>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Telemetría y estado con líneas */}
+                    <div className="user-info-list" style={{ marginTop: 12 }}>
+                      <div className="user-info-row">
+                        <span className="info-label">Nivel de sumidero L5</span>
+                        <span className="info-value bold">64% (~180 m³)</span>
+                      </div>
+                      <div className="user-info-row">
+                        <span className="info-label">Bombas en marcha</span>
+                        <span className="info-value bold" style={{ color: '#16a34a' }}>2 de 4</span>
+                      </div>
+                      <div className="user-info-row">
+                        <span className="info-label">Caudal total evacuado</span>
+                        <span className="info-value bold">152 L/s</span>
+                      </div>
+                      <div className="user-info-row">
+                        <span className="info-label">Bombas en falla</span>
+                        <span className="info-value bold" style={{ color: '#dc2626' }}>1 (BA-04)</span>
+                      </div>
+                    </div>
+
+                    <div className="bombeo-section-title" style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '14px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                      BOMBAS (4)
+                    </div>
+                    <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {PUMPS_SIDEBAR.map((p) => {
+                        const isSel = selectedPump === p.id
+                        return (
+                          <div
+                            key={p.id}
+                            className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
+                            onClick={() => setSelectedPump(p.id)}
+                          >
+                            <div className="bombeo-pump-v2-header">
+                              <div className="row gap-2" style={{ alignItems: 'center' }}>
+                                <span className={`pump-status-dot-v2 ${p.status}`} />
+                                <b style={{ fontSize: 14, color: '#0f172a' }}>{p.id}</b>
+                              </div>
+                              <div className="row gap-2" style={{ alignItems: 'center' }}>
+                                <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
+                                <span style={{ fontSize: 12, fontWeight: 600, color: p.status === 'falla' ? '#ef4444' : '#64748b' }}>{p.temp}</span>
+                              </div>
+                            </div>
+                            <div className="row between" style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                              <span>{p.flow}</span>
+                              <span>{p.hours}</span>
+                            </div>
+                            <div className="pump-bar-v2-track">
+                              <div
+                                className={`pump-bar-v2-fill ${p.status}`}
+                                style={{ width: p.status === 'reserva' ? '0%' : p.status === 'falla' ? '100%' : `${p.barPercent}%` }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
 
                     <button
@@ -1359,11 +1383,20 @@ export default function App() {
                     </button>
 
                     <button
-                      className="bombeo-exit-btn"
+                      className="esc-secondary-btn full no-shadow"
                       onClick={() => setInteriorView(null)}
-                      style={{ marginTop: 10 }}
+                      style={{
+                        marginTop: 10,
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        boxShadow: 'none',
+                        cursor: 'pointer',
+                      }}
                     >
-                      <span>Volver al modelo general de la mina</span>
+                      Volver al modelo general de la mina
                     </button>
                   </>
                 ) : sidebarView.data.id === 'v-sa-01' ? (
@@ -1400,7 +1433,7 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
                     <button
-                      className="cta no-shadow"
+                      className="no-shadow"
                       style={{
                         marginTop: 12,
                         marginBottom: 6,
@@ -1411,12 +1444,12 @@ export default function App() {
                         gap: 8,
                         padding: '9px 14px',
                         borderRadius: 8,
-                        background: 'rgba(2, 132, 199, 0.12)',
-                        color: '#0284c7',
-                        border: '1px solid rgba(2, 132, 199, 0.25)',
+                        background: 'transparent',
+                        color: '#0f172a',
+                        border: '1px solid var(--line)',
                         fontWeight: 600,
                         cursor: 'pointer',
-                        fontSize: 12.5,
+                        fontSize: 13,
                         boxShadow: 'none',
                       }}
                       onClick={() => {
@@ -1424,37 +1457,32 @@ export default function App() {
                         sendNexoMessage(`Diagnóstico del estado operativo de ${sidebarView.data.title}`)
                       }}
                     >
-                      <Sparkles size={14} />
-                      <span>Consultar estado con Nexo IA</span>
+                      <Sparkles size={15} style={{ color: '#0f172a' }} />
+                      <span style={{ color: '#0f172a' }}>Consultar estado con Nexo IA</span>
                     </button>
                     <button
-                      className="interior-enter-btn no-shadow"
+                      className="cta full no-shadow"
                       style={{
                         marginTop: 6,
                         width: '100%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: 8,
-                        padding: '12px 16px',
-                        borderRadius: 10,
-                        background: '#0d1f3c',
+                        padding: '11px 16px',
+                        borderRadius: 8,
+                        background: 'linear-gradient(135deg, #0284c7 0%, #00b4d8 100%)',
                         color: '#fff',
                         border: 'none',
                         fontWeight: 600,
+                        fontSize: 13.5,
                         cursor: 'pointer',
                         boxShadow: 'none',
                       }}
                       onClick={() => {
-                        if (sidebarView.data.id === 'bombeo') {
-                          setInteriorView('bombeo')
-                        } else {
-                          setLevel(sidebarView.data.level)
-                          setZoom(120)
-                        }
+                        setInteriorView('bombeo')
+                        setSidebarView({ type: 'interior', data: INTERIORES_DATA[2] })
                       }}
                     >
-                      <DoorOpen size={18} />
                       <span>Entrar</span>
                     </button>
                   </>
@@ -1481,16 +1509,16 @@ export default function App() {
               <div className="whatif-result-container" style={{ padding: '16px 20px' }}>
                 <h2 className="user-detail-title" style={{ margin: '4px 0 12px 0', fontSize: 20, fontWeight: 700 }}>Resultado del escenario</h2>
 
-                <div className="row gap-2" style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
                   <button
-                    className="cta flex-1 no-shadow"
+                    className="cta full no-shadow"
                     style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, borderRadius: 8, boxShadow: 'none' }}
                     onClick={() => setSidebarView(null)}
                   >
                     Editar ajustes
                   </button>
                   <button
-                    className="esc-secondary-btn flex-1 no-shadow"
+                    className="esc-secondary-btn full no-shadow"
                     style={{ padding: '9px 12px', fontSize: 13, borderRadius: 8, boxShadow: 'none' }}
                     onClick={() => setSidebarView(null)}
                   >
@@ -1533,7 +1561,6 @@ export default function App() {
                                 <span className="whatif-col-lbl">Antes</span>
                                 <span className="whatif-col-val">{row.before} {row.unit}</span>
                               </div>
-                              <div className="whatif-col-divider" />
                               <div className="whatif-col">
                                 <span className="whatif-col-lbl">Después</span>
                                 <span className="whatif-col-val" style={{ color: row.trendColor || 'inherit' }}>
@@ -1661,6 +1688,27 @@ export default function App() {
                 </div>
               </div>
 
+              {/* AI Metric Card */}
+              <div className="user-ai-gradient-card">
+                <div className="user-ai-card-top">
+                  <div className="user-ai-tag">
+                    <Sparkles size={14} />
+                    <span>IA Predictiva · Telemetría</span>
+                  </div>
+                  <span className="user-ai-status">Óptimo</span>
+                </div>
+                <div className="user-ai-card-body">
+                  <div className="user-ai-metric-row">
+                    <span className="user-ai-lbl">Ruta recomendada:</span>
+                    <b className="user-ai-val">Rampa N02 → Refugio R-01</b>
+                  </div>
+                  <div className="user-ai-metric-row">
+                    <span className="user-ai-lbl">Tiempo estimado:</span>
+                    <b className="user-ai-val">3 min 40 s (Sin riesgo)</b>
+                  </div>
+                </div>
+              </div>
+
               {/* Sparkline / Recorrido Graph */}
               <div className="user-graph-container">
                 <svg viewBox="0 0 280 48" className="user-graph-svg" preserveAspectRatio="none">
@@ -1684,40 +1732,59 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="auxilio-card">
-                  <div className="auxilio-card-row1">
-                    <span className="auxilio-type-title">Hombre caído</span>
-                    <div className="auxilio-status-group">
-                      <span className="auxilio-status-unattended">{auxilioHandled ? 'Atendido' : 'Sin atender'}</span>
-                      <span className="auxilio-status-critical">{auxilioResolved ? 'Resuelto' : 'Crítico'}</span>
+                <div className="auxilio-tabs-row" style={{ marginBottom: 12 }}>
+                  <button
+                    className={`auxilio-tab-btn ${auxilioTab === 'sin_resolver' ? 'active' : ''}`}
+                    onClick={() => setAuxilioTab('sin_resolver')}
+                  >
+                    3 sin resolver
+                  </button>
+                  <button
+                    className={`auxilio-tab-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
+                    onClick={() => setAuxilioTab('resueltas')}
+                  >
+                    3 resueltas
+                  </button>
+                </div>
+
+                <div className="vehicle-auxilios-stack" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {['Hombre caído', 'Coacción', 'SOS'].map((tipo) => (
+                    <div key={tipo} className="auxilio-card">
+                      <div className="auxilio-card-row1">
+                        <span className="auxilio-type-title">{tipo}</span>
+                        <div className="auxilio-status-group">
+                          <span className="auxilio-status-unattended">{auxilioHandled ? 'Atendido' : 'Sin atender'}</span>
+                          <span className="auxilio-status-critical">{auxilioResolved ? 'Resuelto' : 'Crítico'}</span>
+                        </div>
+                      </div>
+
+                      <div className="auxilio-card-row2">
+                        <Crosshair size={14} className="auxilio-icon" />
+                        <span>{sidebarView.data.name || 'Carlos Mendoza'}</span>
+                      </div>
+
+                      <div className="auxilio-card-row3">
+                        <span>Refugio R-01</span>
+                        <span>10:00:00</span>
+                        <span>hace 0 s</span>
+                      </div>
+
+                      <div className="auxilio-card-actions">
+                        <button
+                          className={`auxilio-action-btn ${auxilioHandled ? 'active' : ''}`}
+                          onClick={() => setAuxilioHandled((v) => !v)}
+                        >
+                          {auxilioHandled ? 'Atendido' : 'Atender'}
+                        </button>
+                        <button
+                          className={`auxilio-action-btn ${auxilioResolved ? 'active' : ''}`}
+                          onClick={() => setAuxilioResolved((v) => !v)}
+                        >
+                          {auxilioResolved ? 'Resuelto' : 'Resolver'}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="auxilio-card-row2">
-                    <Crosshair size={14} className="auxilio-icon" />
-                    <span>Camion T-03</span>
-                  </div>
-
-                  <div className="auxilio-card-row3">
-                    <span>Refugio R-0</span>
-                    <span>10:00:00</span>
-                    <span>hace 0 s</span>
-                  </div>
-
-                  <div className="auxilio-card-actions">
-                    <button
-                      className={`auxilio-action-btn ${auxilioHandled ? 'active' : ''}`}
-                      onClick={() => setAuxilioHandled((v) => !v)}
-                    >
-                      {auxilioHandled ? 'Atendido' : 'Atender'}
-                    </button>
-                    <button
-                      className={`auxilio-action-btn ${auxilioResolved ? 'active' : ''}`}
-                      onClick={() => setAuxilioResolved((v) => !v)}
-                    >
-                      {auxilioResolved ? 'Resuelto' : 'Resolver'}
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -2039,9 +2106,11 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="row between hist-row" style={{ marginTop: 14 }}>
-                <span className="info-label">Historial</span>
-                <span className="info-value bold">Hace 15 minutos</span>
+              <div className="user-info-list" style={{ marginTop: 14 }}>
+                <div className="user-info-row">
+                  <span className="info-label">Historial</span>
+                  <span className="info-value bold">Hace 15 minutos</span>
+                </div>
               </div>
             </div>
           ) : sidebarView?.type === 'vehicle_detail' ? (
@@ -2187,6 +2256,136 @@ export default function App() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          ) : sidebarView?.type === 'evacuacion_alertas' ? (
+            /* SMF - V2: Evacuación Alertas View (media_1793688899296_84b083d4.png) */
+            <div className="evacuacion-alertas-panel" style={{ paddingBottom: 24 }}>
+              <div className="user-detail-topbar">
+                <button
+                  className="user-top-back-btn"
+                  onClick={() => setSidebarView(null)}
+                  title="Volver"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div className="user-top-crumb">
+                  <span className="crumb-prefix">Inicio / </span>
+                  <span className="crumb-name">Evacuación</span>
+                </div>
+                <button
+                  className="esc-secondary-btn no-shadow"
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: 12,
+                    borderRadius: 6,
+                    color: '#ef4444',
+                    borderColor: '#fca5a5',
+                    marginLeft: 'auto',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    setEvacuacionActiva(false)
+                    setSidebarView(null)
+                  }}
+                  title="Finalizar estado de evacuación"
+                >
+                  Finalizar
+                </button>
+              </div>
+
+              <div style={{ padding: '16px 20px' }}>
+                <div className="row between" style={{ alignItems: 'center', marginBottom: 14 }}>
+                  <h2 className="user-detail-title" style={{ margin: 0, fontSize: 19, fontWeight: 700 }}>Alertas</h2>
+                  <button
+                    className="user-top-back-btn"
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+                    onClick={() => setSidebarView(null)}
+                    title="Cerrar"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                {/* Tabs: 1 sin cerrar (red badge) | 1 resueltas */}
+                <div className="auxilio-tabs-row" style={{ marginBottom: 14, gap: 8 }}>
+                  <button
+                    className="auxilio-tab-btn"
+                    style={{
+                      background: evacTab === 'sin_cerrar' ? '#ef4444' : 'transparent',
+                      color: evacTab === 'sin_cerrar' ? '#fff' : '#475569',
+                      border: evacTab === 'sin_cerrar' ? 'none' : '1px solid var(--line)',
+                      fontWeight: 700,
+                    }}
+                    onClick={() => setEvacTab('sin_cerrar')}
+                  >
+                    {evacAlerts.length} sin cerrar
+                  </button>
+                  <button
+                    className="auxilio-tab-btn"
+                    style={{
+                      background: evacTab === 'resueltas' ? '#334155' : 'transparent',
+                      color: evacTab === 'resueltas' ? '#fff' : '#475569',
+                      border: evacTab === 'resueltas' ? 'none' : '1px solid var(--line)',
+                      fontWeight: 600,
+                    }}
+                    onClick={() => setEvacTab('resueltas')}
+                  >
+                    1 resueltas
+                  </button>
+                </div>
+
+                {/* Alerts List matching media_1793688899296_84b083d4.png */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {evacAlerts.map((al) => {
+                    const Icon = al.icon
+                    return (
+                      <div key={al.id} className="evacuacion-alert-card">
+                        <div className="evac-alert-top-row">
+                          <div className="evac-alert-title-group">
+                            <Icon size={16} style={{ color: '#ef4444' }} />
+                            <b style={{ fontSize: 14, color: '#0f172a' }}>{al.type}</b>
+                            <span className="evac-alert-tag-critical">{al.level}</span>
+                          </div>
+                          <span className="evac-alert-status-pill">{al.status}</span>
+                        </div>
+
+                        <div className="evac-alert-location">{al.loc}</div>
+                        <div className="evac-alert-meta">{al.sub}</div>
+
+                        <div className="evac-alert-actions">
+                          <button
+                            className="evac-action-link-btn"
+                            onClick={() => {
+                              setEvacAlerts((prev) =>
+                                prev.map((a) => (a.id === al.id ? { ...a, status: 'Atendido' } : a))
+                              )
+                            }}
+                          >
+                            <Check size={14} />
+                            <span>Atender</span>
+                          </button>
+                          <button
+                            className="evac-action-link-btn"
+                            onClick={() => {
+                              setEvacAlerts((prev) => prev.filter((a) => a.id !== al.id))
+                            }}
+                          >
+                            <CheckCheck size={14} />
+                            <span>Resolver</span>
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+
+                  {evacAlerts.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '30px 10px', color: '#64748b' }}>
+                      <CheckCheck size={32} style={{ color: '#10b981', margin: '0 auto 8px' }} />
+                      <p style={{ margin: 0, fontWeight: 600 }}>Todas las alertas han sido resueltas</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -2363,16 +2562,15 @@ export default function App() {
                   </div>
                 )}
 
-                {/* 50% Zoom Popover Menu with default prototype parameters */}
+                {/* 50% Zoom Popover Menu */}
                 {ddOpen === 'zoom' && (
                   <div className="dd-menu zoom-menu">
                     <div className="dd-group-title">ESCALA DE VISTA</div>
                     {zoomPresets.map(({ val, label, tag }) => {
-                      const isSel = zoom === val
                       return (
                         <button
                           key={val}
-                          className={`dd-item ${isSel ? 'selected' : ''}`}
+                          className="dd-item"
                           onClick={() => {
                             setZoom(val)
                             setDdOpen(null)
@@ -2380,15 +2578,9 @@ export default function App() {
                         >
                           <span>{label}</span>
                           {tag && <small className="dd-tag">{tag}</small>}
-                          {isSel && <Check size={16} className="dd-check" />}
                         </button>
                       )
                     })}
-                    <div className="dd-divider" />
-                    <div className="dd-group-title">PARÁMETROS DE CÁMARA</div>
-                    <div className="dd-param-row"><span>FOV</span><b>50°</b></div>
-                    <div className="dd-param-row"><span>Distancia focal</span><b>30 m</b></div>
-                    <div className="dd-param-row"><span>Recorte cercano</span><b>0.1 m</b></div>
                   </div>
                 )}
               </div>
@@ -2441,19 +2633,41 @@ export default function App() {
             className="section track-section"
             {...showHelp('Tracking', 'Monitoreo y seguimiento en tiempo real de personal, vehículos y activos dentro de la mina.')}
           >
-            <div className="section-head tracking-header-no-chevron" onClick={() => toggle('track')}>
+            <div className="section-head" onClick={() => toggle('track')}>
               <span>Tracking</span>
               <div className="section-head-actions" onClick={(e) => e.stopPropagation()}>
                 <button
-                  className="plus-trigger"
-                  aria-label="Agregar tracking"
+                  className="section-action-btn"
+                  title="Eliminar todos los elementos de tracking"
+                  {...showHelp('Eliminar tracking', 'Elimina todos los elementos de seguimiento activos de la vista 3D.')}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setActiveTrackings([])
+                    setExpandedTrack({})
+                  }}
+                >
+                  <Trash size={15} />
+                </button>
+                <button
+                  className="section-action-btn"
+                  title="Agregar tracking"
+                  {...showHelp('Agregar tracking', 'Añade una nueva capa o elemento de seguimiento (personal, vehículos, zonas, etc.).')}
                   onClick={(e) => {
                     e.stopPropagation()
                     setDdOpen((d) => (d === 'addTrack' ? null : 'addTrack'))
                   }}
-                  title="Agregar tracking"
                 >
-                  <CirclePlus size={17} />
+                  <CirclePlus size={16} />
+                </button>
+                <button
+                  className="accordion-chevron-btn"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggle('track')
+                  }}
+                  aria-label={openSection === 'track' ? 'Contraer' : 'Expandir'}
+                >
+                  {openSection === 'track' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
               </div>
             </div>
@@ -2492,22 +2706,53 @@ export default function App() {
                           onClick={() => toggleTrackItem(id)}
                         >
                           <Icon size={18} style={{ color: cfg.color }} />
-                          <span>{id === 'evacuacion' && isExp ? 'Terminar evaluación' : cfg.label}</span>
+                          <span>{id === 'evacuacion' && evacuacionActiva ? 'Terminar evacuación' : cfg.label}</span>
                         </button>
                         <div className="track-row-actions">
                           <button title="Quitar" onClick={() => removeTrackingItem(id)}>
                             <CircleMinus size={18} />
                           </button>
-                          {id !== 'evacuacion' && id !== 'escenario' && (
-                            <button
-                              title={isExp ? 'Contraer' : 'Expandir'}
-                              onClick={() => toggleTrackItem(id)}
-                            >
-                              {isExp ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                            </button>
-                          )}
+                          <button
+                            className="accordion-chevron-btn"
+                            title={isExp ? 'Contraer' : 'Expandir'}
+                            onClick={() => toggleTrackItem(id)}
+                          >
+                            {isExp ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </button>
                         </div>
                       </div>
+
+                      {/* Expanded sub-panel for Declarar evacuación */}
+                      {isExp && id === 'evacuacion' && (
+                        <div className="track-subpanel" style={{ padding: '8px 10px' }}>
+                          <button
+                            className="cta full no-shadow"
+                            style={{
+                              background: '#ef4444',
+                              color: '#fff',
+                              padding: '10px 14px',
+                              borderRadius: 8,
+                              fontWeight: 600,
+                              fontSize: 13,
+                              border: 'none',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: 8,
+                              boxShadow: 'none',
+                              width: '100%',
+                            }}
+                            onClick={() => {
+                              setEvacuacionActiva(true)
+                              setSidebarView({ type: 'evacuacion_alertas' })
+                            }}
+                          >
+                            <Siren size={16} />
+                            <span>Declarar la evacuación</span>
+                          </button>
+                        </div>
+                      )}
 
                       {/* Expanded sub-panel for Zonas y áreas */}
                       {isExp && id === 'zonas' && (
@@ -2733,14 +2978,26 @@ export default function App() {
               <span>Simulaciones</span>
               <div className="section-head-actions" onClick={(e) => e.stopPropagation()}>
                 <button
-                  className="plus-trigger"
-                  aria-label="Agregar simulación"
+                  className="section-action-btn"
+                  title="Eliminar todas las simulaciones"
+                  {...showHelp('Eliminar simulaciones', 'Elimina todas las simulaciones activas de la vista 3D.')}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setActiveSimulations([])
+                  }}
+                >
+                  <Trash size={15} />
+                </button>
+                <button
+                  className="section-action-btn"
+                  title="Agregar simulación"
+                  {...showHelp('Agregar simulación', 'Añade una nueva capa de simulación física (ventilación, energía, geocercas, etc.).')}
                   onClick={(e) => {
                     e.stopPropagation()
                     setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))
                   }}
                 >
-                  <CirclePlus size={17} />
+                  <CirclePlus size={16} />
                 </button>
                 <button
                   className="accordion-chevron-btn"
@@ -2748,7 +3005,7 @@ export default function App() {
                     e.stopPropagation()
                     toggle('sim')
                   }}
-                  aria-label={openSection === 'sim' ? 'Ocultar Simulaciones' : 'Mostrar Simulaciones'}
+                  aria-label={openSection === 'sim' ? 'Contraer' : 'Expandir'}
                 >
                   {openSection === 'sim' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
@@ -2815,16 +3072,14 @@ export default function App() {
             )}
           </div>
 
-          {/* 5. ANÁLISIS: What-If Simulation Engine matching SmartFlow 5.0 spec */}
+          {/* 5. WHAT IF: What-If Simulation Engine */}
           <Section
-            title="Análisis"
+            title="What If"
             open={openSection === 'ana'}
             onToggle={() => toggle('ana')}
-            onHover={showHelp('Análisis What-If', 'Simulador predictivo ¿Qué pasa si...?: modela fallas de subestaciones, paradas de ventilación y dilución ambiental.')}
+            onHover={showHelp('What If', 'Simulador predictivo ¿Qué pasa si...?: modela fallas de subestaciones, paradas de ventilación y dilución ambiental.')}
           >
             <div className="whatif-config-box">
-              <div className="esc-block-title">SIMULACIÓN WHAT-IF (¿QUÉ PASA SI...?)</div>
-              
               <label className="field-label">Componente o nodo a alterar</label>
               <select
                 className="field full"
@@ -2904,14 +3159,7 @@ export default function App() {
             </div>
           </Section>
 
-          <Section
-            title="Seguimiento"
-            open={openSection === 'seg'}
-            onToggle={() => toggle('seg')}
-            onHover={showHelp('Demo de seguimiento', 'Ejercicios o modos demostrativos para pruebas de tracking y seguimiento operativo.')}
-          />
-
-          {/* 7. INTERIORES (SMF - V2 exact match) */}
+          {/* 6. INTERIORES */}
           <Section
             title="Interiores"
             open={openSection === 'interiores'}
@@ -2925,7 +3173,12 @@ export default function App() {
                   <div
                     key={item.id}
                     className="interior-item-row"
-                    onClick={() => setSidebarView({ type: 'interior', data: item })}
+                    onClick={() => {
+                      if (item.id === 'bombeo') {
+                        setInteriorView('bombeo')
+                      }
+                      setSidebarView({ type: 'interior', data: item })
+                    }}
                     title={`Ver detalle de ${item.title}`}
                   >
                     <div className="interior-item-left">
@@ -2936,25 +3189,72 @@ export default function App() {
                   </div>
                 )
               })}
+            </div>
+          </Section>
 
-              <div className="interiores-group-title">POR EQUIPO</div>
+          {/* 7. IMPORTAR / EXPORTAR */}
+          <Section
+            title="Importar / Exportar"
+            open={openSection === 'impexp'}
+            onToggle={() => toggle('impexp')}
+            onHover={showHelp('Importar y exportar', 'Gestión de datos 3D: importar nuevos modelos, exportar la escena o capturar la vista actual.')}
+          >
+            <div className="interiores-list">
+              <div
+                className="interior-item-row"
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.accept = '.glb,.gltf,.obj'
+                  input.onchange = () => alert('Modelo cargado correctamente en el visor 3D.')
+                  input.click()
+                }}
+                title="Importar modelo 3D (GLB, GLTF, OBJ)"
+              >
+                <div className="interior-item-left">
+                  <Upload size={18} style={{ color: '#0284c7' }} />
+                  <span className="interior-item-title">Importar modelo</span>
+                </div>
+              </div>
 
               <div
                 className="interior-item-row"
-                onClick={() => setSidebarView({ type: 'interior', data: V_SA_01_EQUIPO })}
-                title="Ver diagnóstico del rodamiento delantero V-SA-01"
+                onClick={() => alert('Exportando escena completa en formato GLB...')}
+                title="Exportar toda la mina a GLB"
               >
                 <div className="interior-item-left">
-                  <Wind size={18} style={{ color: '#f59e0b' }} />
-                  <span className="interior-item-title">Ventilador V-SA-01</span>
+                  <Download size={18} style={{ color: '#0f172a' }} />
+                  <span className="interior-item-title">Exportar escena (GLB)</span>
                 </div>
-                <ChevronRight size={16} className="row-chevron" />
               </div>
 
-              <div className="interior-item-row disabled" title="Selecciona una subestación en el visor para entrar">
+              <div
+                className="interior-item-row"
+                onClick={() => alert('Exportando elementos seleccionados a GLB...')}
+                title="Exportar elementos seleccionados a GLB"
+              >
                 <div className="interior-item-left">
-                  <Zap size={18} style={{ color: '#94a3b8' }} />
-                  <span className="interior-item-title" style={{ color: '#94a3b8' }}>Sala de subestación</span>
+                  <Download size={18} style={{ color: '#64748b' }} />
+                  <span className="interior-item-title" style={{ color: '#64748b' }}>Exportar selección (GLB)</span>
+                </div>
+              </div>
+
+              <div
+                className="interior-item-row"
+                onClick={() => {
+                  const canvas = document.querySelector('canvas')
+                  if (canvas) {
+                    const link = document.createElement('a')
+                    link.download = 'smartflow-captura.png'
+                    link.href = canvas.toDataURL('image/png')
+                    link.click()
+                  }
+                }}
+                title="Capturar pantalla de la vista 3D"
+              >
+                <div className="interior-item-left">
+                  <Camera size={18} style={{ color: '#0f172a' }} />
+                  <span className="interior-item-title">Captura de pantalla</span>
                 </div>
               </div>
             </div>
@@ -3125,6 +3425,67 @@ export default function App() {
         </div>
       )}
 
+      {/* What-If Simulation Player (media_1793688483305_37ea198b.png) */}
+      {sidebarView?.type === 'whatif_result' && (
+        <div className="whatif-simulation-player">
+          <div className="whatif-player-top">
+            <div className="whatif-player-controls">
+              <button
+                className="whatif-player-btn"
+                title={whatIfPlaying ? 'Pausar' : 'Reproducir'}
+                onClick={() => setWhatIfPlaying((p) => !p)}
+              >
+                {whatIfPlaying ? <Pause size={17} /> : <Play size={17} />}
+              </button>
+              <button
+                className="whatif-player-btn"
+                title="Reiniciar"
+                onClick={() => setWhatIfTime(0)}
+              >
+                <RotateCcw size={16} />
+              </button>
+              <span className="whatif-player-title">Ultima persona llega a refugio</span>
+            </div>
+            <span className="whatif-player-time">
+              {String(Math.floor(whatIfTime / 60)).padStart(2, '0')}:{String(whatIfTime % 60).padStart(2, '0')}
+            </span>
+          </div>
+
+          <div className="whatif-player-slider-row">
+            <div className="whatif-dot-pair">
+              <span />
+              <span />
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={1800}
+              value={whatIfTime}
+              onChange={(e) => setWhatIfTime(Number(e.target.value))}
+              className="whatif-player-slider"
+            />
+            <div className="whatif-dot-pair">
+              <span />
+              <span />
+            </div>
+          </div>
+
+          <div className="whatif-player-footer">
+            <div className="row gap-3">
+              <div className="whatif-legend-item">
+                <span className="whatif-legend-dot blue" />
+                <span>Caudal sin cambio</span>
+              </div>
+              <div className="whatif-legend-item">
+                <span className="whatif-legend-dot red" />
+                <span>Pérdida de caudal</span>
+              </div>
+            </div>
+            <span>Horizonte: 30 min</span>
+          </div>
+        </div>
+      )}
+
       {/* SMF - V2 - 20 Nexo IA Right Drawer (340px wide, full height) */}
       {nexoOpen && (
         <aside className="glass nexo-drawer" aria-label="Nexo IA">
@@ -3159,16 +3520,6 @@ export default function App() {
               <div className="dd-menu nexo-history-menu">
                 {nexoMoreView === 'main' ? (
                   <>
-                    <button
-                      className="dd-item nexo-history-item"
-                      onClick={() => setNexoMoreOpen(false)}
-                    >
-                      <PictureInPicture2 size={16} />
-                      <span>Chat en ventana emergente</span>
-                    </button>
-
-                    <div className="dd-divider" />
-
                     <div className="dd-group-title">HISTORIAL DE CONVERSACIÓN</div>
                     {NEXO_PINNED_CHATS.map((chatTitle) => (
                       <button
@@ -3191,22 +3542,6 @@ export default function App() {
                     >
                       <Ellipsis size={16} className="nexo-hist-icon" />
                       <span className="nexo-hist-label">Más chats</span>
-                      <ChevronRight size={15} className="nexo-pin-icon" />
-                    </button>
-
-                    <div className="dd-divider" />
-
-                    <button className="dd-item nexo-history-item disabled" disabled>
-                      <SquareArrowOutUpRight size={16} />
-                      <span>Continuar chat en una nueva pestaña</span>
-                    </button>
-
-                    <button
-                      className="dd-item nexo-history-item"
-                      onClick={() => setNexoMoreOpen(false)}
-                    >
-                      <Settings size={16} />
-                      <span className="nexo-hist-label">Configuración y ayuda</span>
                       <ChevronRight size={15} className="nexo-pin-icon" />
                     </button>
                   </>

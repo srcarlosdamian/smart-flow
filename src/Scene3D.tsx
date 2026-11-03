@@ -12,6 +12,7 @@ interface Props {
   theme: Theme
   activeSimulations?: string[]
   onZoomChange?: (newZoom: number) => void
+  onSelectObject?: () => void
 }
 
 const PALETTE = {
@@ -35,10 +36,10 @@ const PALETTE = {
   },
 }
 
-export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomChange }: Props) {
+export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomChange, onSelectObject }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const state = useRef({ mode, zoom, theme, activeSimulations, onZoomChange })
-  state.current = { mode, zoom, theme, activeSimulations, onZoomChange }
+  const state = useRef({ mode, zoom, theme, activeSimulations, onZoomChange, onSelectObject })
+  state.current = { mode, zoom, theme, activeSimulations, onZoomChange, onSelectObject }
   const matsRef = useRef<{
     scene: THREE.Scene
     fineMat: THREE.LineBasicMaterial
@@ -189,8 +190,20 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
     const ro = new ResizeObserver(resize)
     ro.observe(el)
 
-    const down = (e: PointerEvent) => { dragging = true; lx = e.clientX; ly = e.clientY }
-    const up = () => { dragging = false }
+    let downX = 0, downY = 0
+    const down = (e: PointerEvent) => {
+      dragging = true
+      lx = e.clientX
+      ly = e.clientY
+      downX = e.clientX
+      downY = e.clientY
+    }
+    const up = (e: PointerEvent) => {
+      if (dragging && Math.hypot(e.clientX - downX, e.clientY - downY) < 6) {
+        state.current.onSelectObject?.()
+      }
+      dragging = false
+    }
     const move = (e: PointerEvent) => {
       if (!dragging) return
       yaw -= (e.clientX - lx) * 0.005
