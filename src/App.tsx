@@ -213,9 +213,10 @@ const PERSONAL_RECORRIDO: PersonalItem[] = [
   },
   {
     id: 'carlos',
-    name: 'Carlos Martínez',
-    role: 'Mecánico',
-    area: 'Exterior',
+    name: 'Carlos García',
+    role: 'Perforista',
+    area: 'Superficie',
+    alert: 1,
     type: 'Perforista',
     status: 'En línea',
     time: '00:25:00',
@@ -796,106 +797,133 @@ export default function App() {
         <aside className={`glass panel ${ddOpen ? 'has-dropdown-open' : ''}`}>
           {selectedUser ? (
             <div className="user-detail-panel">
-              {/* Breadcrumb matching SMF - V2 - 9 */}
-              <div className="user-detail-breadcrumb">
+              {/* Header / Breadcrumb row matching Figma SMF - V2 - 9 & screenshot */}
+              <div className="user-detail-topbar">
                 <button
-                  className="user-back-btn"
+                  className="user-top-back-btn"
                   onClick={() => setSelectedUser(null)}
-                  title="Volver al panel principal"
+                  title="Volver"
+                  aria-label="Volver"
                 >
-                  <ChevronLeft size={16} />
-                  <span>Inicio</span>
+                  <ChevronLeft size={18} />
                 </button>
-                <span className="crumb-sep">/</span>
-                <span className="crumb-current">{selectedUser.name}</span>
+                <div className="user-top-crumb">
+                  <span className="crumb-prefix">Inicio / </span>
+                  <span className="crumb-name">{selectedUser.name}</span>
+                </div>
+                <button
+                  className="user-top-search-btn"
+                  onClick={() => setSearchOpen(true)}
+                  title="Buscar"
+                  aria-label="Buscar"
+                >
+                  <Search size={18} />
+                </button>
               </div>
 
-              {/* Title row */}
-              <div className="user-detail-header">
-                <h3 className="user-detail-name">{selectedUser.name}</h3>
-              </div>
+              {/* User title */}
+              <h2 className="user-detail-title">{selectedUser.name}</h2>
 
               {/* Action buttons */}
-              <div className="user-actions-row">
-                <button className="user-action-btn primary" onClick={() => {}}>
-                  <Crosshair size={14} />
+              <div className="user-action-buttons">
+                <button className="user-action-btn">
+                  <Crosshair size={16} />
                   <span>Centrar en el mapa</span>
                 </button>
-                <button className="user-action-btn secondary" onClick={() => {}}>
-                  <span>Seguir usuario - Superficie</span>
+                <button className="user-action-btn">
+                  <span>Seguir usuario - {selectedUser.area || 'Superficie'}</span>
                 </button>
               </div>
 
-              {/* Detail Table */}
-              <div className="user-info-table">
-                <div className="info-row">
-                  <span className="info-key">Tipo</span>
-                  <span className="info-val">{selectedUser.type || selectedUser.role}</span>
+              {/* Info Table */}
+              <div className="user-info-list">
+                <div className="user-info-row">
+                  <span className="info-label">Tipo</span>
+                  <span className="info-value bold">{selectedUser.type || selectedUser.role}</span>
                 </div>
-                <div className="info-row">
-                  <span className="info-key">Señal</span>
-                  <span className="info-val">
-                    <span className="user-status-pill online">
-                      <span className="dot" /> {selectedUser.status || 'En línea'}
-                    </span>
+                <div className="user-info-row">
+                  <span className="info-label">Señal</span>
+                  <span className="info-value">
+                    <span className="user-signal-badge online">{selectedUser.status || 'En línea'}</span>
                   </span>
                 </div>
-                <div className="info-row">
-                  <span className="info-key">Última observación</span>
-                  <span className="info-val">{selectedUser.time || '00:25:00'}</span>
+                <div className="user-info-row">
+                  <span className="info-label">Última observación</span>
+                  <span className="info-value bold">{selectedUser.time || '00:25:00'}</span>
                 </div>
-                <div className="info-row">
-                  <span className="info-key">Zona</span>
-                  <span className="info-val">{selectedUser.zone || selectedUser.area}</span>
+                <div className="user-info-row">
+                  <span className="info-label">Zona</span>
+                  <span className="info-value bold text-right">{selectedUser.zone || 'Fuera de zonas monitoreadas'}</span>
                 </div>
-                <div className="info-row">
-                  <span className="info-key">Precisión del fix</span>
-                  <span className="info-val">{selectedUser.precision || '± 2.1 m'}</span>
+                <div className="user-info-row">
+                  <span className="info-label">Precisión del fix</span>
+                  <span className="info-value bold">{selectedUser.precision || '± 2.1 m'}</span>
                 </div>
-                <div className="info-row">
-                  <span className="info-key">Recorrido reciente</span>
-                  <span className="info-val">{selectedUser.recent || '5 min'}</span>
+                <div className="user-info-row">
+                  <span className="info-label">Recorrido reciente</span>
+                  <span className="info-value bold">{selectedUser.recent || '5 min'}</span>
                 </div>
               </div>
 
-              {/* Petición de auxilio section (for Ana Torres or any user with alert) */}
-              {(selectedUser.alert || selectedUser.id === 'ana') && (
-                <div className="user-auxilio-section">
-                  <div className="auxilio-card">
-                    <div className="auxilio-header">
-                      <div className="auxilio-title-row">
-                        <span className="auxilio-accent" />
-                        <b>Petición de auxilio</b>
-                      </div>
-                      <span className="auxilio-badge-crit">Crítica</span>
-                    </div>
+              {/* Sparkline / Recorrido Graph */}
+              <div className="user-graph-container">
+                <svg viewBox="0 0 280 48" className="user-graph-svg" preserveAspectRatio="none">
+                  <path
+                    d="M 6,38 C 30,38 60,37 90,35 C 130,34 160,26 195,20 C 220,16 235,16 250,14 C 255,16 260,18 263,16 L 274,8"
+                    fill="none"
+                    stroke="#4caf50"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
 
-                    <div className="auxilio-desc">
-                      Alerta activada por sensor de hombre caído
-                    </div>
+              {/* Petición de auxilio (Emergency Card) */}
+              <div className="user-auxilio-section">
+                <div className="auxilio-section-header">
+                  <span className="auxilio-section-title">Petición de auxilio</span>
+                  <button className="auxilio-add-btn" title="Agregar petición">
+                    <Plus size={16} />
+                  </button>
+                </div>
 
-                    <div className="auxilio-tags">
-                      <span>Hombre caído</span>
-                      <span>Rampa Principal N2</span>
-                    </div>
-
-                    <div className="auxilio-actions">
-                      <button
-                        className={`auxilio-btn atender ${auxilioHandled ? 'done' : ''}`}
-                        onClick={() => setAuxilioHandled((v) => !v)}
-                      >
-                        {auxilioHandled ? 'Atendido' : 'Atender'}
-                      </button>
-                      <button
-                        className={`auxilio-btn resolver ${auxilioResolved ? 'done' : ''}`}
-                        onClick={() => setAuxilioResolved((v) => !v)}
-                      >
-                        {auxilioResolved ? 'Resuelto' : 'Resolver'}
-                      </button>
+                <div className="auxilio-card">
+                  <div className="auxilio-card-row1">
+                    <span className="auxilio-type-title">Hombre caído</span>
+                    <div className="auxilio-status-group">
+                      <span className="auxilio-status-unattended">{auxilioHandled ? 'Atendido' : 'Sin atender'}</span>
+                      <span className="auxilio-status-critical">{auxilioResolved ? 'Resuelto' : 'Crítico'}</span>
                     </div>
                   </div>
+
+                  <div className="auxilio-card-row2">
+                    <Crosshair size={14} className="auxilio-icon" />
+                    <span>Camion T-03</span>
+                  </div>
+
+                  <div className="auxilio-card-row3">
+                    <span>Refugio R-0</span>
+                    <span>10:00:00</span>
+                    <span>hace 0 s</span>
+                  </div>
+
+                  <div className="auxilio-card-actions">
+                    <button
+                      className={`auxilio-action-btn ${auxilioHandled ? 'active' : ''}`}
+                      onClick={() => setAuxilioHandled((v) => !v)}
+                    >
+                      {auxilioHandled ? 'Atendido' : 'Atender'}
+                    </button>
+                    <button
+                      className={`auxilio-action-btn ${auxilioResolved ? 'active' : ''}`}
+                      onClick={() => setAuxilioResolved((v) => !v)}
+                    >
+                      {auxilioResolved ? 'Resuelto' : 'Resolver'}
+                    </button>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           ) : (
             <>
