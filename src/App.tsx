@@ -647,7 +647,45 @@ export default function App() {
   const [nexoPrompt, setNexoPrompt] = useState('')
   const [nexoMessages, setNexoMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
   const [openSection, setOpenSection] = useState<string | null>(null)
-  const [interiorView, setInteriorView] = useState<'bombeo' | null>(null)
+  const [interiorView, setInteriorView] = useState<string | null>(null)
+
+  const navigateToInterior = (roomId: string) => {
+    setInteriorView(roomId)
+    window.location.hash = `#/interior/${roomId}`
+  }
+
+  const exitInterior = () => {
+    setInteriorView(null)
+    if (window.location.hash.startsWith('#/interior')) {
+      window.history.pushState(null, '', window.location.pathname)
+    }
+  }
+
+  // Hash routing for rooms/interiors (e.g. #/interior/bombeo)
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash || ''
+      const match = hash.match(/^#\/interior\/([a-zA-Z0-9_-]+)/)
+      if (match && match[1]) {
+        const roomId = match[1]
+        setInteriorView(roomId)
+        const found = INTERIORES_DATA.find((item) => item.id === roomId)
+        if (found) {
+          setSidebarView({ type: 'interior', data: found })
+        }
+      } else if (!hash || hash === '#' || hash === '#/') {
+        setInteriorView(null)
+      }
+    }
+
+    handleHash()
+    window.addEventListener('hashchange', handleHash)
+    window.addEventListener('popstate', handleHash)
+    return () => {
+      window.removeEventListener('hashchange', handleHash)
+      window.removeEventListener('popstate', handleHash)
+    }
+  }, [])
   const [selectedPump, setSelectedPump] = useState<string>('BA-01')
   const [whatIfTarget, setWhatIfTarget] = useState('V-PH-01')
   const [whatIfAction, setWhatIfAction] = useState('Parada no programada de ventilador')
@@ -951,18 +989,25 @@ export default function App() {
         'Monitoreo de Sumidero L5 y caudal',
       ]
     }
-    if (sidebarView?.type === 'interior' && sidebarView.data.id === 'refugio') {
+    if (interiorView === 'refugio' || (sidebarView?.type === 'interior' && sidebarView.data.id === 'refugio')) {
       return [
         '¿Cuál es la autonomía de oxígeno en Refugio R-01?',
         '¿Cómo está el enlace de comunicación en el refugio?',
         'Diagnóstico general de Refugio R-01',
       ]
     }
-    if (sidebarView?.type === 'interior' && sidebarView.data.id === 'taller') {
+    if (interiorView === 'taller' || (sidebarView?.type === 'interior' && sidebarView.data.id === 'taller')) {
       return [
         '¿Cuáles son las órdenes activas en Taller TM-01?',
         'Personal y técnicos en Taller Mecánico',
         'Estado de ventilación en Taller TM-01',
+      ]
+    }
+    if (interiorView === 'chancador' || (sidebarView?.type === 'interior' && sidebarView.data.id === 'chancador')) {
+      return [
+        '¿Cómo está la vibración en Chancador CH-01?',
+        'Estado del motor de chancado primario',
+        'Capacidad de tolva de alimentación',
       ]
     }
     return NEXO_SUGGESTIONS
@@ -1011,10 +1056,11 @@ export default function App() {
 
   return (
     <div className={`app ${nexoOpen ? 'nexo-open' : ''}`} data-theme={theme}>
-      {interiorView === 'bombeo' ? (
+      {interiorView ? (
         <InteriorBombeoView
+          roomId={interiorView}
           theme={theme}
-          onClose={() => setInteriorView(null)}
+          onClose={exitInterior}
           selectedPumpId={selectedPump}
           onSelectPump={setSelectedPump}
           onAskNexo={(q) => {
@@ -1022,42 +1068,42 @@ export default function App() {
             sendNexoMessage(q)
           }}
         />
-      ) : selectedProj === '3D - Superficie' ? (
-        <SurfaceView
-          theme={theme}
-          onClose={() => {
-            setSelectedProj('3D - Perspectiva')
-            setMode('perspective')
-          }}
-        />
-      ) : selectedProj === '2D - Diagrama de planta' ? (
-        <DiagramView theme={theme} zoom={zoom} onZoomChange={setZoom} />
       ) : (
         <>
-          <Scene3D
-            mode={selectedProj === '2D - Vista superior' ? 'top' : mode}
-            zoom={zoom}
-            theme={theme}
-            activeSimulations={activeSimulations}
-            selectedObjectId={selected3DObjectId}
-            onZoomChange={setZoom}
-            onSelectObject={(id) => {
-              if (!id) {
-                setSelected3DObjectId(null)
-                if (sidebarView?.type === 'interior' && !interiorView) {
-                  setSidebarView(null)
+          {selectedProj === '3D - Superficie' ? (
+            <SurfaceView
+              theme={theme}
+              onClose={() => {
+                setSelectedProj('3D - Perspectiva')
+                setMode('perspective')
+              }}
+            />
+          ) : selectedProj === '2D - Diagrama de planta' ? (
+            <DiagramView theme={theme} zoom={zoom} onZoomChange={setZoom} />
+          ) : (
+            <Scene3D
+              mode={selectedProj === '2D - Vista superior' ? 'top' : mode}
+              zoom={zoom}
+              theme={theme}
+              activeSimulations={activeSimulations}
+              selectedObjectId={selected3DObjectId}
+              onZoomChange={setZoom}
+              onSelectObject={(id) => {
+                if (!id) {
+                  setSelected3DObjectId(null)
+                  if (sidebarView?.type === 'interior' && !interiorView) {
+                    setSidebarView(null)
+                  }
+                  return
                 }
-                return
-              }
-              setSelected3DObjectId(id)
-              const found = INTERIORES_DATA.find((item) => item.id === id)
-              if (found) {
-                setSidebarView({ type: 'interior', data: found })
-              }
-            }}
-          />
-        </>
-      )}
+                setSelected3DObjectId(id)
+                const found = INTERIORES_DATA.find((item) => item.id === id)
+                if (found) {
+                  setSidebarView({ type: 'interior', data: found })
+                }
+              }}
+            />
+          )}
 
       <header className="glass topbar">
         <button
@@ -1560,12 +1606,8 @@ export default function App() {
                         boxShadow: 'none',
                       }}
                       onClick={() => {
-                        if (sidebarView.data.id === 'bombeo') {
-                          setInteriorView('bombeo')
-                          setSidebarView({ type: 'interior', data: INTERIORES_DATA[2] })
-                        } else {
-                          setZoom(95)
-                        }
+                        const roomId = sidebarView.data.id || 'bombeo'
+                        navigateToInterior(roomId)
                       }}
                     >
                       <span>Entrar</span>
@@ -3612,6 +3654,8 @@ export default function App() {
             <span>Horizonte: 30 min</span>
           </div>
         </div>
+      )}
+      </>
       )}
 
       {/* SMF - V2 - 20 Nexo IA Right Drawer (340px wide, full height) */}

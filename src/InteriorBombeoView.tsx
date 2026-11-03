@@ -2,16 +2,84 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { X, AlertTriangle, Droplets, ChevronLeft } from 'lucide-react'
+import { X, AlertTriangle, Droplets, ChevronLeft, ShieldCheck, Wrench, Mountain } from 'lucide-react'
 import { NexoLogo } from './App'
 import type { Theme } from './Scene3D'
 
 interface Props {
+  roomId?: string | null
   theme?: Theme
   onClose: () => void
   selectedPumpId?: string | null
   onSelectPump?: (id: string) => void
   onAskNexo?: (query: string) => void
+}
+
+const ROOM_INFO: Record<string, {
+  level: string
+  title: string
+  icon: any
+  iconColor: string
+  nexoPill: string
+  nexoQuery: string
+  kpis: { label: string; val: string; unit?: string; status?: string }[]
+}> = {
+  refugio: {
+    level: 'L5 · INTERIOR',
+    title: 'Refugio R-01',
+    icon: ShieldCheck,
+    iconColor: '#00e676',
+    nexoPill: 'Nexo IA: Enlace activo y 69h O₂',
+    nexoQuery: '¿Cuál es la autonomía de oxígeno en Refugio R-01?',
+    kpis: [
+      { label: 'OCUPACIÓN', val: '1 / 12', unit: 'personas' },
+      { label: 'AUTONOMÍA O₂', val: '69', unit: 'h', status: 'green' },
+      { label: 'COMUNICACIÓN', val: 'Enlace activo', status: 'green' },
+      { label: 'ÚLTIMA INSPECCIÓN', val: '2026-07-11' },
+    ],
+  },
+  taller: {
+    level: 'L2 · INTERIOR',
+    title: 'Taller mecánico TM-01',
+    icon: Wrench,
+    iconColor: '#ffb300',
+    nexoPill: 'Nexo IA: 2 órdenes en proceso',
+    nexoQuery: 'Personal y técnicos en Taller Mecánico',
+    kpis: [
+      { label: 'ÓRDENES ACTIVAS', val: '2', unit: 'activas' },
+      { label: 'BAHÍAS OCUPADAS', val: '2 / 2', status: 'green' },
+      { label: 'TÉCNICOS EN TURNO', val: '4' },
+      { label: 'HORAS PENDIENTES', val: '29', unit: 'h' },
+    ],
+  },
+  chancador: {
+    level: 'L3 · INTERIOR',
+    title: 'Chancador primario CH-01',
+    icon: Mountain,
+    iconColor: '#ff5722',
+    nexoPill: 'Nexo IA: Monitoreo de chancado L3',
+    nexoQuery: 'Monitoreo de vibración y carga en Chancador CH-01',
+    kpis: [
+      { label: 'NIVEL DE TOLVA', val: '78%' },
+      { label: 'ESTADO MOTOR', val: 'En marcha', status: 'green' },
+      { label: 'VIBRACIÓN', val: '2.1', unit: 'mm/s' },
+      { label: 'TEMPERATURA', val: '64', unit: '°C' },
+    ],
+  },
+  bombeo: {
+    level: 'L5 · INTERIOR',
+    title: 'Sala de bombeo SB-01',
+    icon: Droplets,
+    iconColor: '#00b0ff',
+    nexoPill: 'Nexo IA: 1 alerta en BA-04',
+    nexoQuery: '¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?',
+    kpis: [
+      { label: 'NIVEL SUMIDERO', val: '64%' },
+      { label: 'EN MARCHA', val: '2 / 4', status: 'green' },
+      { label: 'CAUDAL TOTAL', val: '152', unit: 'L/s' },
+      { label: 'EN FALLA', val: '1', status: 'red' },
+    ],
+  },
 }
 
 interface Pump3D {
@@ -34,11 +102,14 @@ const PUMPS: Pump3D[] = [
   { id: 'BA-04', name: 'BA-04', flow: '0 L/s', pressure: '0.0 bar', temp: '81°C', hours: '4650 h', status: 'falla', color: '#ef4444', statusText: 'Falla', pos: [6, 0, 0] },
 ]
 
-export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPump, onAskNexo }: Props) {
+export default function InteriorBombeoView({ roomId = 'bombeo', theme = 'light', onClose, selectedPumpId, onSelectPump, onAskNexo }: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
   const [activePump, setActivePump] = useState<string | null>(selectedPumpId || null)
   const [screenCoords, setScreenCoords] = useState<Record<string, { x: number; y: number; visible: boolean }>>({})
   const [sumpCoords, setSumpCoords] = useState<{ x: number; y: number; visible: boolean }>({ x: 0, y: 0, visible: false })
+
+  const room = ROOM_INFO[roomId || 'bombeo'] || ROOM_INFO.bombeo
+  const RoomIcon = room.icon
 
   useEffect(() => {
     if (selectedPumpId) setActivePump(selectedPumpId)
@@ -48,10 +119,12 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
     const container = mountRef.current
     if (!container) return
 
-    // Scene & Renderer - Studio Clay Aesthetic matching Image 1
+    // Scene & Renderer - Studio Clay Aesthetic with Dark/Light Mode Adaptability
+    const isDark = theme === 'dark'
+    const bgColor = isDark ? 0x091424 : 0xedf2f7
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0xedf2f7)
-    scene.fog = new THREE.FogExp2(0xedf2f7, 0.015)
+    scene.background = new THREE.Color(bgColor)
+    scene.fog = new THREE.FogExp2(bgColor, isDark ? 0.02 : 0.015)
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000)
     camera.position.set(-3, 4.2, 13)
@@ -71,18 +144,18 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
     controls.minDistance = 5
     controls.maxDistance = 24
 
-    // High-Key Studio Lighting for Clean Clay Shading
-    const ambLight = new THREE.AmbientLight(0xffffff, 1.8)
+    // Lighting
+    const ambLight = new THREE.AmbientLight(isDark ? 0xa0aec0 : 0xffffff, isDark ? 1.2 : 1.8)
     scene.add(ambLight)
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xdbeafe, 1.2)
+    const hemiLight = new THREE.HemisphereLight(isDark ? 0x64748b : 0xffffff, isDark ? 0x1e293b : 0xdbeafe, isDark ? 0.9 : 1.2)
     scene.add(hemiLight)
 
-    const mainDir = new THREE.DirectionalLight(0xffffff, 1.6)
+    const mainDir = new THREE.DirectionalLight(0xffffff, isDark ? 1.3 : 1.6)
     mainDir.position.set(10, 16, 12)
     scene.add(mainDir)
 
-    const fillDir = new THREE.DirectionalLight(0xe0f2fe, 0.8)
+    const fillDir = new THREE.DirectionalLight(isDark ? 0x38bdf8 : 0xe0f2fe, 0.8)
     fillDir.position.set(-12, 10, -6)
     scene.add(fillDir)
 
@@ -108,11 +181,11 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
       scene.add(cone)
     })
 
-    // Room Geometry: Light Studio Clay Wall and Floor
+    // Room Geometry: Clay Wall and Floor
     const roomMat = new THREE.MeshStandardMaterial({
-      color: 0xedf2f7,
-      roughness: 0.65,
-      metalness: 0.02,
+      color: isDark ? 0x111c2e : 0xedf2f7,
+      roughness: isDark ? 0.8 : 0.65,
+      metalness: 0.05,
     })
 
     // Back Wall
@@ -394,10 +467,10 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
           <ChevronLeft size={18} />
         </button>
         <div>
-          <div className="bombeo-badge-sub">L5 · INTERIOR</div>
+          <div className="bombeo-badge-sub">{room.level}</div>
           <div className="bombeo-badge-title">
-            <Droplets size={16} className="bombeo-badge-icon" />
-            <span>Sala de bombeo SB-01</span>
+            <RoomIcon size={16} className="bombeo-badge-icon" style={{ color: room.iconColor }} />
+            <span>{room.title}</span>
           </div>
         </div>
       </div>
@@ -405,11 +478,11 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
       {/* Top Nexo IA Pill */}
       <button
         className="bombeo-nexo-top-trigger glass"
-        onClick={() => onAskNexo?.('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')}
+        onClick={() => onAskNexo?.(room.nexoQuery)}
         title="Consultar análisis de Nexo IA para esta sala"
       >
         <NexoLogo width={14} height={16} color="#ffffff" />
-        <span>Nexo IA: 1 alerta en BA-04</span>
+        <span>{room.nexoPill}</span>
       </button>
 
       {/* Top Right Close Button */}
@@ -468,49 +541,29 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
         </div>
       )}
 
-      {/* Bottom Floating Telemetry Strip (Matching Reference Screenshot) */}
+      {/* Bottom Floating Telemetry Strip */}
       <div className="bombeo-bottom-kpi-strip glass">
-        <div className="bombeo-strip-item">
-          <Droplets size={15} className="strip-icon cyan" />
-          <div className="strip-text">
-            <span className="strip-lbl">NIVEL SUMIDERO</span>
-            <span className="strip-val">64%</span>
+        {room.kpis.map((kpi, idx) => (
+          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            {idx > 0 && <div className="bombeo-strip-divider" />}
+            <div
+              className={`bombeo-strip-item ${kpi.status === 'red' ? 'clickable' : ''}`}
+              onClick={() => {
+                if (kpi.status === 'red') onAskNexo?.(room.nexoQuery)
+              }}
+              title={kpi.status === 'red' ? 'Ver diagnóstico con Nexo IA' : undefined}
+            >
+              {kpi.status && <span className={`strip-dot ${kpi.status}`} />}
+              <div className="strip-text">
+                <span className="strip-lbl">{kpi.label}</span>
+                <span className={`strip-val ${kpi.status === 'red' ? 'red' : ''}`}>
+                  {kpi.val} {kpi.unit && <small style={{ fontSize: 10, fontWeight: 500 }}>{kpi.unit}</small>}
+                </span>
+              </div>
+              {kpi.status === 'red' && <NexoLogo width={12} height={14} color="#dc2626" />}
+            </div>
           </div>
-        </div>
-
-        <div className="bombeo-strip-divider" />
-
-        <div className="bombeo-strip-item">
-          <span className="strip-dot green" />
-          <div className="strip-text">
-            <span className="strip-lbl">EN MARCHA</span>
-            <span className="strip-val">2 / 4</span>
-          </div>
-        </div>
-
-        <div className="bombeo-strip-divider" />
-
-        <div className="bombeo-strip-item">
-          <div className="strip-text">
-            <span className="strip-lbl">CAUDAL TOTAL</span>
-            <span className="strip-val">152 <small style={{ fontSize: 10, fontWeight: 500 }}>L/s</small></span>
-          </div>
-        </div>
-
-        <div className="bombeo-strip-divider" />
-
-        <div
-          className="bombeo-strip-item clickable"
-          onClick={() => onAskNexo?.('¿Por qué está en falla la bomba BA-04?')}
-          title="Ver diagnóstico y recomendación con Nexo IA"
-        >
-          <AlertTriangle size={15} className="strip-icon red" />
-          <div className="strip-text">
-            <span className="strip-lbl">EN FALLA</span>
-            <span className="strip-val red">1</span>
-          </div>
-          <NexoLogo width={12} height={14} color="#dc2626" />
-        </div>
+        ))}
       </div>
 
       {/* Bottom Hint */}
