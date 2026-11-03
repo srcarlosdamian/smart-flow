@@ -261,42 +261,13 @@ const PERSONAL_RECORRIDO: PersonalItem[] = [
   },
 ]
 
-const TIMELINE_EVENT_DOTS = [
-  { id: 0, pos: 2, type: 'info', label: 'Inicio de turno · 08:00' },
-  { id: 1, pos: 5, type: 'info', label: 'Ingreso Rampa Principal · 08:05' },
-  { id: 2, pos: 8, type: 'warn', label: 'Lectura de gas CO normal · 08:12' },
-  { id: 3, pos: 12, type: 'info', label: 'Paso por Galería Norte · 08:22' },
-  { id: 4, pos: 15, type: 'info', label: 'Check-in Refugio R-01 · 08:30' },
-  { id: 5, pos: 18, type: 'warn', label: 'Aviso velocidad vehículo · 08:41' },
-  { id: 6, pos: 22, type: 'info', label: 'Llegada a Frente de Avance L2 · 08:50' },
-  { id: 7, pos: 25, type: 'crit', label: 'Alerta hombre caído · 09:00' },
-  { id: 8, pos: 27, type: 'alert', label: 'Petición de auxilio activada · 09:02' },
-  { id: 9, pos: 30, type: 'info', label: 'Respuesta brigada de emergencia · 09:08' },
-  { id: 10, pos: 33, type: 'info', label: 'Despacho Camión T-03 · 09:14' },
-  { id: 11, pos: 36, type: 'warn', label: 'Sensor polvo PM10 en alerta · 09:20' },
-  { id: 12, pos: 39, type: 'warn', label: 'Tráfico en Rampa nivel 3 · 09:28' },
-  { id: 13, pos: 42, type: 'info', label: 'Ventilador V-02 en 100% · 09:35' },
-  { id: 14, pos: 45, type: 'alert', label: 'Desvío de ruta programada · 09:42' },
-  { id: 15, pos: 48, type: 'alert', label: 'Pérdida temporal de telemetría · 09:50' },
-  { id: 16, pos: 51, type: 'info', label: 'Señal restablecida (AP-14) · 09:55' },
-  { id: 17, pos: 54, type: 'info', label: 'Inspección Taller Mecánico L2 · 10:02' },
-  { id: 18, pos: 57, type: 'info', label: 'Pausa activa turno A · 10:15' },
-  { id: 19, pos: 60, type: 'warn', label: 'Alerta proximidad maquinaria · 10:25' },
-  { id: 20, pos: 63, type: 'warn', label: 'Geocerca Chancador violada · 10:33' },
-  { id: 21, pos: 66, type: 'alert', label: 'Nivel agua elevado en L5 · 10:45' },
-  { id: 22, pos: 69, type: 'alert', label: 'Bomba sumergible activada · 10:48' },
-  { id: 23, pos: 72, type: 'alert', label: 'Aviso flujo de aire recirculado · 10:55' },
-  { id: 24, pos: 75, type: 'warn', label: 'Monitoreo temperatura L3 · 11:05' },
-  { id: 25, pos: 78, type: 'warn', label: 'Reporte turno L2 entregado · 11:15' },
-  { id: 26, pos: 81, type: 'info', label: 'Recambio batería baliza B-09 · 11:24' },
-  { id: 27, pos: 84, type: 'info', label: 'Paso por Refugio R-04 · 11:32' },
-  { id: 28, pos: 87, type: 'info', label: 'Salida hacia Superficie · 11:40' },
-  { id: 29, pos: 89, type: 'warn', label: 'Sensor NO2 leve aumento · 11:45' },
-  { id: 30, pos: 91, type: 'warn', label: 'Control pesaje camión T-03 · 11:48' },
-  { id: 31, pos: 93, type: 'warn', label: 'Inspección rodado de neumáticos · 11:51' },
-  { id: 32, pos: 95, type: 'alert', label: 'Aviso mantención preventiva · 11:54' },
-  { id: 33, pos: 97, type: 'alert', label: 'Check-out garita norte · 11:57' },
-  { id: 34, pos: 99, type: 'info', label: 'Fin de jornada · 12:00' },
+const PLAYER_EVENT_DOTS = [
+  '#ff5722', '#f44336', '#f44336', '#ff5722', '#ff5722', '#f44336', '#f44336',
+  '#4caf50', '#fbc02d', '#ff5722', '#ff5722', '#f44336', '#f44336', '#f44336',
+  '#fbc02d', '#fbc02d', '#ff5722', '#ff5722', '#ff5722', '#f44336', '#f44336',
+  '#fbc02d', '#fbc02d', '#fbc02d', '#f44336', '#f44336', '#ff5722', '#ff5722',
+  '#ff5722', '#f44336', '#f44336', '#f44336', '#fbc02d', '#fbc02d', '#ff5722',
+  '#ff5722',
 ]
 
 const PERSONAL_CHECKLIST = [
@@ -406,10 +377,10 @@ export default function App() {
     const mult = speedMult[playerSpeed] || 1
     const interval = setInterval(() => {
       setPlayerSeconds((prev) => {
-        if (prev >= 600) {
+        if (prev >= 3600) {
           if (playerLoop) return 0
           setPlayerPlaying(false)
-          return 600
+          return 3600
         }
         return prev + 1
       })
@@ -1543,100 +1514,96 @@ export default function App() {
         </aside>
       </div>
 
-      {/* SMF - V2 - 7 & SMF - V2 - 9 Floating Timeline Simulation Player */}
+      {/* SMF - V2 - 7 & SMF - 34: Exact Figma Recorrido Simulation Player (node 8739-11054) */}
       {activeTrackings.includes('recorrido') && recorridoPlayerVisible && (
         <div className={`glass recorrido-player ${nexoOpen ? 'nexo-offset' : ''}`}>
-          {/* Top Row: Chips on left, Severity pills on right */}
+          {/* Row 1: Header - Chips Left, 110 Eventos Center, Severity Pills Right */}
           <div className="player-row-top">
             <div className="player-chips-left">
-              <span className="player-chip active">Simulación</span>
-              <span className="player-chip">Personal</span>
-              <span className="player-chip">Recorrido</span>
-              <span className="player-time-badge">
-                <Clock size={12} />
-                <span>{shiftStart} - {shiftEnd}</span>
-              </span>
+              <div className="player-area-chip interior">
+                <SquareArrowOutUpRight size={14} className="chip-icon" />
+                <span className="chip-label">Interior</span>
+                <span className="chip-count">4</span>
+              </div>
+              <div className="player-area-chip superficie">
+                <SquareArrowOutUpRight size={14} className="chip-icon" />
+                <span className="chip-label">Superficie</span>
+                <span className="chip-count">2</span>
+              </div>
+            </div>
+
+            <div className="player-events-center">
+              110 EVENTOS
             </div>
 
             <div className="player-severity-pills">
-              <span className="severity-title">Severidad:</span>
-              <button
-                className={`sev-pill all ${playerSeverityFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setPlayerSeverityFilter('all')}
-              >
-                Todas
-              </button>
-              <button
-                className={`sev-pill crit ${playerSeverityFilter === 'crit' ? 'active' : ''}`}
-                onClick={() => setPlayerSeverityFilter(playerSeverityFilter === 'crit' ? 'all' : 'crit')}
-              >
-                Crítica
-              </button>
-              <button
-                className={`sev-pill alert ${playerSeverityFilter === 'alert' ? 'active' : ''}`}
-                onClick={() => setPlayerSeverityFilter(playerSeverityFilter === 'alert' ? 'all' : 'alert')}
-              >
-                Alerta
-              </button>
-              <button
-                className={`sev-pill warn ${playerSeverityFilter === 'warn' ? 'active' : ''}`}
-                onClick={() => setPlayerSeverityFilter(playerSeverityFilter === 'warn' ? 'all' : 'warn')}
-              >
-                Aviso
-              </button>
-              <button
-                className={`sev-pill info ${playerSeverityFilter === 'info' ? 'active' : ''}`}
-                onClick={() => setPlayerSeverityFilter(playerSeverityFilter === 'info' ? 'all' : 'info')}
-              >
-                Info
-              </button>
+              {(['Informativo', 'Aviso', 'Grave', 'Crítico'] as const).map((sev) => {
+                const isSelected = playerSeverityFilter === sev
+                return (
+                  <button
+                    key={sev}
+                    className={`player-sev-pill ${isSelected ? 'active' : ''}`}
+                    onClick={() => setPlayerSeverityFilter(sev)}
+                  >
+                    {sev}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
-          {/* Controls Row: Play/Pause, Skip, Time display, Speed Multipliers, Loop, Bookmark */}
+          {/* Row 2: Controls - 6 buttons Left, Speed Selector Center, Actions + Time Right */}
           <div className="player-controls-row">
-            <div className="player-btn-group">
+            <div className="player-playback-group">
               <button
-                className="player-icon-btn"
-                title="Retroceder 15s"
-                onClick={() => setPlayerSeconds((s) => Math.max(0, s - 15))}
-              >
-                <ChevronsLeft size={16} />
-              </button>
-              <button
-                className="player-icon-btn play-pause-btn"
+                className="player-ctrl-btn"
                 title={playerPlaying ? 'Pausar' : 'Reproducir'}
                 onClick={() => setPlayerPlaying((p) => !p)}
               >
                 {playerPlaying ? <Pause size={18} /> : <Play size={18} />}
               </button>
               <button
-                className="player-icon-btn"
-                title="Avanzar 15s"
-                onClick={() => setPlayerSeconds((s) => Math.min(28800, s + 15))}
+                className="player-ctrl-btn"
+                title="Retroceso rápido (30s)"
+                onClick={() => setPlayerSeconds((s) => Math.max(0, s - 30))}
               >
-                <ChevronsRight size={16} />
+                <ChevronsLeft size={18} />
               </button>
               <button
-                className="player-icon-btn"
+                className="player-ctrl-btn"
+                title="Paso anterior (5s)"
+                onClick={() => setPlayerSeconds((s) => Math.max(0, s - 5))}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                className="player-ctrl-btn"
+                title="Paso siguiente (5s)"
+                onClick={() => setPlayerSeconds((s) => Math.min(3600, s + 5))}
+              >
+                <ChevronRight size={18} />
+              </button>
+              <button
+                className="player-ctrl-btn"
+                title="Avance rápido (30s)"
+                onClick={() => setPlayerSeconds((s) => Math.min(3600, s + 30))}
+              >
+                <ChevronsRight size={18} />
+              </button>
+              <button
+                className="player-ctrl-btn"
                 title="Reiniciar"
                 onClick={() => setPlayerSeconds(0)}
               >
-                <RotateCw size={15} />
+                <RotateCw size={17} />
               </button>
-            </div>
-
-            <div className="player-time-display">
-              <span className="current-time">{formatPlayerTime(playerSeconds)}</span>
-              <span className="time-sep">/</span>
-              <span className="total-time">08:00:00</span>
             </div>
 
             <div className="player-speed-selector">
               {(['0.5x', '1x', '2x', '4x', '8x'] as const).map((spd) => (
                 <button
                   key={spd}
-                  className={`speed-btn ${playerSpeed === spd ? 'active' : ''}`}
+                  className={`player-speed-btn ${playerSpeed === spd ? 'active' : ''}`}
                   onClick={() => setPlayerSpeed(spd)}
                 >
                   {spd}
@@ -1644,48 +1611,66 @@ export default function App() {
               ))}
             </div>
 
-            <div className="player-extra-controls">
+            <div className="player-right-group">
               <button
-                className={`player-icon-btn ${playerLoop ? 'active' : ''}`}
-                title={playerLoop ? 'Bucle activado' : 'Activar bucle'}
-                onClick={() => setPlayerLoop((v) => !v)}
-              >
-                <Repeat size={15} />
-              </button>
-              <button
-                className={`player-icon-btn ${playerBookmarked ? 'active' : ''}`}
+                className={`player-action-icon-btn ${playerBookmarked ? 'active' : ''}`}
                 title={playerBookmarked ? 'Marcador guardado' : 'Guardar marcador'}
                 onClick={() => setPlayerBookmarked((v) => !v)}
               >
-                <Bookmark size={15} />
+                <Bookmark size={18} />
               </button>
+              <button
+                className={`player-action-icon-btn ${playerLoop ? 'active' : ''}`}
+                title={playerLoop ? 'Bucle activado' : 'Activar bucle'}
+                onClick={() => setPlayerLoop((v) => !v)}
+              >
+                <Repeat size={18} />
+              </button>
+              <div className="player-time-display">
+                {formatPlayerTime(playerSeconds)}
+              </div>
             </div>
           </div>
 
-          {/* Timeline Bar with Event Dots */}
-          <div className="player-timeline-wrapper">
-            <div className="player-timeline-dots">
-              {TIMELINE_EVENT_DOTS.filter(
-                (d) => playerSeverityFilter === 'all' || d.type === playerSeverityFilter
-              ).map((d) => (
-                <span
-                  key={d.id}
-                  className={`timeline-dot dot-${d.type}`}
-                  style={{ left: `${d.pos}%` }}
-                  title={d.label}
-                  onClick={() => setPlayerSeconds(Math.round((d.pos / 100) * 28800))}
-                />
-              ))}
+          {/* Row 3: Event scatter 36 dots across the width */}
+          <div className="player-dots-track">
+            {PLAYER_EVENT_DOTS.map((color, idx) => (
+              <span
+                key={idx}
+                className="player-event-dot"
+                style={{ backgroundColor: color }}
+                onClick={() => setPlayerSeconds(Math.round((idx / 35) * 3600))}
+                title={`Evento ${idx + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Row 4: Seekbar track with progress fill and thumb */}
+          <div
+            className="player-seekbar-wrap"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+              setPlayerSeconds(Math.round(pct * 3600))
+            }}
+          >
+            <div className="player-seekbar-bg">
+              <div
+                className="player-seekbar-fill"
+                style={{ width: `${(playerSeconds / 3600) * 100}%` }}
+              />
+              <div
+                className="player-seekbar-thumb"
+                style={{ left: `${(playerSeconds / 3600) * 100}%` }}
+              />
             </div>
-            <input
-              type="range"
-              min={0}
-              max={28800}
-              step={1}
-              value={playerSeconds}
-              onChange={(e) => setPlayerSeconds(+e.target.value)}
-              className="player-seekbar"
-            />
+          </div>
+
+          {/* Row 5: Time markers (0:00:00, Segundo X/ 3600, 1:00:00) */}
+          <div className="player-time-footer">
+            <span className="time-footer-left">0:00:00</span>
+            <span className="time-footer-center">Segundo {playerSeconds}/ 3600</span>
+            <span className="time-footer-right">1:00:00</span>
           </div>
         </div>
       )}
