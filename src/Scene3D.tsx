@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export type ViewMode = 'perspective' | 'isometric' | 'top'
 export type Theme = 'dark' | 'light'
@@ -57,11 +58,69 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
     floor.position.y = -0.02
     scene.add(floor)
 
+    // Lighting for GLB 3D model materials
+    const ambient = new THREE.AmbientLight(0xffffff, 1.4)
+    const dir1 = new THREE.DirectionalLight(0xffffff, 1.8)
+    dir1.position.set(100, 160, 100)
+    const dir2 = new THREE.DirectionalLight(0x90caf9, 0.9)
+    dir2.position.set(-100, 100, -100)
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x37474f, 1.2)
+    scene.add(ambient, dir1, dir2, hemi)
+
+    // Load scene.glb model
+    const loader = new GLTFLoader()
+    loader.load(
+      `${import.meta.env.BASE_URL}scene.glb`,
+      (gltf) => {
+        const model = gltf.scene
+
+        // Hide flat plane mesh_0 if present so it doesn't cover the grid floor
+        model.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            child.castShadow = true
+            child.receiveShadow = true
+            if (child.name === 'mesh_0') {
+              child.visible = false
+            }
+          }
+        })
+
+        // Calculate bounding box of the visual mine network and equipment
+        const box = new THREE.Box3()
+        model.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh && child.name !== 'mesh_0') {
+            box.expandByObject(child)
+          }
+        })
+
+        const size = new THREE.Vector3()
+        const center = new THREE.Vector3()
+        box.getSize(size)
+        box.getCenter(center)
+
+        // Scale to ~50 units so it fits gracefully within the 3D scene grid
+        const maxDim = Math.max(size.x, size.z)
+        const scale = maxDim > 0 ? 52 / maxDim : 1
+        model.scale.setScalar(scale)
+
+        // Center horizontally and rest on the grid floor
+        model.position.x = -center.x * scale
+        model.position.z = -center.z * scale - 6
+        model.position.y = -box.min.y * scale + 0.1
+
+        scene.add(model)
+      },
+      undefined,
+      (err) => {
+        console.error('Error loading scene.glb:', err)
+      }
+    )
+
     matsRef.current = { scene, floorMat, fineMat, coarseMat }
 
     // Look slightly below center so the horizon sits around ~42% from top, matching Figma
-    const target = new THREE.Vector3(0, -1.8, -10)
-    const camPos = new THREE.Vector3(0, 7.5, 28)
+    const target = new THREE.Vector3(0, 2.5, -6)
+    const camPos = new THREE.Vector3(0, 14, 38)
     let yaw = 0, pitchOff = 0, dragging = false, lx = 0, ly = 0
 
     const resize = () => {
@@ -100,11 +159,11 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
     let raf = 0
     const tick = () => {
       const { mode: m, zoom: z } = state.current
-      const dist = 28 * (50 / z)
+      const dist = 38 * (50 / z)
       let desired: THREE.Vector3
-      if (m === 'perspective') desired = new THREE.Vector3(Math.sin(yaw) * dist, 7.5 + pitchOff * 20, Math.cos(yaw) * dist)
-      else if (m === 'isometric') desired = new THREE.Vector3(Math.sin(yaw + Math.PI / 4) * dist, dist * 0.8, Math.cos(yaw + Math.PI / 4) * dist)
-      else desired = new THREE.Vector3(0.001, dist * 1.4, 0.001)
+      if (m === 'perspective') desired = new THREE.Vector3(Math.sin(yaw) * dist, 12 + pitchOff * 24, Math.cos(yaw) * dist - 6)
+      else if (m === 'isometric') desired = new THREE.Vector3(Math.sin(yaw + Math.PI / 4) * dist, dist * 0.85, Math.cos(yaw + Math.PI / 4) * dist - 6)
+      else desired = new THREE.Vector3(0.001, dist * 1.5, -6)
       camPos.lerp(desired, 0.08)
       camera.position.copy(camPos)
       camera.lookAt(target)
