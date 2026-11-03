@@ -3,15 +3,15 @@ import {
   Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, ChevronRight, ChevronLeft,
   CirclePlus, CircleMinus, CircleAlert,
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
-  Cable, Fullscreen,
-  UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
+  Scan, Ruler, Diamond, Cable, Lightbulb, Undo2, Redo2,
+  Fullscreen, UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Minus,
   Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot, Settings,
   EllipsisVertical, Ellipsis, TextAlignStart, Pin, SquareArrowOutUpRight,
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, Sparkles, Target, CheckCheck, Upload, Download, Camera,
+  X, Target, CheckCheck, Upload, Download, Camera,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -20,13 +20,13 @@ import InteriorBombeoView from './InteriorBombeoView'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
 
-function NexoLogo({ width = 16, height = 20 }: { width?: number; height?: number }) {
+function NexoLogo({ width = 16, height = 20, color = 'currentColor' }: { width?: number; height?: number; color?: string }) {
   return (
     <svg width={width} height={height} viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M2.30986 8.23786C1.52047 9.62654 1.94747 11.3897 3.28474 12.2633C3.70779 12.5397 4.18751 12.7021 4.67897 12.7444L3.66391 14.5026C3.16334 14.3689 2.68149 14.1558 2.23782 13.8659C0.0538579 12.4392 -0.643495 9.55972 0.6457 7.29182L4.79077 0H6.99271L2.30986 8.23786Z" fill="white" />
-      <path d="M13.6265 11.7621C14.4159 10.3735 13.9889 8.61031 12.6516 7.7367C12.2286 7.46033 11.7489 7.29793 11.2574 7.25561L12.2725 5.49743C12.773 5.63113 13.2549 5.84422 13.6986 6.13406C15.8825 7.56079 16.5799 10.4403 15.2907 12.7082L11.1456 20L8.94366 20L13.6265 11.7621Z" fill="white" />
-      <path d="M6.50173 9.75989H4.29979L9.89546 0H12.0974L6.50173 9.75989Z" fill="white" />
-      <path d="M6.04194 19.9947H3.84L9.43567 10.2348H11.6376L6.04194 19.9947Z" fill="white" />
+      <path d="M2.30986 8.23786C1.52047 9.62654 1.94747 11.3897 3.28474 12.2633C3.70779 12.5397 4.18751 12.7021 4.67897 12.7444L3.66391 14.5026C3.16334 14.3689 2.68149 14.1558 2.23782 13.8659C0.0538579 12.4392 -0.643495 9.55972 0.6457 7.29182L4.79077 0H6.99271L2.30986 8.23786Z" fill={color} />
+      <path d="M13.6265 11.7621C14.4159 10.3735 13.9889 8.61031 12.6516 7.7367C12.2286 7.46033 11.7489 7.29793 11.2574 7.25561L12.2725 5.49743C12.773 5.63113 13.2549 5.84422 13.6986 6.13406C15.8825 7.56079 16.5799 10.4403 15.2907 12.7082L11.1456 20L8.94366 20L13.6265 11.7621Z" fill={color} />
+      <path d="M6.50173 9.75989H4.29979L9.89546 0H12.0974L6.50173 9.75989Z" fill={color} />
+      <path d="M6.04194 19.9947H3.84L9.43567 10.2348H11.6376L6.04194 19.9947Z" fill={color} />
     </svg>
   )
 }
@@ -666,6 +666,7 @@ export default function App() {
 
   // Navigation & Sub-views in Sidebar
   const [sidebarView, setSidebarView] = useState<SidebarView>(null)
+  const [selected3DObjectId, setSelected3DObjectId] = useState<string | null>(null)
   const setSelectedUser = (u: PersonalItem | null) => setSidebarView(u ? { type: 'user', data: u } : null)
   const [recorridoPlayerVisible] = useState(true)
 
@@ -774,10 +775,22 @@ export default function App() {
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
-      if (rightColRef.current && !rightColRef.current.contains(e.target as Node)) {
+      const target = e.target as HTMLElement | null
+      if (!target) return
+
+      // Close dropdowns if clicking outside any open dropdown or dropdown trigger button
+      const isInsideDropdown =
+        target.closest('.dd-menu') ||
+        target.closest('.dd-trigger') ||
+        target.closest('.section-action-btn') ||
+        target.closest('.nexo-settings-btn') ||
+        target.closest('.time-picker-menu')
+
+      if (!isInsideDropdown) {
         setDdOpen(null)
       }
-      if (nexoMoreRef.current && !nexoMoreRef.current.contains(e.target as Node)) {
+
+      if (nexoMoreRef.current && !nexoMoreRef.current.contains(target)) {
         setNexoMoreOpen(false)
       }
     }
@@ -1026,10 +1039,21 @@ export default function App() {
             zoom={zoom}
             theme={theme}
             activeSimulations={activeSimulations}
+            selectedObjectId={selected3DObjectId}
             onZoomChange={setZoom}
-            onSelectObject={() => {
-              setInteriorView('bombeo')
-              setSidebarView({ type: 'interior', data: INTERIORES_DATA[2] })
+            onSelectObject={(id) => {
+              if (!id) {
+                setSelected3DObjectId(null)
+                if (sidebarView?.type === 'interior' && !interiorView) {
+                  setSidebarView(null)
+                }
+                return
+              }
+              setSelected3DObjectId(id)
+              const found = INTERIORES_DATA.find((item) => item.id === id)
+              if (found) {
+                setSidebarView({ type: 'interior', data: found })
+              }
             }}
           />
         </>
@@ -1088,80 +1112,142 @@ export default function App() {
         </div>
       </header>
 
-      {/* Left vertical sidebar from SMF - V2 - 3 / 17 */}
+      {/* Left vertical floating toolbar (media_1793692573494_09fceee3.png & Figma Default) */}
       {selectedProj !== '3D - Superficie' && (
         <nav className="glass sidebar">
+          {/* Group 1: Zoom In / Zoom Out */}
           <button
             className="icon-btn"
             onClick={() => setZoom(clamp(zoom + 10))}
-            {...showHelp('Acercar vista', 'Incrementa la escala de acercamiento sobre el modelo del gemelo digital en 3D/2D.')}
+            {...showHelp('Acercar vista', 'Incrementa la escala de acercamiento sobre el modelo 3D.')}
           >
             <ZoomIn size={20} />
           </button>
           <button
             className="icon-btn"
             onClick={() => setZoom(clamp(zoom - 10))}
-            {...showHelp('Alejar vista', 'Reduce la escala de visualización para obtener una vista general del entorno minero.')}
+            {...showHelp('Alejar vista', 'Reduce la escala de visualización general.')}
           >
             <ZoomOut size={20} />
           </button>
+
           <hr />
+
+          {/* Group 2: Camera & Selection Navigation */}
           <button
             className={`icon-btn ${activeTool === 'level-up' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => t === 'level-up' ? '' : 'level-up')}
-            {...showHelp('Flecha arriba', 'Permite elevar o cambiar de nivel/piso en la visualización vertical de la mina.')}
+            onClick={() => setActiveTool((t) => (t === 'level-up' ? '' : 'level-up'))}
+            {...showHelp('Nivel superior', 'Permite elevar o alternar nivel en la mina.')}
           >
             <SquareArrowUp size={20} />
           </button>
           <button
             className={`icon-btn ${mode === 'perspective' ? 'active' : ''}`}
             onClick={() => { setSelectedProj('3D - Perspectiva'); setMode('perspective') }}
-            {...showHelp('Cubo', 'Alterna o ajusta la vista de volúmenes 3D y geometrías de los modelos.')}
+            {...showHelp('3D Perspectiva', 'Vista en volumen y geometría 3D de la mina.')}
           >
             <Box size={20} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'shift' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => t === 'shift' ? '' : 'shift')}
-            {...showHelp('Flecha derecha', 'Desplaza la selección o cambia entre vistas/secciones adyacentes.')}
+            onClick={() => setActiveTool((t) => (t === 'shift' ? '' : 'shift'))}
+            {...showHelp('Vista lateral', 'Desplaza la perspectiva a la derecha o lateral.')}
           >
             <SquareArrowRight size={20} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'select' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => t === 'select' ? '' : 'select')}
-            {...showHelp('Cuadros punteados (delimitadores)', 'Seleccionan áreas de interés, bounding boxes o zonas de recorte para aislar sectores.')}
+            onClick={() => setActiveTool((t) => (t === 'select' ? '' : 'select'))}
+            {...showHelp('Selección de área', 'Caja delimitadora para aislar o seleccionar un sector.')}
           >
             <SquareMousePointer size={20} />
           </button>
+
           <hr />
+
+          {/* Group 3: Frame / Scan */}
           <button
-            className="icon-btn"
-            onClick={() => {}}
-            {...showHelp('Flecha hacia arriba saliente', 'Exporta o sube configuraciones, capas o elementos personalizados a la plataforma.')}
+            className={`icon-btn ${activeTool === 'fit' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTool((t) => (t === 'fit' ? '' : 'fit'))
+              setZoom(50)
+            }}
+            {...showHelp('Ajustar todo', 'Encuadra y centra toda la infraestructura de la mina en el visor.')}
           >
-            <Fullscreen size={20} />
+            <Scan size={20} />
+          </button>
+
+          <hr />
+
+          {/* Group 4: Export / Upload */}
+          <button
+            className={`icon-btn ${activeTool === 'upload' ? 'active' : ''}`}
+            onClick={() => {
+              const input = document.createElement('input')
+              input.type = 'file'
+              input.accept = '.glb,.gltf,.obj'
+              input.click()
+            }}
+            {...showHelp('Cargar modelo', 'Importa o carga un modelo 3D local al gemelo digital.')}
+          >
+            <Upload size={20} />
+          </button>
+
+          <hr />
+
+          {/* Group 5: Measurement & Engineering Tools */}
+          <button
+            className={`icon-btn ${activeTool === 'ruler' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => (t === 'ruler' ? '' : 'ruler'))}
+            {...showHelp('Medición', 'Mide distancias tridimensionales entre puntos o túneles.')}
+          >
+            <Ruler size={20} />
           </button>
           <button
-            className={`icon-btn ${activeTool === 'network' ? 'active' : ''}`}
-            onClick={() => { setSelectedProj('2D - Diagrama de planta') }}
-            {...showHelp('Nodos conectados (Red)', 'Muestra u optimiza la topología de red, rutas de evacuación o conexiones estructurales.')}
+            className={`icon-btn ${activeTool === 'area' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => (t === 'area' ? '' : 'area'))}
+            {...showHelp('Área / Polígono', 'Calcula el área o sección transversal de galerías.')}
           >
-            <Workflow size={20} />
+            <Diamond size={20} />
           </button>
           <button
-            className={`icon-btn ${activeTool === 'sim-lab' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => t === 'sim-lab' ? '' : 'sim-lab')}
-            {...showHelp('Matraz', 'Activa herramientas de simulación (como flujos, pruebas ambientales o análisis químicos/técnicos).')}
+            className={`icon-btn ${activeTool === 'cable' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => (t === 'cable' ? '' : 'cable'))}
+            {...showHelp('Cableado y redes', 'Muestra conductos eléctricos y cableado de comunicación.')}
           >
-            <FlaskConical size={20} />
+            <Cable size={20} />
+          </button>
+          <button
+            className={`icon-btn ${activeTool === 'light' ? 'active' : ''}`}
+            onClick={() => setActiveTool((t) => (t === 'light' ? '' : 'light'))}
+            {...showHelp('Iluminación', 'Alterna visualización de luminarias y postes de seguridad.')}
+          >
+            <Lightbulb size={20} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'wrench-left' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => t === 'wrench-left' ? '' : 'wrench-left')}
-            {...showHelp('Llave inglesa', 'Acceso rápido a herramientas de ajuste o propiedades del sistema seleccionado.')}
+            onClick={() => setActiveTool((t) => (t === 'wrench-left' ? '' : 'wrench-left'))}
+            {...showHelp('Ajustes y herramientas', 'Herramientas de configuración y mantenimiento del visor.')}
           >
             <Wrench size={20} />
+          </button>
+
+          <hr />
+
+          {/* Group 6: History Undo / Redo */}
+          <button
+            className="icon-btn"
+            onClick={() => {}}
+            {...showHelp('Deshacer', 'Deshace la última acción o cambio de visualización.')}
+          >
+            <Undo2 size={20} />
+          </button>
+          <button
+            className="icon-btn"
+            onClick={() => {}}
+            {...showHelp('Rehacer', 'Rehace la acción previa revertida.')}
+          >
+            <Redo2 size={20} />
           </button>
         </nav>
       )}
@@ -1238,6 +1324,7 @@ export default function App() {
                       setInteriorView(null)
                     } else {
                       setSidebarView(null)
+                      setSelected3DObjectId(null)
                     }
                   }}
                   title="Volver"
@@ -1251,11 +1338,10 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="interior-panel-body" style={{ padding: '16px 20px' }}>
-                <div className="green-badge" style={{ marginBottom: 14 }}>
-                  <MapPin size={14} />
-                  <span>{sidebarView.data.locationLabel}</span>
-                </div>
+              <div className="interior-panel-body">
+                <h2 className="user-detail-title" style={{ margin: '4px 0 12px 0' }}>
+                  {sidebarView.data.title}
+                </h2>
 
                 <div className="interior-card-divider" />
 
@@ -1290,7 +1376,7 @@ export default function App() {
                     >
                       <div className="user-ai-card-top">
                         <div className="user-ai-tag">
-                          <Sparkles size={14} />
+                          <NexoLogo width={14} height={16} color="#455a64" />
                           <span>Nexo IA · Diagnóstico Sala de Bombeo</span>
                         </div>
                         <span className="user-ai-status" style={{ background: '#fee2e2', color: '#dc2626' }}>1 Alerta</span>
@@ -1391,7 +1477,7 @@ export default function App() {
                         )
                       }}
                     >
-                      <Sparkles size={15} />
+                      <NexoLogo width={15} height={18} color="#fff" />
                       <span>Preguntarle a Nexo IA sobre {selectedPump}</span>
                     </button>
 
@@ -1438,8 +1524,8 @@ export default function App() {
                         sendNexoMessage('¿Por qué se degrada el rodamiento de V-SA-01?')
                       }}
                     >
-                      <Sparkles size={16} />
-                      <span>Ask Nexo about this</span>
+                      <NexoLogo width={15} height={18} color="#fff" />
+                      <span>Preguntarle a Nexo IA sobre V-SA-01</span>
                     </button>
                   </>
                 ) : (
@@ -1470,13 +1556,14 @@ export default function App() {
                         sendNexoMessage(`Diagnóstico del estado operativo de ${sidebarView.data.title}`)
                       }}
                     >
-                      <Sparkles size={15} style={{ color: '#0f172a' }} />
+                      <NexoLogo width={15} height={18} color="#0f172a" />
                       <span style={{ color: '#0f172a' }}>Consultar estado con Nexo IA</span>
                     </button>
                     <button
                       className="cta full no-shadow"
                       style={{
                         marginTop: 8,
+                        width: '100%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -1712,7 +1799,7 @@ export default function App() {
               <div className="user-ai-gradient-card">
                 <div className="user-ai-card-top">
                   <div className="user-ai-tag">
-                    <Sparkles size={14} />
+                    <NexoLogo width={14} height={16} color="#455a64" />
                     <span>IA Predictiva · Telemetría</span>
                   </div>
                   <span className="user-ai-status">Óptimo</span>
@@ -2812,10 +2899,11 @@ export default function App() {
                             <span>Tramo del recorrido</span>
                             <b>Todo el turno</b>
                           </div>
-                          <div className="row" style={{ position: 'relative' }}>
-                            <div style={{ flex: 1, position: 'relative' }}>
+                          <div style={{ display: 'flex', gap: 8, width: '100%', position: 'relative' }}>
+                            <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
                               <button
-                                className="dd-trigger grow"
+                                className="dd-trigger full grow"
+                                style={{ width: '100%' }}
                                 onClick={() => setDdOpen((d) => (d === 'shiftStart' ? null : 'shiftStart'))}
                               >
                                 <span>Inicio</span>
@@ -2836,9 +2924,10 @@ export default function App() {
                               )}
                             </div>
 
-                            <div style={{ flex: 1, position: 'relative' }}>
+                            <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
                               <button
-                                className="dd-trigger grow"
+                                className="dd-trigger full grow"
+                                style={{ width: '100%' }}
                                 onClick={() => setDdOpen((d) => (d === 'shiftEnd' ? null : 'shiftEnd'))}
                               >
                                 <span>Fin</span>
@@ -2977,16 +3066,6 @@ export default function App() {
                     </div>
                   )
                 })}
-
-                {activeTrackings.length > 0 && (
-                  <>
-                    <div className="perf-divider" />
-                    <button className="clear-track-btn" onClick={() => setActiveTrackings([])}>
-                      <Trash size={17} />
-                      <span>Limpiar lista de seguimiento</span>
-                    </button>
-                  </>
-                )}
               </div>
             )}
           </div>
@@ -3086,12 +3165,6 @@ export default function App() {
                     </div>
                   )
                 })}
-
-                <div className="perf-divider" />
-                <button className="clear-track-btn" onClick={() => setActiveSimulations([])}>
-                  <Trash size={17} />
-                  <span>Limpiar lista de simulación</span>
-                </button>
               </div>
             )}
           </div>
@@ -3234,9 +3307,7 @@ export default function App() {
                     key={item.id}
                     className="interior-item-row"
                     onClick={() => {
-                      if (item.id === 'bombeo') {
-                        setInteriorView('bombeo')
-                      }
+                      setSelected3DObjectId(item.id)
                       setSidebarView({ type: 'interior', data: item })
                     }}
                     title={`Ver detalle de ${item.title}`}
@@ -3272,7 +3343,7 @@ export default function App() {
                 title="Importar modelo 3D (GLB, GLTF, OBJ)"
               >
                 <div className="interior-item-left">
-                  <Upload size={18} style={{ color: '#0284c7' }} />
+                  <Upload size={18} style={{ color: '#1e293b' }} />
                   <span className="interior-item-title">Importar modelo</span>
                 </div>
               </div>
@@ -3511,11 +3582,26 @@ export default function App() {
             </span>
           </div>
 
+          {/* Gray incident indicators above progress bar (media_1793692794190_dad454a5.png) */}
+          <div className="whatif-event-dots-track">
+            {[
+              { time: 140, label: 'Inicio de alteración en flujo' },
+              { time: 420, label: 'Compuerta V-01 cerrada' },
+              { time: 760, label: 'Evacuación alertada' },
+              { time: 1180, label: 'Personal arriba a punto seguro' },
+              { time: 1540, label: 'Estabilización de caudal' },
+            ].map((ev, idx) => (
+              <span
+                key={idx}
+                className="whatif-event-dot"
+                style={{ left: `${(ev.time / 1800) * 100}%` }}
+                title={`${ev.label} (${Math.floor(ev.time / 60)}:${String(ev.time % 60).padStart(2, '0')})`}
+                onClick={() => setWhatIfTime(ev.time)}
+              />
+            ))}
+          </div>
+
           <div className="whatif-player-slider-row">
-            <div className="whatif-dot-pair">
-              <span />
-              <span />
-            </div>
             <input
               type="range"
               min={0}
@@ -3524,10 +3610,6 @@ export default function App() {
               onChange={(e) => setWhatIfTime(Number(e.target.value))}
               className="whatif-player-slider"
             />
-            <div className="whatif-dot-pair">
-              <span />
-              <span />
-            </div>
           </div>
 
           <div className="whatif-player-footer">
@@ -3552,6 +3634,18 @@ export default function App() {
           <div className="nexo-drawer-top" ref={nexoMoreRef}>
             <div className="nexo-top-actions">
               <button
+                className={`nexo-settings-btn ${ddOpen === 'nexoSettings' ? 'active' : ''}`}
+                title="Configuración de Nexo IA"
+                aria-label="Configuración de Nexo IA"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setDdOpen((d) => (d === 'nexoSettings' ? null : 'nexoSettings'))
+                }}
+              >
+                <Settings size={17} />
+              </button>
+
+              <button
                 className={`nexo-more-btn ${nexoMoreOpen ? 'active' : ''}`}
                 title="Historial y más opciones"
                 aria-label="Historial y más opciones"
@@ -3575,6 +3669,36 @@ export default function App() {
                 <PanelRightClose size={18} />
               </button>
             </div>
+
+            {ddOpen === 'nexoSettings' && (
+              <div className="dd-menu nexo-settings-menu" style={{ top: '100%', right: 0, left: 'auto', width: 280 }}>
+                <div className="dd-group-title">CONFIGURACIÓN NEXO IA</div>
+
+                <div className="row between switch-row nexo-switch-row" onClick={() => setNexoEnabled((v) => !v)}>
+                  <div className="nexo-switch-text">
+                    <span>Asistente Nexo IA</span>
+                    <small>{nexoEnabled ? 'Activo en el entorno' : 'Desactivado'}</small>
+                  </div>
+                  <span className={`mui-switch ${nexoEnabled ? 'checked' : ''}`}>
+                    <span className="mui-switch-track" />
+                    <span className="mui-switch-thumb" />
+                  </span>
+                </div>
+
+                <div className="dd-divider" />
+
+                <div className="row between switch-row nexo-switch-row" onClick={() => setNexoAutoAlerts((v) => !v)}>
+                  <div className="nexo-switch-text">
+                    <span>Sugerencias automáticas</span>
+                    <small>{nexoAutoAlerts ? 'Alertas proactivas del turno' : 'Solo bajo demanda'}</small>
+                  </div>
+                  <span className={`mui-switch ${nexoAutoAlerts ? 'checked' : ''}`}>
+                    <span className="mui-switch-track" />
+                    <span className="mui-switch-thumb" />
+                  </span>
+                </div>
+              </div>
+            )}
 
             {nexoMoreOpen && (
               <div className="dd-menu nexo-history-menu">
@@ -3671,7 +3795,7 @@ export default function App() {
                     marginBottom: 10,
                   }}
                 >
-                  <Sparkles size={12} />
+                  <NexoLogo width={12} height={15} color="#0284c7" />
                   <span>
                     Contexto activo: {interiorView === 'bombeo' ? 'Sala de bombeo SB-01 (L5)' : sidebarView?.type === 'interior' ? sidebarView.data.title : ''}
                   </span>

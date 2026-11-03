@@ -11,8 +11,9 @@ interface Props {
   zoom: number
   theme: Theme
   activeSimulations?: string[]
+  selectedObjectId?: string | null
   onZoomChange?: (newZoom: number) => void
-  onSelectObject?: () => void
+  onSelectObject?: (objectId: string) => void
 }
 
 const PALETTE = {
@@ -36,10 +37,17 @@ const PALETTE = {
   },
 }
 
-export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomChange, onSelectObject }: Props) {
+const INTERACTIVE_FACILITIES = [
+  { id: 'refugio', name: 'Refugio R-01', pos: new THREE.Vector3(0, 5.2, -6), size: [3.4, 2.2, 3.4] as const, color: 0x00e676 },
+  { id: 'taller', name: 'Taller mecánico TM-01', pos: new THREE.Vector3(-9, 6.8, -6.5), size: [3.8, 2.4, 3.2] as const, color: 0xffb300 },
+  { id: 'bombeo', name: 'Sala de bombeo SB-01', pos: new THREE.Vector3(3, 4.2, -7), size: [3.4, 2.2, 3.2] as const, color: 0x00b0ff },
+  { id: 'chancador', name: 'Chancador', pos: new THREE.Vector3(6, 2.8, -8), size: [3.6, 2.6, 3.2] as const, color: 0xff5722 },
+]
+
+export default function Scene3D({ mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const state = useRef({ mode, zoom, theme, activeSimulations, onZoomChange, onSelectObject })
-  state.current = { mode, zoom, theme, activeSimulations, onZoomChange, onSelectObject }
+  const state = useRef({ mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject })
+  state.current = { mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject }
   const matsRef = useRef<{
     scene: THREE.Scene
     fineMat: THREE.LineBasicMaterial
@@ -172,6 +180,60 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
 
     matsRef.current = { scene, fineMat, coarseMat, neutralMats: [] }
 
+    // -------------------------------------------------------------------------
+    // Interactive 3D Facilities & Selection Contours
+    // -------------------------------------------------------------------------
+    const interactiveMeshes: THREE.Mesh[] = []
+    const facilityOutlines: {
+      id: string
+      outlineMat: THREE.LineBasicMaterial
+      ringMat: THREE.MeshBasicMaterial
+      ringMesh: THREE.Mesh
+      pos: THREE.Vector3
+    }[] = []
+
+    INTERACTIVE_FACILITIES.forEach((fac) => {
+      const geo = new THREE.BoxGeometry(fac.size[0], fac.size[1], fac.size[2])
+      const edges = new THREE.EdgesGeometry(geo)
+      const outlineMat = new THREE.LineBasicMaterial({
+        color: p.neutralMine,
+        transparent: true,
+        opacity: 0.35,
+        linewidth: 2,
+      })
+      const outline = new THREE.LineSegments(edges, outlineMat)
+      outline.position.copy(fac.pos)
+
+      // Invisible hit-box mesh for raycasting
+      const hitMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.05, color: fac.color })
+      const hitMesh = new THREE.Mesh(geo, hitMat)
+      hitMesh.position.copy(fac.pos)
+      hitMesh.userData = { id: fac.id, name: fac.name }
+      interactiveMeshes.push(hitMesh)
+
+      // Glowing selection bracket ring on the floor
+      const ringGeo = new THREE.RingGeometry(fac.size[0] * 0.45, fac.size[0] * 0.55, 32)
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0x00e5ff,
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+      })
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat)
+      ringMesh.rotation.x = -Math.PI / 2
+      ringMesh.position.set(fac.pos.x, fac.pos.y - fac.size[1] / 2 + 0.02, fac.pos.z)
+
+      scene.add(outline, hitMesh, ringMesh)
+
+      facilityOutlines.push({
+        id: fac.id,
+        outlineMat,
+        ringMat,
+        ringMesh,
+        pos: fac.pos,
+      })
+    })
+
     // Initialize 3D Simulation Overlay Layer
     const simCtrl = createSimulations(scene)
 
@@ -190,6 +252,9 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
     const ro = new ResizeObserver(resize)
     ro.observe(el)
 
+    const raycaster = new THREE.Raycaster()
+    const mouse = new THREE.Vector2()
+
     let downX = 0, downY = 0
     const down = (e: PointerEvent) => {
       dragging = true
@@ -200,7 +265,20 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
     }
     const up = (e: PointerEvent) => {
       if (dragging && Math.hypot(e.clientX - downX, e.clientY - downY) < 6) {
-        state.current.onSelectObject?.()
+        const rect = el.getBoundingClientRect()
+        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
+        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1
+        raycaster.setFromCamera(mouse, camera)
+        const intersects = raycaster.intersectObjects(interactiveMeshes, false)
+        if (intersects.length > 0) {
+          const hitId = intersects[0].object.userData?.id
+          if (hitId) {
+            state.current.onSelectObject?.(hitId)
+          }
+        } else {
+          // If clicked empty 3D space, deselect
+          state.current.onSelectObject?.('')
+        }
       }
       dragging = false
     }
@@ -242,6 +320,23 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
       // Update active 3D simulations
       const time = performance.now() * 0.001
       simCtrl.update(time, state.current.activeSimulations || [])
+
+      // Update interactive 3D facilities selection contours
+      const selectedId = state.current.selectedObjectId
+      facilityOutlines.forEach((item) => {
+        const isSel = selectedId === item.id
+        if (isSel) {
+          const glow = (Math.sin(time * 5.0) + 1) * 0.5
+          item.outlineMat.color.setHex(0x00f0ff)
+          item.outlineMat.opacity = 0.85 + glow * 0.15
+          item.ringMat.opacity = 0.55 + glow * 0.35
+          item.ringMesh.scale.setScalar(1 + glow * 0.08)
+        } else {
+          item.outlineMat.color.setHex(curP.neutralMine)
+          item.outlineMat.opacity = 0.30
+          item.ringMat.opacity = 0
+        }
+      })
 
       // Directly apply dynamic simulation visual effects onto the 3D mine lines
       const activeSims = state.current.activeSimulations || []
