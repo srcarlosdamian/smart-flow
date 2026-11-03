@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { X, Sparkles, AlertTriangle, Droplets, ChevronLeft } from 'lucide-react'
+import { X, AlertTriangle, Droplets, ChevronLeft } from 'lucide-react'
+import { NexoLogo } from './App'
 import type { Theme } from './Scene3D'
 
 interface Props {
@@ -407,7 +408,7 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
         onClick={() => onAskNexo?.('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')}
         title="Consultar análisis de Nexo IA para esta sala"
       >
-        <Sparkles size={14} className="nexo-sparkle-anim" />
+        <NexoLogo width={14} height={16} color="#ffffff" />
         <span>Nexo IA: 1 alerta en BA-04</span>
       </button>
 
@@ -508,7 +509,7 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
             <span className="strip-lbl">EN FALLA</span>
             <span className="strip-val red">1</span>
           </div>
-          <Sparkles size={13} className="strip-ai-sparkle" />
+          <NexoLogo width={12} height={14} color="#dc2626" />
         </div>
       </div>
 
@@ -558,7 +559,7 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
                   className="ask-nexo-btn"
                   onClick={() => onAskNexo?.(`Analiza el estado y telemetría de ${p.name} en la Sala de bombeo SB-01`)}
                 >
-                  <Sparkles size={14} />
+                  <NexoLogo width={14} height={16} color="#ffffff" />
                   <span>Preguntar a Nexo sobre {p.name}</span>
                 </button>
               </>

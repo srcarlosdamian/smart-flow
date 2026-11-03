@@ -20,7 +20,7 @@ import InteriorBombeoView from './InteriorBombeoView'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
 
-function NexoLogo({ width = 16, height = 20, color = 'currentColor' }: { width?: number; height?: number; color?: string }) {
+export function NexoLogo({ width = 16, height = 20, color = 'currentColor' }: { width?: number; height?: number; color?: string }) {
   return (
     <svg width={width} height={height} viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M2.30986 8.23786C1.52047 9.62654 1.94747 11.3897 3.28474 12.2633C3.70779 12.5397 4.18751 12.7021 4.67897 12.7444L3.66391 14.5026C3.16334 14.3689 2.68149 14.1558 2.23782 13.8659C0.0538579 12.4392 -0.643495 9.55972 0.6457 7.29182L4.79077 0H6.99271L2.30986 8.23786Z" fill={color} />
@@ -1451,7 +1451,7 @@ export default function App() {
                     </div>
 
                     <button
-                      className="cta full no-shadow"
+                      className="cta full no-shadow ia-gradient"
                       style={{
                         marginTop: 10,
                         display: 'flex',
@@ -1460,7 +1460,7 @@ export default function App() {
                         gap: 8,
                         padding: '12px 18px',
                         borderRadius: 12,
-                        background: 'linear-gradient(90deg, #1253dd, #08ddf0)',
+                        background: 'linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%)',
                         color: '#fff',
                         border: 'none',
                         fontWeight: 700,
@@ -1502,7 +1502,7 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
                     <button
-                      className="cta no-shadow"
+                      className="cta no-shadow ia-gradient"
                       style={{
                         marginTop: 12,
                         width: '100%',
@@ -1512,7 +1512,7 @@ export default function App() {
                         gap: 8,
                         padding: '11px 16px',
                         borderRadius: 10,
-                        background: 'linear-gradient(135deg, #0284c7 0%, #00b4d8 100%)',
+                        background: 'linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%)',
                         color: '#fff',
                         border: 'none',
                         fontWeight: 600,
@@ -1532,14 +1532,14 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
                     <button
-                      className="consultar-nexo-btn"
+                      className="consultar-nexo-btn ia-gradient"
                       onClick={() => {
                         setNexoOpen(true)
                         sendNexoMessage(`Diagnóstico del estado operativo de ${sidebarView.data.title}`)
                       }}
                     >
-                      <NexoLogo width={15} height={18} color="currentColor" />
-                      <span>Consultar estado con Nexo IA</span>
+                      <NexoLogo width={15} height={18} color="#ffffff" />
+                      <span style={{ color: '#ffffff' }}>Consultar estado con Nexo IA</span>
                     </button>
                     <button
                       className="cta full no-shadow"
