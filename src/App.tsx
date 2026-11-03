@@ -815,16 +815,39 @@ export default function App() {
   const sendNexoMessage = (text: string) => {
     const clean = text.trim()
     if (!clean) return
-    const replyMap: Record<string, string> = {
-      'Ponme al día con el turno': 'El turno actual opera con normalidad. Hay 28 trabajadores activos en interior mina, 2 alertas preventivas en Nivel 3 (Chancador) y Nivel 5 (Sala de bombeo), y los refugios R-01 y R-04 se encuentran operativos.',
-      '¿Cómo está la ventilación?': 'Nexo calculó la red de ventilación (10 sensores en línea): La mina tiene 14 % más flujo de aire del requerido. El punto más ajustado es el Nivel 3 al 106 % de su mínimo. Si se detuviera V-PH-01 bajaría del mínimo en unos 25 minutos.',
-      '¿Por qué se degrada el rodamiento de V-SA-01?': 'Nexo leyó 10 sensores, revisó 2 años de historial y comparó 42 ventiladores similares:\n• Alerta crítica (91% confianza): Falla probable en 17 días por desgaste de rodamiento SKF 6310. Vibración al alza (+12%/sem) a 3.68 mm/s y 52 °C.\n• Consecuencia si no se actúa: Parada no planificada de ~14 h, evacuación de 38 personas, costo estimado US$48,000 vs US$3,200 planificado.',
-      '¿Cuándo es el mejor momento para detenerlo?': 'Revisado el plan de producción, cuadrillas y almacén: se recomienda ventana de mantenimiento este Jueves 14:00–16:00 (menor demanda de ventilación en N3) y reservar 2 × SKF 6310 en almacén central.',
-      '¿Qué pasa si no hacemos nada?': 'Proyección a 14 días (Health score 78% → 61%): Parada intempestiva del ventilador, pérdida de caudal normativo en Nivel 3 en 25 min y paro forzado de equipos de acarreo.',
-      '¿Dónde está la gente en este momento?': 'Actualmente hay 14 personas en Galería Norte (L1), 8 en Taller Mecánico (L2), 4 en Rampa Principal y 2 en Sala de Bombeo (L5).',
-      '¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?': 'Recomendación Nexo: Arrancar la bomba BA-03 (actualmente en reserva) para estabilizar el caudal en 152 L/s y evitar el rebose del sumidero (64%), mientras la cuadrilla aísla BA-04.',
+    const lower = clean.toLowerCase()
+
+    let reply = ''
+    if (lower.includes('ba-04') || (lower.includes('bomba') && (lower.includes('falla') || lower.includes('alarma') || lower.includes('sobretemperatura')))) {
+      reply = 'Diagnóstico Nexo IA para Bomba BA-04:\n• Estado: Disparo térmico por sobretemperatura (81 °C) y presión nula (0.0 bar).\n• Horas acumuladas: 4,650 h de servicio continuo (próxima a ciclo mayor).\n• Causa probable: Restricción en el caudal de refrigeración del sello mecánico y desgaste del rodamiento de empuje.\n• Recomendación inmediata: Conmutar el arranque de la bomba BA-03 (reserva fría) para estabilizar el caudal en 152 L/s y evitar el rebose del sumidero L5 (64%), mientras la brigada aísla y desarma BA-04.'
+    } else if (lower.includes('ba-03') || (lower.includes('bomba') && lower.includes('reserva'))) {
+      reply = 'Telemetría Nexo IA - Bomba BA-03:\n• Estado: En reserva (Standby operativo listo).\n• Temperatura: 24 °C (ambiente nominal).\n• Horas de servicio: 1,490 h.\n• Presión proyectada: 12.0 bar a 75 L/s.\n• Nexo puede autorizar la secuencia de cebado y arranque automático si se aprueba la maniobra de relevo.'
+    } else if (lower.includes('ba-01') || lower.includes('ba-02')) {
+      const pName = lower.includes('01') ? 'BA-01' : 'BA-02'
+      const flow = lower.includes('01') ? '78 L/s' : '74 L/s'
+      const temp = lower.includes('01') ? '62 °C' : '59 °C'
+      reply = `Telemetría Nexo IA - Bomba ${pName}:\n• Estado: En marcha continua y estable.\n• Caudal aportado: ${flow} a 12 bar de presión.\n• Temperatura de operación: ${temp} (dentro de rango seguro < 70 °C).\n• Eficiencia hidráulica estimada: 92.4%. No requiere intervención inmediata.`
+    } else if (lower.includes('sumidero') || lower.includes('desborde') || lower.includes('nivel')) {
+      reply = 'Monitoreo de Sumidero L5 (Nexo IA):\n• Nivel actual: 64% (~180 m³).\n• Caudal de afluente: 148 L/s promedio.\n• Caudal de extracción activo: 152 L/s (BA-01 + BA-02).\n• Margen neto: +4 L/s de descenso gradual.\n• Tiempo crítico hasta cota de alarma en caso de parada: 42 minutos. Con BA-01 y BA-02 activas el sistema se mantiene en equilibrio seguro.'
+    } else if (lower.includes('sala de bombeo') || lower.includes('sb-01') || lower.includes('bombeo')) {
+      reply = 'Informe Integral Nexo IA - Sala de Bombeo SB-01 (Nivel 5):\n• Equipos: 2 en marcha (BA-01, BA-02), 1 en reserva (BA-03), 1 en falla (BA-04).\n• Caudal total evacuado: 152 L/s hacia piscina de superficie.\n• Nivel del sumidero: 64% (estable).\n• Estado de tuberías: Presión en colector principal 12.2 bar sin vibraciones anómalas.\n• Acción sugerida: Arrancar BA-03 para aislar BA-04 y realizar mantenimiento preventivo.'
+    } else if (lower.includes('refugio') || lower.includes('r-01') || lower.includes('oxígeno')) {
+      reply = 'Diagnóstico Nexo IA - Refugio R-01 (Nivel 5):\n• Ocupación actual: 1 / 12 personas.\n• Autonomía de O₂: 69 horas calculadas según recambio químico y bancos de cilindros.\n• Comunicaciones: Enlace activo por fibra óptica y backup LoRaWAN verificado hace 12 min.\n• Monitoreo de gases interno: CO₂ 350 ppm, O₂ 20.9%, CO 0 ppm.'
+    } else if (lower.includes('taller') || lower.includes('tm-01')) {
+      reply = 'Estado Operativo Nexo IA - Taller Mecánico TM-01 (Nivel 2):\n• Bahías ocupadas: 2 / 2 (LHD-02 en cambio de mangueras hidráulicas y Jumbo J-01 en revisión de martillo).\n• Cuadrilla técnica: 4 técnicos activos.\n• Horas de mantención pendientes: 29 h.\n• Ventilación en taller: 108% sobre norma.'
+    } else {
+      const replyMap: Record<string, string> = {
+        'Ponme al día con el turno': 'El turno actual opera con normalidad. Hay 28 trabajadores activos en interior mina, 2 alertas preventivas en Nivel 3 (Chancador) y Nivel 5 (Sala de bombeo), y los refugios R-01 y R-04 se encuentran operativos.',
+        '¿Cómo está la ventilación?': 'Nexo calculó la red de ventilación (10 sensores en línea): La mina tiene 14 % más flujo de aire del requerido. El punto más ajustado es el Nivel 3 al 106 % de su mínimo. Si se detuviera V-PH-01 bajaría del mínimo en unos 25 minutos.',
+        '¿Por qué se degrada el rodamiento de V-SA-01?': 'Nexo leyó 10 sensores, revisó 2 años de historial y comparó 42 ventiladores similares:\n• Alerta crítica (91% confianza): Falla probable en 17 días por desgaste de rodamiento SKF 6310. Vibración al alza (+12%/sem) a 3.68 mm/s y 52 °C.\n• Consecuencia si no se actúa: Parada no planificada de ~14 h, evacuación de 38 personas, costo estimado US$48,000 vs US$3,200 planificado.',
+        '¿Cuándo es el mejor momento para detenerlo?': 'Revisado el plan de producción, cuadrillas y almacén: se recomienda ventana de mantenimiento este Jueves 14:00–16:00 (menor demanda de ventilación en N3) y reservar 2 × SKF 6310 en almacén central.',
+        '¿Qué pasa si no hacemos nada?': 'Proyección a 14 días (Health score 78% → 61%): Parada intempestiva del ventilador, pérdida de caudal normativo en Nivel 3 en 25 min y paro forzado de equipos de acarreo.',
+        '¿Dónde está la gente en este momento?': 'Actualmente hay 14 personas en Galería Norte (L1), 8 en Taller Mecánico (L2), 4 en Rampa Principal y 2 en Sala de Bombeo (L5).',
+        '¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?': 'Recomendación Nexo: Arrancar la bomba BA-03 (actualmente en reserva) para estabilizar el caudal en 152 L/s y evitar el rebose del sumidero (64%), mientras la cuadrilla aísla BA-04.',
+      }
+      reply = replyMap[clean] || `Analizando "${clean}" en tiempo real sobre los sensores y telemetría activa de SmartFlow... Todos los indicadores del sector ${level} están sincronizados.`
     }
-    const reply = replyMap[clean] || `Analizando "${clean}" en tiempo real sobre los sensores y telemetría activa de SmartFlow... Todos los indicadores del sector ${level} están sincronizados.`
+
     setNexoMessages((prev) => [...prev, { role: 'user', text: clean }, { role: 'assistant', text: reply }])
     setNexoPrompt('')
   }
@@ -888,6 +911,31 @@ export default function App() {
       (c) => c.title.toLowerCase().includes(q) || c.sub.toLowerCase().includes(q) || c.category.toLowerCase().includes(q)
     )
   }, [commands, searchQuery])
+
+  const currentNexoSuggestions = useMemo(() => {
+    if (interiorView === 'bombeo' || (sidebarView?.type === 'interior' && sidebarView.data.id === 'bombeo')) {
+      return [
+        '¿Por qué está en falla la bomba BA-04?',
+        '¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?',
+        'Monitoreo de Sumidero L5 y caudal',
+      ]
+    }
+    if (sidebarView?.type === 'interior' && sidebarView.data.id === 'refugio') {
+      return [
+        '¿Cuál es la autonomía de oxígeno en Refugio R-01?',
+        '¿Cómo está el enlace de comunicación en el refugio?',
+        'Diagnóstico general de Refugio R-01',
+      ]
+    }
+    if (sidebarView?.type === 'interior' && sidebarView.data.id === 'taller') {
+      return [
+        '¿Cuáles son las órdenes activas en Taller TM-01?',
+        'Personal y técnicos en Taller Mecánico',
+        'Estado de ventilación en Taller TM-01',
+      ]
+    }
+    return NEXO_SUGGESTIONS
+  }, [interiorView, sidebarView])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -1208,6 +1256,27 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
 
+                    <div
+                      className="bombeo-ai-insight-box"
+                      onClick={() => {
+                        setNexoOpen(true)
+                        sendNexoMessage('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')
+                      }}
+                      title="Abrir recomendación con Nexo IA"
+                    >
+                      <div className="ai-insight-header">
+                        <Sparkles size={14} className="ai-insight-sparkle" />
+                        <span className="ai-insight-title">Diagnóstico Nexo IA</span>
+                        <span className="ai-insight-badge">1 alerta</span>
+                      </div>
+                      <p className="ai-insight-text">
+                        BA-04 en sobretemperatura (81°C). Nexo sugiere encender BA-03 para resguardar margen del sumidero.
+                      </p>
+                      <div className="ai-insight-action">
+                        <span>Consultar con Nexo IA →</span>
+                      </div>
+                    </div>
+
                     <div className="bombeo-sidebar-kpis">
                       <div className="bombeo-kpi-item">
                         <div className="kpi-label">NIVEL SUMIDERO</div>
@@ -1258,8 +1327,41 @@ export default function App() {
                     </div>
 
                     <button
+                      className="cta no-shadow"
+                      style={{
+                        marginTop: 10,
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        padding: '10px 14px',
+                        borderRadius: 8,
+                        background: 'linear-gradient(135deg, #0284c7 0%, #00b4d8 100%)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        boxShadow: 'none',
+                        fontSize: 13,
+                      }}
+                      onClick={() => {
+                        setNexoOpen(true)
+                        sendNexoMessage(
+                          selectedPump === 'BA-04'
+                            ? '¿Por qué está en falla la bomba BA-04?'
+                            : `Analiza el estado y telemetría de ${selectedPump} en la Sala de bombeo SB-01`
+                        )
+                      }}
+                    >
+                      <Sparkles size={15} />
+                      <span>Preguntarle a Nexo IA sobre {selectedPump}</span>
+                    </button>
+
+                    <button
                       className="bombeo-exit-btn"
                       onClick={() => setInteriorView(null)}
+                      style={{ marginTop: 10 }}
                     >
                       <span>Volver al modelo general de la mina</span>
                     </button>
@@ -1298,9 +1400,37 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
                     <button
+                      className="cta no-shadow"
+                      style={{
+                        marginTop: 12,
+                        marginBottom: 6,
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        padding: '9px 14px',
+                        borderRadius: 8,
+                        background: 'rgba(2, 132, 199, 0.12)',
+                        color: '#0284c7',
+                        border: '1px solid rgba(2, 132, 199, 0.25)',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        fontSize: 12.5,
+                        boxShadow: 'none',
+                      }}
+                      onClick={() => {
+                        setNexoOpen(true)
+                        sendNexoMessage(`Diagnóstico del estado operativo de ${sidebarView.data.title}`)
+                      }}
+                    >
+                      <Sparkles size={14} />
+                      <span>Consultar estado con Nexo IA</span>
+                    </button>
+                    <button
                       className="interior-enter-btn no-shadow"
                       style={{
-                        marginTop: 18,
+                        marginTop: 6,
                         width: '100%',
                         display: 'flex',
                         alignItems: 'center',
@@ -3131,8 +3261,30 @@ export default function App() {
 
               <h2 className="nexo-greeting">¿Cómo puedo ayudarte hoy?</h2>
 
+              {(interiorView === 'bombeo' || sidebarView?.type === 'interior') && (
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 10px',
+                    borderRadius: 20,
+                    background: 'rgba(2, 132, 199, 0.1)',
+                    color: '#0284c7',
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                    marginBottom: 10,
+                  }}
+                >
+                  <Sparkles size={12} />
+                  <span>
+                    Contexto activo: {interiorView === 'bombeo' ? 'Sala de bombeo SB-01 (L5)' : sidebarView?.type === 'interior' ? sidebarView.data.title : ''}
+                  </span>
+                </div>
+              )}
+
               <div className="nexo-suggestions">
-                {NEXO_SUGGESTIONS.map((s) => (
+                {currentNexoSuggestions.map((s) => (
                   <button
                     key={s}
                     className="nexo-pill"

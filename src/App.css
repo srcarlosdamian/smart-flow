@@ -3697,3 +3697,157 @@ select:focus,
   font-weight: 600 !important;
   border: none !important;
 }
+
+/* Nexo IA within Interior Views */
+.bombeo-nexo-top-trigger {
+  position: absolute;
+  top: 18px;
+  left: 280px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  color: #0284c7;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12);
+  transition: all 0.15s ease;
+}
+.bombeo-nexo-top-trigger:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  transform: translateY(-1px);
+}
+.nexo-sparkle-anim {
+  color: #0284c7;
+  animation: pulse 1.8s infinite;
+}
+
+.bombeo-bottom-kpi-strip {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+}
+.bombeo-strip-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bombeo-strip-item.clickable {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  transition: all 0.15s ease;
+}
+.bombeo-strip-item.clickable:hover {
+  background: rgba(239, 68, 68, 0.15);
+  transform: translateY(-1px);
+}
+.strip-text {
+  display: flex;
+  flex-direction: column;
+}
+.strip-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  text-transform: uppercase;
+}
+.strip-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.strip-val.red {
+  color: #ef4444;
+}
+.strip-icon.cyan {
+  color: #0284c7;
+}
+.strip-icon.red {
+  color: #ef4444;
+}
+.strip-dot.green {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+.strip-ai-sparkle {
+  color: #0284c7;
+  animation: pulse 1.8s infinite;
+}
+.bombeo-strip-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.bombeo-ai-insight-box {
+  margin: 12px 0 10px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(56, 189, 248, 0.12) 100%);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.bombeo-ai-insight-box:hover {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.14) 0%, rgba(56, 189, 248, 0.20) 100%);
+  border-color: rgba(2, 132, 199, 0.4);
+}
+.ai-insight-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.ai-insight-sparkle {
+  color: #0284c7;
+}
+.ai-insight-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0284c7;
+  flex: 1;
+}
+.ai-insight-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #fee2e2;
+  color: #ef4444;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.ai-insight-text {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #334155;
+  margin: 0 0 6px 0;
+}
+.ai-insight-action {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+}

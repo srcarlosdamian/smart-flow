@@ -401,6 +401,16 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
         </div>
       </div>
 
+      {/* Top Nexo IA Pill */}
+      <button
+        className="bombeo-nexo-top-trigger glass"
+        onClick={() => onAskNexo?.('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')}
+        title="Consultar análisis de Nexo IA para esta sala"
+      >
+        <Sparkles size={14} className="nexo-sparkle-anim" />
+        <span>Nexo IA: 1 alerta en BA-04</span>
+      </button>
+
       {/* Top Right Close Button */}
       <button
         className="bombeo-close-btn glass"
@@ -456,6 +466,51 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
           <span>SUMIDERO 64%</span>
         </div>
       )}
+
+      {/* Bottom Floating Telemetry Strip (Matching Reference Screenshot) */}
+      <div className="bombeo-bottom-kpi-strip glass">
+        <div className="bombeo-strip-item">
+          <Droplets size={15} className="strip-icon cyan" />
+          <div className="strip-text">
+            <span className="strip-lbl">NIVEL SUMIDERO</span>
+            <span className="strip-val">64%</span>
+          </div>
+        </div>
+
+        <div className="bombeo-strip-divider" />
+
+        <div className="bombeo-strip-item">
+          <span className="strip-dot green" />
+          <div className="strip-text">
+            <span className="strip-lbl">EN MARCHA</span>
+            <span className="strip-val">2 / 4</span>
+          </div>
+        </div>
+
+        <div className="bombeo-strip-divider" />
+
+        <div className="bombeo-strip-item">
+          <div className="strip-text">
+            <span className="strip-lbl">CAUDAL TOTAL</span>
+            <span className="strip-val">152 <small style={{ fontSize: 10, fontWeight: 500 }}>L/s</small></span>
+          </div>
+        </div>
+
+        <div className="bombeo-strip-divider" />
+
+        <div
+          className="bombeo-strip-item clickable"
+          onClick={() => onAskNexo?.('¿Por qué está en falla la bomba BA-04?')}
+          title="Ver diagnóstico y recomendación con Nexo IA"
+        >
+          <AlertTriangle size={15} className="strip-icon red" />
+          <div className="strip-text">
+            <span className="strip-lbl">EN FALLA</span>
+            <span className="strip-val red">1</span>
+          </div>
+          <Sparkles size={13} className="strip-ai-sparkle" />
+        </div>
+      </div>
 
       {/* Bottom Hint */}
       <div className="bombeo-bottom-hint">
