@@ -2223,3 +2223,184 @@ input[type=range] { width: 100%; accent-color: #1976d2; }
 .register-popover-item:hover {
   background: var(--hover-bg);
 }
+
+/* -------------------------------------------------------------
+   SMF - V2: Interiores (Sidebar List & Pop-up Cards)
+------------------------------------------------------------- */
+.interiores-list {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+}
+.interior-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .12s ease;
+}
+.interior-item-row:hover:not(.disabled) {
+  background: var(--hover-bg);
+}
+.interior-item-row.active {
+  background: var(--hover-bg);
+}
+.interior-item-row.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.interior-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.interior-item-title {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+.interiores-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  padding: 12px 10px 4px;
+}
+
+/* Interior Detail Floating Card */
+.interior-card-popup {
+  position: absolute;
+  top: 96px;
+  right: 300px;
+  width: 295px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  z-index: 60;
+  background: var(--panel-bg);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  animation: fadeInPop 0.15s ease-out;
+}
+@keyframes fadeInPop {
+  from { opacity: 0; transform: scale(0.97) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.interior-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.interior-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0;
+}
+.interior-card-close-btn {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+}
+.interior-card-close-btn:hover {
+  color: var(--text);
+  background: var(--hover-bg);
+}
+.interior-location-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.interior-card-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+  margin: 14px 0;
+}
+.interior-metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.interior-metric-block {
+  display: flex;
+  flex-direction: column;
+}
+.interior-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.interior-metric-label {
+  font-size: 13px;
+  color: var(--text);
+}
+.interior-metric-val {
+  font-size: 13px;
+  font-weight: 600;
+}
+.interior-bar-track {
+  width: 100%;
+  height: 5px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+[data-theme='dark'] .interior-bar-track {
+  background: rgba(255, 255, 255, 0.15);
+}
+.interior-bar-fill {
+  height: 100%;
+  background: #0f2942;
+  border-radius: 9999px;
+}
+[data-theme='dark'] .interior-bar-fill {
+  background: #38bdf8;
+}
+.interior-enter-btn {
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  border: 0;
+  background: #09233e;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all .15s ease;
+  box-shadow: 0 4px 12px rgba(9, 35, 62, 0.25);
+}
+.interior-enter-btn:hover {
+  background: #0d2f52;
+}
+[data-theme='dark'] .interior-enter-btn {
+  background: #1e3a5f;
+}
+[data-theme='dark'] .interior-enter-btn:hover {
+  background: #254774;
+}
+.interior-enter-sub {
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+}

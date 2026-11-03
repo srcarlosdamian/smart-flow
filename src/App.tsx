@@ -11,7 +11,7 @@ import {
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  BarChart3, Magnet, X,
+  BarChart3, Magnet, X, DoorOpen,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -200,6 +200,91 @@ const SIMULATION_CATALOG: SimulationItem[] = [
   { id: 'personal', label: 'Movimiento de personal', category: 'PERSONAL', icon: Users, color: '#00bfa5' },
 ]
 
+export interface InteriorItem {
+  id: string
+  title: string
+  subTitle: string
+  category: string
+  icon: any
+  iconColor: string
+  locationLabel: string
+  level: string
+  metrics: {
+    label: string
+    value: string
+    valueColor?: string
+    bar?: { current: number; max: number }
+  }[]
+  disabled?: boolean
+}
+
+const INTERIORES_DATA: InteriorItem[] = [
+  {
+    id: 'refugio',
+    title: 'Refugio R-01',
+    subTitle: 'Refugio',
+    category: 'General',
+    icon: ShieldCheck,
+    iconColor: '#00e676',
+    locationLabel: 'Refugio',
+    level: 'L5',
+    metrics: [
+      { label: 'Ocupación', value: '1 / 12 personas', bar: { current: 1, max: 12 } },
+      { label: 'Oxígeno', value: '69 h de autonomía' },
+      { label: 'Comunicación', value: 'Enlace activo', valueColor: '#00c853' },
+      { label: 'Última inspección', value: '2026-07-11' },
+    ],
+  },
+  {
+    id: 'taller',
+    title: 'Taller mecánico TM-01',
+    subTitle: 'Taller mecánico',
+    category: 'General',
+    icon: Wrench,
+    iconColor: '#ffb300',
+    locationLabel: 'Taller mecánico',
+    level: 'L2',
+    metrics: [
+      { label: 'Órdenes activas', value: '2 en proceso' },
+      { label: 'Bahías ocupadas', value: '2 / 2', bar: { current: 2, max: 2 } },
+      { label: 'Técnicos en turno', value: '4' },
+      { label: 'Horas pendientes', value: '29 h' },
+    ],
+  },
+  {
+    id: 'bombeo',
+    title: 'Sala de bombeo SB-01',
+    subTitle: 'Sala de bombeo',
+    category: 'General',
+    icon: Droplets,
+    iconColor: '#00b0ff',
+    locationLabel: 'Sala de bombeo',
+    level: 'L5',
+    metrics: [
+      { label: 'Nivel del sumidero', value: '85%', valueColor: '#f44336', bar: { current: 85, max: 100 } },
+      { label: 'Bombas en marcha', value: '3 / 4' },
+      { label: 'Caudal total', value: '157 L/s' },
+      { label: 'Presión de descarga', value: '12.4 bar' },
+    ],
+  },
+  {
+    id: 'chancador',
+    title: 'Chancador CH-01',
+    subTitle: 'Chancador',
+    category: 'General',
+    icon: Mountain,
+    iconColor: '#ff5722',
+    locationLabel: 'Chancador',
+    level: 'L3',
+    metrics: [
+      { label: 'Tonelaje', value: '857 t/h' },
+      { label: 'Utilización', value: '71%', bar: { current: 71, max: 100 } },
+      { label: 'Etapas en alarma', value: '1' },
+      { label: 'Disponibilidad', value: '95%' },
+    ],
+  },
+]
+
 export interface PersonalItem {
   id: string
   name: string
@@ -355,7 +440,8 @@ export default function App() {
   const [nexoVoice, setNexoVoice] = useState(false)
   const [nexoPrompt, setNexoPrompt] = useState('')
   const [nexoMessages, setNexoMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
-  const [open, setOpen] = useState<Record<string, boolean>>({})
+  const [open, setOpen] = useState<Record<string, boolean>>({ interiores: true })
+  const [selectedInterior, setSelectedInterior] = useState<InteriorItem | null>(null)
   const [perfLevel, setPerfLevel] = useState<'Bajo' | 'Medio' | 'Alto'>('Bajo')
   const [autoPerf, setAutoPerf] = useState(false)
   const [factor, setFactor] = useState(1.3)
@@ -2196,9 +2282,109 @@ export default function App() {
             onToggle={() => toggle('seg')}
             onHover={showHelp('Demo de seguimiento', 'Ejercicios o modos demostrativos para pruebas de tracking y seguimiento operativo.')}
           />
+
+          {/* 7. INTERIORES (SMF - V2 exact match) */}
+          <Section
+            title="Interiores"
+            open={open.interiores !== false}
+            onToggle={() => toggle('interiores')}
+            onHover={showHelp('Interiores', 'Acceso y estado operativo en tiempo real de los recintos e infraestructura interior de la mina.')}
+          >
+            <div className="interiores-list">
+              {INTERIORES_DATA.map((item) => {
+                const Icon = item.icon
+                const isSelected = selectedInterior?.id === item.id
+                return (
+                  <div
+                    key={item.id}
+                    className={`interior-item-row ${isSelected ? 'active' : ''}`}
+                    onClick={() => setSelectedInterior(item)}
+                    title={`Ver detalle de ${item.title}`}
+                  >
+                    <div className="interior-item-left">
+                      <Icon size={18} style={{ color: item.iconColor }} />
+                      <span className="interior-item-title">{item.subTitle}</span>
+                    </div>
+                    <ChevronRight size={16} className="row-chevron" />
+                  </div>
+                )
+              })}
+
+              <div className="interiores-group-title">POR EQUIPO</div>
+
+              <div className="interior-item-row disabled" title="Selecciona una subestación en el visor para entrar">
+                <div className="interior-item-left">
+                  <Zap size={18} style={{ color: '#94a3b8' }} />
+                  <span className="interior-item-title" style={{ color: '#94a3b8' }}>Sala de subestación</span>
+                </div>
+              </div>
+            </div>
+          </Section>
             </>
           )}
         </aside>
+
+        {/* Detail Pop-up Card for Interiores matching exact Figma screenshots */}
+        {selectedInterior && (
+          <div className="interior-card-popup glass" role="dialog" aria-label={selectedInterior.title}>
+            <div className="interior-card-header">
+              <h3 className="interior-card-title">{selectedInterior.title}</h3>
+              <button
+                className="interior-card-close-btn"
+                onClick={() => setSelectedInterior(null)}
+                title="Cerrar"
+                aria-label="Cerrar"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="interior-location-badge">
+              <MapPin size={15} style={{ color: selectedInterior.iconColor }} />
+              <span style={{ color: selectedInterior.iconColor }}>{selectedInterior.locationLabel}</span>
+            </div>
+
+            <div className="interior-card-divider" />
+
+            <div className="interior-metrics-list">
+              {selectedInterior.metrics.map((m, idx) => (
+                <div key={idx} className="interior-metric-block">
+                  <div className="row between interior-metric-row">
+                    <span className="interior-metric-label">{m.label}</span>
+                    <span
+                      className="interior-metric-val bold"
+                      style={{ color: m.valueColor || 'var(--text-heading)' }}
+                    >
+                      {m.value}
+                    </span>
+                  </div>
+                  {m.bar && (
+                    <div className="interior-bar-track">
+                      <div
+                        className="interior-bar-fill"
+                        style={{ width: `${Math.round((m.bar.current / m.bar.max) * 100)}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="interior-card-divider" />
+
+            <button
+              className="interior-enter-btn"
+              onClick={() => {
+                setLevel(selectedInterior.level)
+                setZoom(120)
+              }}
+            >
+              <DoorOpen size={18} />
+              <span>Entrar</span>
+            </button>
+            <small className="interior-enter-sub">Vista interior del lugar</small>
+          </div>
+        )}
       </div>
 
       {/* SMF - V2 - 7 & SMF - 34: Exact Figma Recorrido Simulation Player (node 8739-11054) */}
