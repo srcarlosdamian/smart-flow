@@ -4095,17 +4095,19 @@ select:focus,
 .whatif-legend-dot.blue { background: #0284c7; }
 .whatif-legend-dot.red { background: #ef4444; }
 
-/* Sticky Topbar Breadcrumbs (media_1793688368977_3be99702.png) */
+/* Sticky Topbar Breadcrumbs (media_1793692266814_d6612025.png) */
 .user-detail-topbar {
   position: sticky !important;
-  top: 0 !important;
+  top: 6px !important;
   z-index: 30 !important;
-  background: rgba(255, 255, 255, 0.94) !important;
+  background: rgba(255, 255, 255, 0.80) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  padding: 12px 16px !important;
-  margin: 0 !important;
-  border-bottom: 1px solid var(--line) !important;
+  padding: 10px 14px !important;
+  margin: 6px 10px 6px 10px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Neutral Gray Checkboxes and Range Slider (media_1793688313260_619d3a64.png) */
