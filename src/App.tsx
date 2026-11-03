@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Search, Bell, Globe, Sun, Moon, Wrench, ChevronDown, ChevronUp, ChevronRight, ChevronLeft,
-  CirclePlus, CircleMinus, CircleAlert, CheckSquare, Square,
+  CirclePlus, CircleMinus, CircleAlert,
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
   Fullscreen, Upload, RulerDimensionLine, Diamond, Cable, Lightbulb, Undo2, Redo2,
   UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
@@ -10,7 +10,7 @@ import {
   EllipsisVertical, Ellipsis, TextAlignStart, Pin, PictureInPicture2, SquareArrowOutUpRight,
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
-  Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Clock, Eye,
+  Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Eye, Calendar,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import logoUrl from './assets/smartflow-logo.png'
@@ -269,6 +269,8 @@ const PERSONAL_CHECKLIST = [
   { id: '8', name: 'Carina Cifuentes', sub: 'Carmen Calderón' },
   { id: '9', name: 'Camilo Castillo', sub: 'Carla Cabrera' },
   { id: '10', name: 'Cecilia Campos', sub: 'Carlos Cordero' },
+  { id: '11', name: 'Claudio Castro', sub: 'Claudia Cisneros' },
+  { id: '12', name: 'Cristóbal Cruz', sub: 'Cristina Corona' },
 ]
 
 function Section({
@@ -346,7 +348,6 @@ export default function App() {
   const [playerLoop, setPlayerLoop] = useState(false)
   const [auxilioHandled, setAuxilioHandled] = useState(false)
   const [auxilioResolved, setAuxilioResolved] = useState(false)
-  const [personSearchText, setPersonSearchText] = useState('')
   const [shiftStart, setShiftStart] = useState('08:00')
   const [shiftEnd, setShiftEnd] = useState('16:00')
 
@@ -379,14 +380,6 @@ export default function App() {
     const s = totalSec % 60
     return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
   }
-
-  const filteredChecklist = useMemo(() => {
-    const q = personSearchText.trim().toLowerCase()
-    if (!q) return PERSONAL_CHECKLIST
-    return PERSONAL_CHECKLIST.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.sub.toLowerCase().includes(q)
-    )
-  }, [personSearchText])
 
   const rightColRef = useRef<HTMLDivElement>(null)
   const nexoMoreRef = useRef<HTMLDivElement>(null)
@@ -1104,16 +1097,18 @@ export default function App() {
             {ddOpen === 'addTrack' && (
               <div className="dd-menu track-add-menu">
                 <div className="dd-group-title">AGREGAR TRACKING</div>
-                {TRACKING_CATALOG.map(({ id, menuLabel, color, icon: I }) => (
-                  <button
-                    key={id}
-                    className="dd-item"
-                    onClick={() => addTrackingItem(id)}
-                  >
-                    <I size={18} style={{ color }} />
-                    <span>{menuLabel}</span>
-                  </button>
-                ))}
+                {TRACKING_CATALOG
+                  .filter(({ id }) => !activeTrackings.includes(id))
+                  .map(({ id, menuLabel, color, icon: I }) => (
+                    <button
+                      key={id}
+                      className="dd-item"
+                      onClick={() => addTrackingItem(id)}
+                    >
+                      <I size={18} style={{ color }} />
+                      <span>{menuLabel}</span>
+                    </button>
+                  ))}
               </div>
             )}
 
@@ -1194,8 +1189,8 @@ export default function App() {
                                 className="dd-trigger grow"
                                 onClick={() => setDdOpen((d) => (d === 'shiftStart' ? null : 'shiftStart'))}
                               >
-                                <span>Inicio: {shiftStart}</span>
-                                <Clock size={15} />
+                                <span>Inicio</span>
+                                <Calendar size={16} />
                               </button>
                               {ddOpen === 'shiftStart' && (
                                 <div className="dd-menu time-picker-menu">
@@ -1217,8 +1212,8 @@ export default function App() {
                                 className="dd-trigger grow"
                                 onClick={() => setDdOpen((d) => (d === 'shiftEnd' ? null : 'shiftEnd'))}
                               >
-                                <span>Fin: {shiftEnd}</span>
-                                <Clock size={15} />
+                                <span>Fin</span>
+                                <Calendar size={16} />
                               </button>
                               {ddOpen === 'shiftEnd' && (
                                 <div className="dd-menu time-picker-menu">
@@ -1246,27 +1241,15 @@ export default function App() {
                               <ChevronDown size={16} />
                             </button>
 
-                            {/* SMF - V2 - 8 Popover: Multi-select checklist with search */}
+                            {/* SMF - V2 - 8 Popover: Multi-select checklist matching Figma */}
                             {ddOpen === 'personalSearch' && (
                               <div className="dd-menu personal-checklist-menu">
-                                <div className="checklist-search-bar">
-                                  <Search size={14} className="checklist-search-icon" />
-                                  <input
-                                    type="text"
-                                    placeholder="Filtrar por nombre..."
-                                    value={personSearchText}
-                                    onChange={(e) => setPersonSearchText(e.target.value)}
-                                    className="checklist-input"
-                                    autoFocus
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                </div>
                                 <div className="checklist-head">
                                   <span>{selectedCount}/{PERSONAL_CHECKLIST.length} SELECCIONADO</span>
                                   <button onClick={() => setCheckedPeople({})}>QUITAR TODOS</button>
                                 </div>
                                 <div className="checklist-scroll">
-                                  {filteredChecklist.map((p) => {
+                                  {PERSONAL_CHECKLIST.map((p) => {
                                     const checked = !!checkedPeople[p.id]
                                     return (
                                       <button
@@ -1276,9 +1259,9 @@ export default function App() {
                                           setCheckedPeople((prev) => ({ ...prev, [p.id]: !prev[p.id] }))
                                         }}
                                       >
-                                        {checked
-                                          ? <CheckSquare size={18} className="chk-on" />
-                                          : <Square size={18} className="chk-off" />}
+                                        <span className={`chk-box ${checked ? 'checked' : ''}`}>
+                                          {checked && <Check size={12} strokeWidth={3} />}
+                                        </span>
                                         <div className="checklist-names">
                                           <b>{p.name}</b>
                                           <small>{p.sub}</small>
