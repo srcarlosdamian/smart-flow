@@ -1413,7 +1413,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="bombeo-section-title" style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '14px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                    <div className="bombeo-section-title" style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', margin: '14px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
                       BOMBAS (4)
                     </div>
                     <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1428,7 +1428,7 @@ export default function App() {
                             <div className="bombeo-pump-v2-header">
                               <div className="row gap-2" style={{ alignItems: 'center' }}>
                                 <span className={`pump-status-dot-v2 ${p.status}`} />
-                                <b style={{ fontSize: 14, color: '#0f172a' }}>{p.id}</b>
+                                <b style={{ fontSize: 14, color: 'var(--text)' }}>{p.id}</b>
                               </div>
                               <div className="row gap-2" style={{ alignItems: 'center' }}>
                                 <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
@@ -1532,32 +1532,14 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
                     <button
-                      className="no-shadow"
-                      style={{
-                        marginTop: 12,
-                        marginBottom: 6,
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        padding: '9px 14px',
-                        borderRadius: 8,
-                        background: 'transparent',
-                        color: '#0f172a',
-                        border: '1px solid var(--line)',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        fontSize: 13,
-                        boxShadow: 'none',
-                      }}
+                      className="consultar-nexo-btn"
                       onClick={() => {
                         setNexoOpen(true)
                         sendNexoMessage(`Diagnóstico del estado operativo de ${sidebarView.data.title}`)
                       }}
                     >
-                      <NexoLogo width={15} height={18} color="#0f172a" />
-                      <span style={{ color: '#0f172a' }}>Consultar estado con Nexo IA</span>
+                      <NexoLogo width={15} height={18} color="currentColor" />
+                      <span>Consultar estado con Nexo IA</span>
                     </button>
                     <button
                       className="cta full no-shadow"
@@ -1637,7 +1619,7 @@ export default function App() {
                   const sc = WHAT_IF_SCENARIOS[whatIfTarget] || WHAT_IF_SCENARIOS['V-PH-01'] || WHAT_IF_SCENARIOS['CD-MT-01']
                   return (
                     <>
-                      <h4 className="whatif-question-title" style={{ fontSize: 14.5, fontWeight: 700, margin: '0 0 10px 0', color: '#0f172a' }}>{sc.title}</h4>
+                      <h4 className="whatif-question-title" style={{ fontSize: 14.5, fontWeight: 700, margin: '0 0 10px 0', color: 'var(--text)' }}>{sc.title}</h4>
 
                       <div className="whatif-kpi-summary-list">
                         <div className="row between whatif-kpi-row">
@@ -2452,7 +2434,7 @@ export default function App() {
                         <div className="evac-alert-top-row">
                           <div className="evac-alert-title-group">
                             <Icon size={16} style={{ color: '#ef4444' }} />
-                            <b style={{ fontSize: 14, color: '#0f172a' }}>{al.type}</b>
+                            <b style={{ fontSize: 14, color: 'var(--text)' }}>{al.type}</b>
                             <span className="evac-alert-tag-critical">{al.level}</span>
                           </div>
                           <span className="evac-alert-status-pill">{al.status}</span>
@@ -3354,7 +3336,7 @@ export default function App() {
                 title="Exportar toda la mina a GLB"
               >
                 <div className="interior-item-left">
-                  <Download size={18} style={{ color: '#0f172a' }} />
+                  <Download size={18} style={{ color: 'var(--text)' }} />
                   <span className="interior-item-title">Exportar escena (GLB)</span>
                 </div>
               </div>
@@ -3384,7 +3366,7 @@ export default function App() {
                 title="Capturar pantalla de la vista 3D"
               >
                 <div className="interior-item-left">
-                  <Camera size={18} style={{ color: '#0f172a' }} />
+                  <Camera size={18} style={{ color: 'var(--text)' }} />
                   <span className="interior-item-title">Captura de pantalla</span>
                 </div>
               </div>

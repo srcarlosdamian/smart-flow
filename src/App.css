@@ -4321,6 +4321,74 @@ select:focus,
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
+/* Consultar estado con Nexo IA Button */
+.consultar-nexo-btn {
+  margin-top: 12px;
+  margin-bottom: 6px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text, #1e293b);
+  border: 1px solid var(--line, rgba(0, 0, 0, 0.12));
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  box-shadow: none;
+  transition: background .15s ease, color .15s ease;
+}
+.consultar-nexo-btn:hover {
+  background: var(--hover-bg, rgba(0, 0, 0, 0.08));
+}
+.app[data-theme="dark"] .consultar-nexo-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+.app[data-theme="dark"] .consultar-nexo-btn:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+}
+
+/* Dark mode overrides for detail panels and action buttons */
+.app[data-theme="dark"] .user-detail-topbar {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+.app[data-theme="dark"] .user-top-crumb .crumb-name {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .user-top-crumb .crumb-prefix {
+  color: #94a3b8 !important;
+}
+.app[data-theme="dark"] .user-action-btn,
+.app[data-theme="dark"] .auxilio-action-btn,
+.app[data-theme="dark"] .evac-action-link-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .user-action-btn:hover,
+.app[data-theme="dark"] .auxilio-action-btn:hover,
+.app[data-theme="dark"] .evac-action-link-btn:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .user-ai-gradient-card {
+  background-image: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.6)), linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .user-ai-tag {
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .user-ai-metric-row .user-ai-val {
+  color: #f1f5f9 !important;
+}
+
 /* Neutral Gray Checkboxes and Range Slider (media_1793688313260_619d3a64.png) */
 .whatif-custom-checkbox.checked {
   background: #334155 !important;
