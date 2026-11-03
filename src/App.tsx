@@ -854,7 +854,7 @@ export default function App() {
           </div>
         )}
 
-        <aside className="glass panel">
+        <aside className={`glass panel ${ddOpen ? 'has-dropdown-open' : ''}`}>
           {selectedUser ? (
             <div className="user-detail-panel">
               {/* Breadcrumb matching SMF - V2 - 9 */}
