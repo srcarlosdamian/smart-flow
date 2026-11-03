@@ -8,8 +8,8 @@ import {
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Minus,
   Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot, Settings,
   EllipsisVertical, Ellipsis, TextAlignStart, Pin, PictureInPicture2, SquareArrowOutUpRight,
-  Camera, Target, Network, Gauge, GitFork, RotateCcw, FlaskConical, History, ShieldCheck,
-  Droplets, Mountain, Ruler, ArrowUpDown, CornerDownLeft, Layers, EyeOff,
+  RotateCcw, FlaskConical, History, ShieldCheck,
+  Droplets, Mountain, ArrowUpDown, CornerDownLeft,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import logoUrl from './assets/smartflow-logo.png'
@@ -363,36 +363,36 @@ export default function App() {
   // SMF - V2 - 10: 40 Command Palette items
   const commands: CommandItem[] = useMemo(() => [
     // Vista
-    { id: 'cam-sup', title: 'Superior', category: 'Vista', sub: 'Cámara', icon: Camera, action: () => setMode('top') },
-    { id: 'cam-front', title: 'Frontal', category: 'Vista', sub: 'Cámara', icon: Camera, action: () => setMode('perspective') },
-    { id: 'cam-right', title: 'Derecha', category: 'Vista', sub: 'Cámara', icon: Camera, action: () => setMode('perspective') },
-    { id: 'cam-iso', title: 'Isométrica', category: 'Vista', sub: 'Cámara', icon: Camera, action: () => setMode('isometric') },
-    { id: 'cam-fit', title: 'Ajustar todo', category: 'Vista', sub: 'Cámara', icon: Grid3x3, action: () => { setZoom(50); setMode('perspective') } },
+    { id: 'cam-sup', title: 'Superior', category: 'Vista', sub: 'Cámara', icon: SquareArrowUp, action: () => setMode('top') },
+    { id: 'cam-front', title: 'Frontal', category: 'Vista', sub: 'Cámara', icon: SquareMousePointer, action: () => setMode('perspective') },
+    { id: 'cam-right', title: 'Derecha', category: 'Vista', sub: 'Cámara', icon: SquareArrowRight, action: () => setMode('perspective') },
+    { id: 'cam-iso', title: 'Isométrica', category: 'Vista', sub: 'Cámara', icon: Box, action: () => setMode('isometric') },
+    { id: 'cam-fit', title: 'Ajustar todo', category: 'Vista', sub: 'Cámara', icon: Fullscreen, action: () => { setZoom(50); setMode('perspective') } },
     { id: 'proj-3d', title: '3D – Perspectiva', category: 'Vista', sub: 'Proyección', icon: Box, active: mode === 'perspective', action: () => setMode('perspective') },
-    { id: 'proj-2d', title: '2D – Vista superior', category: 'Vista', sub: 'Proyección', icon: Network, active: mode === 'top', action: () => setMode('top') },
-    { id: 'proj-2d-imm', title: '2D inmersivo', category: 'Vista', sub: 'Cambia a vista superior (2D)', icon: Layers, disabled: true },
-    { id: 'proj-diagram', title: 'Diagrama de planta', category: 'Vista', sub: 'Proyección', icon: Network },
+    { id: 'proj-2d', title: '2D – Vista superior', category: 'Vista', sub: 'Proyección', icon: SquareArrowUp, active: mode === 'top', action: () => setMode('top') },
+    { id: 'proj-2d-imm', title: '2D inmersivo', category: 'Vista', sub: 'Cambia a vista superior (2D)', icon: Layers2, disabled: true },
+    { id: 'proj-diagram', title: 'Diagrama de planta', category: 'Vista', sub: 'Proyección', icon: Cable },
     { id: 'proj-surface', title: 'Superficie', category: 'Vista', sub: 'Proyección', icon: Globe },
-    { id: 'panel-perf', title: 'Estadísticas de rendimiento', category: 'Vista', sub: 'Paneles', icon: Gauge, action: () => setOpen((o) => ({ ...o, perf: true })) },
+    { id: 'panel-perf', title: 'Estadísticas de rendimiento', category: 'Vista', sub: 'Paneles', icon: CircleGauge, action: () => setOpen((o) => ({ ...o, perf: true })) },
 
     // Tracking
-    { id: 'track-personal', title: 'Personal y vehículos', category: 'Tracking', sub: 'En vivo', icon: Target, iconColor: '#00bcd4', action: () => { addTrackingItem('personal'); setOpen((o) => ({ ...o, track: true })) } },
-    { id: 'track-zonas', title: 'Zonas y áreas', category: 'Tracking', sub: 'En vivo', icon: Layers, iconColor: '#ffa726', action: () => { addTrackingItem('zonas'); setOpen((o) => ({ ...o, track: true })) } },
-    { id: 'track-perim', title: 'Perímetros', category: 'Tracking', sub: 'En vivo', icon: CircleGauge, iconColor: '#e91e63', action: () => { addTrackingItem('perimetros'); setOpen((o) => ({ ...o, track: true })) } },
-    { id: 'track-recorrido', title: 'Recorrido', category: 'Tracking', sub: 'Histórico', icon: Waypoints, iconColor: '#ab47bc', action: () => { addTrackingItem('recorrido'); setOpen((o) => ({ ...o, track: true })) } },
-    { id: 'track-escenario', title: 'Escenario alterno', category: 'Tracking', sub: 'Histórico', icon: GitFork, iconColor: '#26a69a', action: () => { addTrackingItem('escenario'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-personal', title: 'Personal y vehículos', category: 'Tracking', sub: 'En vivo', icon: UserRoundSearch, iconColor: '#2196f3', action: () => { addTrackingItem('personal'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-zonas', title: 'Zonas y áreas', category: 'Tracking', sub: 'En vivo', icon: Layers2, iconColor: '#ff9800', action: () => { addTrackingItem('zonas'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-perim', title: 'Perímetros', category: 'Tracking', sub: 'En vivo', icon: CircleGauge, iconColor: '#f44336', action: () => { addTrackingItem('perimetros'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-recorrido', title: 'Recorrido', category: 'Tracking', sub: 'Histórico', icon: Waypoints, iconColor: '#7c4dff', action: () => { addTrackingItem('recorrido'); setOpen((o) => ({ ...o, track: true })) } },
+    { id: 'track-escenario', title: 'Escenario alterno', category: 'Tracking', sub: 'Histórico', icon: AudioWaveform, iconColor: '#00bfa5', action: () => { addTrackingItem('escenario'); setOpen((o) => ({ ...o, track: true })) } },
     { id: 'track-reset', title: 'Restablecer la demostración', category: 'Tracking', sub: 'Emergencia', icon: RotateCcw, iconColor: '#546e7a', action: () => { setActiveTrackings([]); setActiveSimulations([]) } },
-    { id: 'track-evac', title: 'Declarar evacuación', category: 'Tracking', sub: 'Emergencia', icon: Siren, iconColor: '#f44336' },
+    { id: 'track-evac', title: 'Declarar evacuación', category: 'Tracking', sub: 'Emergencia', icon: Siren, iconColor: '#ff5252' },
 
     // Simulaciones
     { id: 'sim-aire', title: 'Flujo de aire', category: 'Simulaciones', sub: 'Ventilación', icon: Wind, iconColor: '#00bcd4', action: () => { addSimulationItem('aire'); setOpen((o) => ({ ...o, sim: true })) } },
-    { id: 'sim-calor', title: 'Mapa de calor', category: 'Simulaciones', sub: 'Ventilación', icon: Flame, iconColor: '#ff9800', action: () => { addSimulationItem('calor'); setOpen((o) => ({ ...o, sim: true })) } },
-    { id: 'sim-energia', title: 'Flujo de energía', category: 'Simulaciones', sub: 'Energía', icon: Zap, iconColor: '#fbc02d', action: () => { addSimulationItem('energia'); setOpen((o) => ({ ...o, sim: true })) } },
-    { id: 'sim-red', title: 'Flujo de red', category: 'Simulaciones', sub: 'Módulo aún no implementado', icon: Wifi, iconColor: '#ba68c8', disabled: true },
-    { id: 'sim-geocercas', title: 'Geocercas', category: 'Simulaciones', sub: 'Seguridad', icon: MapPin, iconColor: '#f4511e', action: () => { addSimulationItem('geocercas'); setOpen((o) => ({ ...o, sim: true })) } },
-    { id: 'sim-sismicas', title: 'Vibraciones sísmicas', category: 'Simulaciones', sub: 'Módulo aún no implementado', icon: Activity, iconColor: '#f06292', disabled: true },
+    { id: 'sim-calor', title: 'Mapa de calor', category: 'Simulaciones', sub: 'Ventilación', icon: Flame, iconColor: '#ff5722', action: () => { addSimulationItem('calor'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-energia', title: 'Flujo de energía', category: 'Simulaciones', sub: 'Energía', icon: Zap, iconColor: '#ffc107', action: () => { addSimulationItem('energia'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-red', title: 'Flujo de red', category: 'Simulaciones', sub: 'Módulo aún no implementado', icon: Wifi, iconColor: '#2196f3', disabled: true },
+    { id: 'sim-geocercas', title: 'Geocercas', category: 'Simulaciones', sub: 'Seguridad', icon: MapPin, iconColor: '#9c27b0', action: () => { addSimulationItem('geocercas'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-sismicas', title: 'Vibraciones sísmicas', category: 'Simulaciones', sub: 'Módulo aún no implementado', icon: Activity, iconColor: '#e91e63', disabled: true },
     { id: 'sim-personal', title: 'Movimiento de personal', category: 'Simulaciones', sub: 'Personal', icon: Users, iconColor: '#4caf50', action: () => { addSimulationItem('personal'); setOpen((o) => ({ ...o, sim: true })) } },
-    { id: 'sim-hide', title: 'Ocultar todas las capas', category: 'Simulaciones', sub: 'Simulaciones', icon: EyeOff, action: () => setActiveSimulations([]) },
+    { id: 'sim-hide', title: 'Ocultar todas las capas', category: 'Simulaciones', sub: 'Simulaciones', icon: Trash, iconColor: '#78909c', action: () => setActiveSimulations([]) },
 
     // Análisis
     { id: 'ana-sub', title: 'Apagón de subestación', category: 'Análisis', sub: 'Qué pasa si...', icon: FlaskConical, iconColor: '#e91e63', action: () => setOpen((o) => ({ ...o, ana: true })) },
@@ -410,7 +410,7 @@ export default function App() {
     { id: 'int-subestacion', title: 'Sala de subestación', category: 'Interiores', sub: 'Selecciona una subestación en el visor para entrar', icon: Zap, iconColor: '#fbc02d', disabled: true },
 
     // Ingeniería
-    { id: 'ing-herramientas', title: 'Herramientas de ingeniería', category: 'Ingeniería', sub: 'Herramientas', icon: Ruler, active: true },
+    { id: 'ing-herramientas', title: 'Herramientas de ingeniería', category: 'Ingeniería', sub: 'Herramientas', icon: RulerDimensionLine, active: true },
     { id: 'ing-cad', title: 'Laboratorio de importación CAD', category: 'Ingeniería', sub: 'Herramientas', icon: Box },
   ], [mode])
 

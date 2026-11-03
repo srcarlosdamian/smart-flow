@@ -13,8 +13,8 @@ interface Props {
 }
 
 const PALETTE = {
-  dark: { bg: 0x0a1c30, floor: 0x0b2036, fine: 0x0d2842, coarse: 0x071728, fineOp: 0.14, coarseOp: 0.24 },
-  light: { bg: 0xdfe7ef, floor: 0xe6ecf2, fine: 0xd5dee8, coarse: 0xc2cdd9, fineOp: 0.30, coarseOp: 0.48 },
+  dark: { bg: 0x0a1c30, floor: 0x0a1c30, fine: 0x0d2842, coarse: 0x071728, fineOp: 0.14, coarseOp: 0.24 },
+  light: { bg: 0xdfe7ef, floor: 0xdfe7ef, fine: 0xd5dee8, coarse: 0xc2cdd9, fineOp: 0.30, coarseOp: 0.48 },
 }
 
 export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
@@ -52,19 +52,19 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
     coarseMat.opacity = p.coarseOp
     scene.add(fine, coarse)
 
-    const floorMat = new THREE.MeshBasicMaterial({ color: p.floor })
+    const floorMat = new THREE.MeshBasicMaterial({ color: p.bg })
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), floorMat)
     floor.rotation.x = -Math.PI / 2
     floor.position.y = -0.02
     scene.add(floor)
 
     // Lighting for GLB 3D model materials
-    const ambient = new THREE.AmbientLight(0xffffff, 1.4)
-    const dir1 = new THREE.DirectionalLight(0xffffff, 1.8)
+    const ambient = new THREE.AmbientLight(0xffffff, 1.3)
+    const dir1 = new THREE.DirectionalLight(0xffffff, 1.6)
     dir1.position.set(100, 160, 100)
-    const dir2 = new THREE.DirectionalLight(0x90caf9, 0.9)
+    const dir2 = new THREE.DirectionalLight(0xe8edf2, 0.7)
     dir2.position.set(-100, 100, -100)
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x37474f, 1.2)
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x475569, 1.0)
     scene.add(ambient, dir1, dir2, hemi)
 
     // Load scene.glb model
@@ -74,31 +74,36 @@ export default function Scene3D({ mode, zoom, theme, onZoomChange }: Props) {
       (gltf) => {
         const model = gltf.scene
 
-        // Hide flat plane mesh_0 if present so it doesn't cover the grid floor
+        // Remove any flat giant background plane (Mesh 0 has span 2000x2000)
+        const toRemove: THREE.Object3D[] = []
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
-            child.castShadow = true
-            child.receiveShadow = true
-            if (child.name === 'mesh_0') {
-              child.visible = false
+            const mesh = child as THREE.Mesh
+            if (mesh.geometry) {
+              mesh.geometry.computeBoundingBox()
+              const sz = new THREE.Vector3()
+              mesh.geometry.boundingBox?.getSize(sz)
+              if (sz.x > 300 || sz.y > 300 || sz.z > 300) {
+                toRemove.push(child)
+                return
+              }
             }
+            mesh.castShadow = true
+            mesh.receiveShadow = true
           }
+        })
+        toRemove.forEach((obj) => {
+          if (obj.parent) obj.parent.remove(obj)
         })
 
         // Calculate bounding box of the visual mine network and equipment
-        const box = new THREE.Box3()
-        model.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh && child.name !== 'mesh_0') {
-            box.expandByObject(child)
-          }
-        })
-
+        const box = new THREE.Box3().setFromObject(model)
         const size = new THREE.Vector3()
         const center = new THREE.Vector3()
         box.getSize(size)
         box.getCenter(center)
 
-        // Scale to ~50 units so it fits gracefully within the 3D scene grid
+        // Scale to ~52 units so it fits gracefully within the 3D scene grid
         const maxDim = Math.max(size.x, size.z)
         const scale = maxDim > 0 ? 52 / maxDim : 1
         model.scale.setScalar(scale)
