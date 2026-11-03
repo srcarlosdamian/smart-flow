@@ -167,18 +167,6 @@ const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; co
   { id: 'evacuacion', label: 'Declarar evaluación', menuLabel: 'Declarar evacuación', color: '#ff5252', icon: Siren },
 ]
 
-type SimulationType = 'aire' | 'calor' | 'energia' | 'red' | 'geocercas' | 'vibraciones' | 'personal'
-
-const SIMULATION_CATALOG: { id: SimulationType; label: string; color: string; icon: typeof Wind }[] = [
-  { id: 'aire', label: 'Flujo de aire', color: '#00bcd4', icon: Wind },
-  { id: 'calor', label: 'Mapa de calor', color: '#ff5722', icon: Flame },
-  { id: 'energia', label: 'Flujo de energía', color: '#ffc107', icon: Zap },
-  { id: 'red', label: 'Flujo de red', color: '#2196f3', icon: Wifi },
-  { id: 'geocercas', label: 'Geocercas', color: '#9c27b0', icon: MapPin },
-  { id: 'vibraciones', label: 'Vibraciones sísmicas', color: '#e91e63', icon: Activity },
-  { id: 'personal', label: 'Movimiento de personal', color: '#4caf50', icon: Users },
-]
-
 const ZONAS_DATA = [
   { title: 'Nivel 3', sub: 'Chancador', status: 'Restringida', color: '#f44336', alert: 1, ratio: '1/3' },
   { title: 'Refugio', sub: 'R-01', status: 'Refugio', color: '#2196f3', alert: 2, ratio: '2/16' },
@@ -347,9 +335,6 @@ export default function App() {
   const [expandedTrack, setExpandedTrack] = useState<Record<string, boolean>>({})
   const [checkedPeople, setCheckedPeople] = useState<Record<string, boolean>>({ '3': true, '4': true })
 
-  // SIMULACIONES state (SMF - V2 - 12 / 13)
-  const [activeSimulations, setActiveSimulations] = useState<SimulationType[]>([])
-
   // Recorrido Player & Detail state (SMF - V2 - 7, 8, 9)
   const [selectedUser, setSelectedUser] = useState<PersonalItem | null>(null)
   const [recorridoPlayerVisible, setRecorridoPlayerVisible] = useState(true)
@@ -457,16 +442,6 @@ export default function App() {
     setActiveTrackings((prev) => prev.filter((item) => item !== id))
   }
 
-  const addSimulationItem = (id: SimulationType) => {
-    setActiveSimulations((prev) => (prev.includes(id) ? prev : [...prev, id]))
-    setOpen((prev) => ({ ...prev, sim: true }))
-    setDdOpen(null)
-  }
-
-  const removeSimulationItem = (id: SimulationType) => {
-    setActiveSimulations((prev) => prev.filter((item) => item !== id))
-  }
-
   const sendNexoMessage = (text: string) => {
     const clean = text.trim()
     if (!clean) return
@@ -503,18 +478,18 @@ export default function App() {
     { id: 'track-perim', title: 'Perímetros', category: 'Tracking', sub: 'En vivo', icon: CircleGauge, iconColor: '#f44336', action: () => { addTrackingItem('perimetros'); setOpen((o) => ({ ...o, track: true })) } },
     { id: 'track-recorrido', title: 'Recorrido', category: 'Tracking', sub: 'Histórico', icon: Waypoints, iconColor: '#7c4dff', action: () => { addTrackingItem('recorrido'); setOpen((o) => ({ ...o, track: true })) } },
     { id: 'track-escenario', title: 'Escenario alterno', category: 'Tracking', sub: 'Histórico', icon: AudioWaveform, iconColor: '#00bfa5', action: () => { addTrackingItem('escenario'); setOpen((o) => ({ ...o, track: true })) } },
-    { id: 'track-reset', title: 'Restablecer la demostración', category: 'Tracking', sub: 'Emergencia', icon: RotateCcw, iconColor: '#546e7a', action: () => { setActiveTrackings([]); setActiveSimulations([]) } },
+    { id: 'track-reset', title: 'Restablecer la demostración', category: 'Tracking', sub: 'Emergencia', icon: RotateCcw, iconColor: '#546e7a', action: () => { setActiveTrackings([]) } },
     { id: 'track-evac', title: 'Declarar evacuación', category: 'Tracking', sub: 'Emergencia', icon: Siren, iconColor: '#ff5252' },
 
     // Simulaciones
-    { id: 'sim-aire', title: 'Flujo de aire', category: 'Simulaciones', sub: 'Ventilación', icon: Wind, iconColor: '#00bcd4', action: () => { addSimulationItem('aire'); setOpen((o) => ({ ...o, sim: true })) } },
-    { id: 'sim-calor', title: 'Mapa de calor', category: 'Simulaciones', sub: 'Ventilación', icon: Flame, iconColor: '#ff5722', action: () => { addSimulationItem('calor'); setOpen((o) => ({ ...o, sim: true })) } },
-    { id: 'sim-energia', title: 'Flujo de energía', category: 'Simulaciones', sub: 'Energía', icon: Zap, iconColor: '#ffc107', action: () => { addSimulationItem('energia'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-aire', title: 'Flujo de aire', category: 'Simulaciones', sub: 'Ventilación', icon: Wind, iconColor: '#00bcd4', action: () => setOpen((o) => ({ ...o, sim: true })) },
+    { id: 'sim-calor', title: 'Mapa de calor', category: 'Simulaciones', sub: 'Ventilación', icon: Flame, iconColor: '#ff5722', action: () => setOpen((o) => ({ ...o, sim: true })) },
+    { id: 'sim-energia', title: 'Flujo de energía', category: 'Simulaciones', sub: 'Energía', icon: Zap, iconColor: '#ffc107', action: () => setOpen((o) => ({ ...o, sim: true })) },
     { id: 'sim-red', title: 'Flujo de red', category: 'Simulaciones', sub: 'Módulo aún no implementado', icon: Wifi, iconColor: '#2196f3', disabled: true },
-    { id: 'sim-geocercas', title: 'Geocercas', category: 'Simulaciones', sub: 'Seguridad', icon: MapPin, iconColor: '#9c27b0', action: () => { addSimulationItem('geocercas'); setOpen((o) => ({ ...o, sim: true })) } },
+    { id: 'sim-geocercas', title: 'Geocercas', category: 'Simulaciones', sub: 'Seguridad', icon: MapPin, iconColor: '#9c27b0', action: () => setOpen((o) => ({ ...o, sim: true })) },
     { id: 'sim-sismicas', title: 'Vibraciones sísmicas', category: 'Simulaciones', sub: 'Módulo aún no implementado', icon: Activity, iconColor: '#e91e63', disabled: true },
-    { id: 'sim-personal', title: 'Movimiento de personal', category: 'Simulaciones', sub: 'Personal', icon: Users, iconColor: '#4caf50', action: () => { addSimulationItem('personal'); setOpen((o) => ({ ...o, sim: true })) } },
-    { id: 'sim-hide', title: 'Ocultar todas las capas', category: 'Simulaciones', sub: 'Simulaciones', icon: Trash, iconColor: '#78909c', action: () => setActiveSimulations([]) },
+    { id: 'sim-personal', title: 'Movimiento de personal', category: 'Simulaciones', sub: 'Personal', icon: Users, iconColor: '#4caf50', action: () => setOpen((o) => ({ ...o, sim: true })) },
+    { id: 'sim-hide', title: 'Ocultar todas las capas', category: 'Simulaciones', sub: 'Simulaciones', icon: Trash, iconColor: '#78909c', action: () => setOpen((o) => ({ ...o, sim: false })) },
 
     // Análisis
     { id: 'ana-sub', title: 'Apagón de subestación', category: 'Análisis', sub: 'Qué pasa si...', icon: FlaskConical, iconColor: '#e91e63', action: () => setOpen((o) => ({ ...o, ana: true })) },
@@ -1399,87 +1374,13 @@ export default function App() {
             )}
           </div>
 
-          {/* 4. SIMULACIONES (SMF - V2 - 12 & SMF - V2 - 13) */}
-          <div
-            className="section sim-section"
-            {...showHelp('Simulaciones', 'Ejecución de modelos predictivos (flujo de aire, mapas de calor, energía, red, geocercas, vibraciones, etc.).')}
-          >
-            <div className="section-head" onClick={() => toggle('sim')}>
-              <span>Simulaciones</span>
-              <div className="section-head-actions" onClick={(e) => e.stopPropagation()}>
-                <button
-                  className="plus-trigger"
-                  aria-label="Agregar simulación"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setDdOpen((d) => (d === 'addSim' ? null : 'addSim'))
-                  }}
-                >
-                  <CirclePlus size={17} />
-                </button>
-                <button
-                  className="accordion-chevron-btn"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggle('sim')
-                  }}
-                  aria-label={open.sim !== false ? 'Ocultar Simulaciones' : 'Mostrar Simulaciones'}
-                >
-                  {open.sim !== false ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </button>
-              </div>
-            </div>
-
-            {/* SMF - V2 - 13 Popover: AGREGAR SIMULACIÓN */}
-            {ddOpen === 'addSim' && (
-              <div className="dd-menu track-add-menu">
-                <div className="dd-group-title">AGREGAR SIMULACIÓN</div>
-                {SIMULATION_CATALOG.map(({ id, label, color, icon: I }) => (
-                  <button
-                    key={id}
-                    className="dd-item"
-                    onClick={() => addSimulationItem(id)}
-                  >
-                    <I size={18} style={{ color }} />
-                    <span>{label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Active Simulations List (SMF - V2 - 12 / node 8865:305609) */}
-            {open.sim !== false && activeSimulations.length > 0 && (
-              <div className="section-body track-body">
-                {activeSimulations.map((id) => {
-                  const cfg = SIMULATION_CATALOG.find((c) => c.id === id)!
-                  const Icon = cfg.icon
-                  return (
-                    <div key={id} className="track-row-head">
-                      <div className="track-row-title" style={{ cursor: 'default' }}>
-                        <Icon size={18} style={{ color: cfg.color }} />
-                        <span>{cfg.label}</span>
-                      </div>
-                      <div className="track-row-actions">
-                        <button title="Quitar simulación" onClick={() => removeSimulationItem(id)}>
-                          <CircleMinus size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  )
-                })}
-
-                {activeSimulations.length > 2 && (
-                  <>
-                    <div className="perf-divider" />
-                    <button className="clear-track-btn" onClick={() => setActiveSimulations([])}>
-                      <Trash size={17} />
-                      <span>Limpiar lista de simulación</span>
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+          {/* 4. SIMULACIONES */}
+          <Section
+            title="Simulaciones"
+            open={!!open.sim}
+            onToggle={() => toggle('sim')}
+            onHover={showHelp('Simulaciones', 'Ejecución de modelos predictivos y escenarios.')}
+          />
 
           <Section
             title="Análisis"
