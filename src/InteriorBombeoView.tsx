@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { X, Sparkles, AlertTriangle, Droplets } from 'lucide-react'
+import { X, Sparkles, AlertTriangle, Droplets, ChevronLeft } from 'lucide-react'
 import type { Theme } from './Scene3D'
 
 interface Props {
@@ -47,13 +47,13 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
     const container = mountRef.current
     if (!container) return
 
-    // Scene & Renderer
+    // Scene & Renderer - Studio Clay Aesthetic matching Image 1
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x18202c)
-    scene.fog = new THREE.FogExp2(0x18202c, 0.02)
+    scene.background = new THREE.Color(0xedf2f7)
+    scene.fog = new THREE.FogExp2(0xedf2f7, 0.015)
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000)
-    camera.position.set(0, 4.5, 14)
+    camera.position.set(-3, 4.2, 13)
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     renderer.setSize(container.clientWidth, container.clientHeight)
@@ -70,15 +70,22 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
     controls.minDistance = 5
     controls.maxDistance = 24
 
-    // Ambient & Directional Lighting matching reference screenshot
-    const ambLight = new THREE.AmbientLight(0x708090, 1.4)
+    // High-Key Studio Lighting for Clean Clay Shading
+    const ambLight = new THREE.AmbientLight(0xffffff, 1.8)
     scene.add(ambLight)
 
-    const mainDir = new THREE.DirectionalLight(0xdbeafe, 1.6)
-    mainDir.position.set(5, 12, 8)
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xdbeafe, 1.2)
+    scene.add(hemiLight)
+
+    const mainDir = new THREE.DirectionalLight(0xffffff, 1.6)
+    mainDir.position.set(10, 16, 12)
     scene.add(mainDir)
 
-    // Overhead Industrial Lamps with warm illumination
+    const fillDir = new THREE.DirectionalLight(0xe0f2fe, 0.8)
+    fillDir.position.set(-12, 10, -6)
+    scene.add(fillDir)
+
+    // Overhead Industrial Lamps
     const lampPositions: [number, number, number][] = [
       [-4, 5.2, -1],
       [4, 5.2, -1],
@@ -87,168 +94,135 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
     lampPositions.forEach((lPos) => {
       // Chain
       const chainGeo = new THREE.CylinderGeometry(0.02, 0.02, 2.5, 6)
-      const chainMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.3 })
+      const chainMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.2, roughness: 0.5 })
       const chain = new THREE.Mesh(chainGeo, chainMat)
       chain.position.set(lPos[0], lPos[1] + 1.2, lPos[2])
       scene.add(chain)
 
       // Lamp Shade Cone
-      const coneGeo = new THREE.ConeGeometry(0.7, 0.5, 16, 1, true)
-      const coneMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.7, roughness: 0.4, side: THREE.DoubleSide })
+      const coneGeo = new THREE.ConeGeometry(0.7, 0.5, 24, 1, true)
+      const coneMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.1, roughness: 0.35, side: THREE.DoubleSide })
       const cone = new THREE.Mesh(coneGeo, coneMat)
       cone.position.set(lPos[0], lPos[1], lPos[2])
       scene.add(cone)
-
-      // Bulb glow
-      const bulbGeo = new THREE.SphereGeometry(0.18, 12, 12)
-      const bulbMat = new THREE.MeshBasicMaterial({ color: 0xfffbeb })
-      const bulb = new THREE.Mesh(bulbGeo, bulbMat)
-      bulb.position.set(lPos[0], lPos[1] - 0.1, lPos[2])
-      scene.add(bulb)
-
-      const pLight = new THREE.PointLight(0xfff7ed, 2.8, 18, 1.2)
-      pLight.position.set(lPos[0], lPos[1] - 0.2, lPos[2])
-      scene.add(pLight)
     })
 
-    // Room Geometry: Floor, Back Wall, Sump Pit
+    // Room Geometry: Light Studio Clay Wall and Floor
     const roomMat = new THREE.MeshStandardMaterial({
-      color: 0x24303f,
-      roughness: 0.85,
-      metalness: 0.15,
+      color: 0xedf2f7,
+      roughness: 0.65,
+      metalness: 0.02,
     })
 
     // Back Wall
-    const wallGeo = new THREE.BoxGeometry(26, 12, 0.4)
+    const wallGeo = new THREE.BoxGeometry(32, 16, 0.4)
     const backWall = new THREE.Mesh(wallGeo, roomMat)
-    backWall.position.set(0, 5, -5)
+    backWall.position.set(0, 6, -5)
     scene.add(backWall)
 
-    // Side Walls
-    const sideWallGeo = new THREE.BoxGeometry(0.4, 12, 20)
-    const leftWall = new THREE.Mesh(sideWallGeo, roomMat)
-    leftWall.position.set(-13, 5, 2)
-    scene.add(leftWall)
-
-    const rightWall = new THREE.Mesh(sideWallGeo, roomMat)
-    rightWall.position.set(13, 5, 2)
-    scene.add(rightWall)
-
     // Floor Platform Behind Sump
-    const floorGeo = new THREE.BoxGeometry(26, 0.6, 8)
+    const floorGeo = new THREE.BoxGeometry(32, 0.6, 10)
     const floor = new THREE.Mesh(floorGeo, roomMat)
     floor.position.set(0, -0.3, -2)
     scene.add(floor)
 
     // Front Floor in front of Sump
-    const frontFloorGeo = new THREE.BoxGeometry(26, 0.6, 6)
+    const frontFloorGeo = new THREE.BoxGeometry(32, 0.6, 8)
     const frontFloor = new THREE.Mesh(frontFloorGeo, roomMat)
-    frontFloor.position.set(0, -0.3, 5.5)
+    frontFloor.position.set(0, -0.3, 6.5)
     scene.add(frontFloor)
 
     // Sump Pit Pit Water (Cyan Translucent Glass)
-    const waterGeo = new THREE.BoxGeometry(26, 0.5, 4.5)
+    const waterGeo = new THREE.BoxGeometry(32, 0.5, 4.5)
     const waterMat = new THREE.MeshStandardMaterial({
       color: 0x0284c7,
-      roughness: 0.2,
-      metalness: 0.6,
+      roughness: 0.15,
+      metalness: 0.3,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.65,
     })
     const water = new THREE.Mesh(waterGeo, waterMat)
     water.position.set(0, -0.7, 1.8)
     scene.add(water)
 
-    // Overhead Header Manifold Pipe (spans all 4 pumps horizontally)
-    const manifoldGeo = new THREE.CylinderGeometry(0.24, 0.24, 22, 24)
-    const pipeMat = new THREE.MeshStandardMaterial({
-      color: 0x475569,
-      metalness: 0.7,
-      roughness: 0.35,
+    // Clay Material (Off-White Studio Clay matching Image 1)
+    const clayMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.45,
+      metalness: 0.05,
     })
-    const manifold = new THREE.Mesh(manifoldGeo, pipeMat)
+
+    // Overhead Header Manifold Pipe (spans all 4 pumps horizontally)
+    const manifoldGeo = new THREE.CylinderGeometry(0.32, 0.32, 22, 32)
+    const manifold = new THREE.Mesh(manifoldGeo, clayMat)
     manifold.rotation.z = Math.PI / 2
-    manifold.position.set(0, 2.9, -1.2)
+    manifold.position.set(0, 3.2, -1.2)
     scene.add(manifold)
 
-    // Background Decorative Pipe Fittings (Left & Right)
-    const createFlangeCluster = (x: number) => {
-      const g = new THREE.Group()
-      for (let i = 0; i < 3; i++) {
-        const pGeo = new THREE.CylinderGeometry(0.12, 0.12, 1.8, 12)
-        const p = new THREE.Mesh(pGeo, pipeMat)
-        p.position.set(i * 0.45, 1, -4.2)
-        g.add(p)
-
-        const fGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.08, 12)
-        const f = new THREE.Mesh(fGeo, pipeMat)
-        f.position.set(i * 0.45, 1.8, -4.2)
-        g.add(f)
-      }
-      g.position.x = x
-      scene.add(g)
-    }
-    createFlangeCluster(-10)
-    createFlangeCluster(9.2)
-
-    // Build 4 Pumping Trains (BA-01, BA-02, BA-03, BA-04)
+    // Build 4 Pumping Trains with Off-White Clay + Blue Accent on BA-02 matching Image 1
     const pumpGroups: Record<string, THREE.Group> = {}
     const orbMeshes: Record<string, THREE.Mesh> = {}
 
-    PUMPS.forEach((pump) => {
+    PUMPS.forEach((pump, pIdx) => {
       const g = new THREE.Group()
       g.position.set(...pump.pos)
 
       // Concrete Pedestal
-      const pedGeo = new THREE.BoxGeometry(2.4, 0.4, 3.2)
-      const pedMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.9 })
+      const pedGeo = new THREE.BoxGeometry(2.5, 0.45, 3.4)
+      const pedMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.65 })
       const ped = new THREE.Mesh(pedGeo, pedMat)
-      ped.position.set(0, 0.2, -0.2)
+      ped.position.set(0, 0.22, -0.2)
       g.add(ped)
 
-      // Pump Impeller Casing (Vibrant Blue/Cyan Cylinder)
-      const casingGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.55, 32)
-      const casingMat = new THREE.MeshStandardMaterial({
-        color: 0x0284c7,
-        metalness: 0.4,
-        roughness: 0.3,
-      })
-      const casing = new THREE.Mesh(casingGeo, casingMat)
+      // Pump Impeller Casing (Off-white clay)
+      const casingGeo = new THREE.CylinderGeometry(0.72, 0.72, 0.65, 32)
+      const casing = new THREE.Mesh(casingGeo, clayMat)
       casing.rotation.z = Math.PI / 2
-      casing.position.set(-0.35, 0.9, -0.2)
+      casing.position.set(-0.35, 1.0, -0.2)
       g.add(casing)
 
-      // Electric Motor Cylinder (Dark Gunmetal with heat sink rings)
-      const motorGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.4, 24)
-      const motorMat = new THREE.MeshStandardMaterial({
-        color: 0x1e293b,
-        metalness: 0.85,
-        roughness: 0.25,
-      })
+      // Casing Flange Ring
+      const ringGeo = new THREE.CylinderGeometry(0.82, 0.82, 0.1, 32)
+      const ring = new THREE.Mesh(ringGeo, clayMat)
+      ring.rotation.z = Math.PI / 2
+      ring.position.set(-0.65, 1.0, -0.2)
+      g.add(ring)
+
+      // Electric Motor Cylinder: BA-02 (pIdx === 1) is Electric Blue matching Image 1!
+      const isBlueAccent = pIdx === 1
+      const motorMat = isBlueAccent
+        ? new THREE.MeshStandardMaterial({
+            color: 0x0284c7,
+            metalness: 0.35,
+            roughness: 0.3,
+          })
+        : clayMat
+
+      const motorGeo = new THREE.CylinderGeometry(0.55, 0.55, 1.55, 32)
       const motor = new THREE.Mesh(motorGeo, motorMat)
       motor.rotation.z = Math.PI / 2
-      motor.position.set(0.65, 0.9, -0.2)
+      motor.position.set(0.7, 1.0, -0.2)
       g.add(motor)
 
       // Vertical Discharge Pipe going up to overhead manifold
-      const vPipeGeo = new THREE.CylinderGeometry(0.16, 0.16, 2.0, 16)
-      const vPipe = new THREE.Mesh(vPipeGeo, pipeMat)
-      vPipe.position.set(-0.35, 1.9, -0.7)
+      const vPipeGeo = new THREE.CylinderGeometry(0.2, 0.2, 2.2, 24)
+      const vPipe = new THREE.Mesh(vPipeGeo, clayMat)
+      vPipe.position.set(-0.35, 2.1, -0.8)
       g.add(vPipe)
 
-      // Elbow connecting to manifold
-      const elbowGeo = new THREE.CylinderGeometry(0.16, 0.16, 0.6, 16)
-      const elbow = new THREE.Mesh(elbowGeo, pipeMat)
-      elbow.rotation.x = Math.PI / 2
-      elbow.position.set(-0.35, 2.9, -0.95)
-      g.add(elbow)
-
-      // Forward Suction Pipe extending into sump pit
-      const fPipeGeo = new THREE.CylinderGeometry(0.18, 0.18, 3.2, 16)
-      const fPipe = new THREE.Mesh(fPipeGeo, pipeMat)
+      // Forward Suction Pipe extending into sump pit with Valve Wheel
+      const fPipeGeo = new THREE.CylinderGeometry(0.22, 0.22, 3.4, 24)
+      const fPipe = new THREE.Mesh(fPipeGeo, clayMat)
       fPipe.rotation.x = 1.0
-      fPipe.position.set(-0.35, 0.3, 0.9)
+      fPipe.position.set(-0.35, 0.35, 1.0)
       g.add(fPipe)
+
+      // Valve Handwheel on suction pipe
+      const wheelGeo = new THREE.TorusGeometry(0.22, 0.03, 12, 24)
+      const wheel = new THREE.Mesh(wheelGeo, clayMat)
+      wheel.rotation.x = Math.PI / 2
+      wheel.position.set(-0.35, 0.7, 0.5)
+      g.add(wheel)
 
       // Glowing Indicator Orb on Pedestal front
       const orbGeo = new THREE.SphereGeometry(0.14, 16, 16)
@@ -256,7 +230,7 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
         color: pump.color,
       })
       const orb = new THREE.Mesh(orbGeo, orbMat)
-      orb.position.set(0, 0.45, 0.8)
+      orb.position.set(0, 0.5, 1.0)
       g.add(orb)
       orbMeshes[pump.id] = orb
 
@@ -400,10 +374,30 @@ export default function InteriorBombeoView({ onClose, selectedPumpId, onSelectPu
     <div className="interior-bombeo-container" ref={mountRef}>
       {/* Top Left Navigation Header (Matching Reference Screenshot) */}
       <div className="bombeo-top-badge glass">
-        <div className="bombeo-badge-sub">L5 · INTERIOR</div>
-        <div className="bombeo-badge-title">
-          <Droplets size={16} className="bombeo-badge-icon" />
-          <span>Sala de bombeo SB-01</span>
+        <button
+          className="bombeo-top-back-btn no-border"
+          onClick={onClose}
+          title="Volver"
+          aria-label="Volver"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+            padding: '2px 4px',
+            display: 'flex',
+            alignItems: 'center',
+            marginRight: 6,
+          }}
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <div>
+          <div className="bombeo-badge-sub">L5 · INTERIOR</div>
+          <div className="bombeo-badge-title">
+            <Droplets size={16} className="bombeo-badge-icon" />
+            <span>Sala de bombeo SB-01</span>
+          </div>
         </div>
       </div>
 

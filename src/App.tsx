@@ -11,8 +11,7 @@ import {
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, DoorOpen, Sparkles,
-  Clock, TrendingDown, TrendingUp, Target, SlidersHorizontal,
+  X, DoorOpen, Sparkles, Target,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -653,7 +652,6 @@ export default function App() {
   const [openSection, setOpenSection] = useState<string | null>(null)
   const [interiorView, setInteriorView] = useState<'bombeo' | null>(null)
   const [selectedPump, setSelectedPump] = useState<string>('BA-01')
-  const [aiKpiOpen, setAiKpiOpen] = useState(true)
   const [whatIfTarget, setWhatIfTarget] = useState('V-PH-01')
   const [whatIfAction, setWhatIfAction] = useState('Parada no programada de ventilador')
   const [whatIfHorizon, setWhatIfHorizon] = useState(60)
@@ -964,103 +962,6 @@ export default function App() {
             activeSimulations={activeSimulations}
             onZoomChange={setZoom}
           />
-
-          {/* Workspace AI KPI Strip with Sparklines & Nexo 14-day Forecast Marker (Guía Nexo PDF p.6, 8, 12, 18) */}
-          {aiKpiOpen && (
-            <div className="workspace-ai-kpis-strip glass">
-              <div className="ai-kpi-item">
-                <span className="ai-kpi-label">Consumo</span>
-                <span className="ai-kpi-val">62.4 <small>kW</small></span>
-                <svg className="ai-kpi-sparkline" viewBox="0 0 40 16">
-                  <polyline fill="none" stroke="#38bdf8" strokeWidth="1.5" points="0,12 8,10 16,11 24,7 32,8 40,6" />
-                </svg>
-              </div>
-
-              <div className="ai-kpi-divider" />
-
-              <div className="ai-kpi-item">
-                <span className="ai-kpi-label">Flujo</span>
-                <span className="ai-kpi-val">125 <small>m³/s</small></span>
-                <svg className="ai-kpi-sparkline" viewBox="0 0 40 16">
-                  <polyline fill="none" stroke="#22c55e" strokeWidth="1.5" points="0,10 8,9 16,8 24,9 32,7 40,7" />
-                </svg>
-              </div>
-
-              <div className="ai-kpi-divider" />
-
-              <div className="ai-kpi-item">
-                <span className="ai-kpi-label">Disponibilidad</span>
-                <span className="ai-kpi-val highlight-green">94.2 <small>%</small></span>
-                <svg className="ai-kpi-sparkline" viewBox="0 0 40 16">
-                  <polyline fill="none" stroke="#22c55e" strokeWidth="1.5" points="0,7 8,8 16,6 24,7 32,6 40,6" />
-                </svg>
-              </div>
-
-              <div className="ai-kpi-divider" />
-
-              {/* Health Score with Forecast Dotted Line and Nexo 14 d: 61 marker */}
-              <div
-                className="ai-kpi-item health-score-item"
-                onClick={() => {
-                  setNexoOpen(true)
-                  sendNexoMessage('¿Por qué se degrada el rodamiento de V-SA-01?')
-                }}
-                title="Clic para ver pronóstico de Nexo IA"
-              >
-                <div className="ai-kpi-head-row">
-                  <span className="ai-kpi-label">Health Score</span>
-                  <span className="ai-nexo-tag">Nexo 14 d: 61</span>
-                </div>
-                <div className="ai-kpi-val-row">
-                  <span className="ai-kpi-val highlight-amber">78 <small>%</small></span>
-                  <svg className="ai-kpi-sparkline forecast" viewBox="0 0 60 16">
-                    <polyline fill="none" stroke="#f59e0b" strokeWidth="1.5" points="0,6 10,7 20,8 30,9 35,9" />
-                    <polyline fill="none" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="2,2" points="35,9 45,12 55,15 60,15" />
-                    <circle cx="55" cy="15" r="2" fill="#ef4444" />
-                  </svg>
-                </div>
-              </div>
-
-              <div className="ai-kpi-divider" />
-
-              <div className="ai-kpi-item">
-                <span className="ai-kpi-label">Alertas</span>
-                <span className="ai-kpi-val highlight-red">1 <small>crítica</small></span>
-                <svg className="ai-kpi-sparkline" viewBox="0 0 40 16">
-                  <polyline fill="none" stroke="#ef4444" strokeWidth="1.5" points="0,14 8,14 16,14 24,14 32,4 40,4" />
-                </svg>
-              </div>
-
-              <div className="ai-kpi-divider" />
-
-              <div className="ai-kpi-item">
-                <span className="ai-kpi-label">Horas operación</span>
-                <span className="ai-kpi-val">12,400 <small>h</small></span>
-                <svg className="ai-kpi-sparkline" viewBox="0 0 40 16">
-                  <polyline fill="none" stroke="#94a3b8" strokeWidth="1.5" points="0,14 8,12 16,10 24,8 32,6 40,4" />
-                </svg>
-              </div>
-
-              <button
-                className="ai-kpi-close-btn"
-                onClick={() => setAiKpiOpen(false)}
-                title="Ocultar tira KPI"
-                aria-label="Ocultar tira KPI"
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#94a3b8',
-                  cursor: 'pointer',
-                  padding: 4,
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginLeft: 4,
-                }}
-              >
-                <X size={14} />
-              </button>
-            </div>
-          )}
         </>
       )}
 
@@ -1261,10 +1162,13 @@ export default function App() {
             <div className="user-detail-panel interior-detail-panel">
               <div className="user-detail-topbar">
                 <button
-                  className="user-top-back-btn"
+                  className="user-top-back-btn no-border"
                   onClick={() => {
-                    setSidebarView(null)
-                    if (interiorView === 'bombeo') setInteriorView(null)
+                    if (interiorView === 'bombeo') {
+                      setInteriorView(null)
+                    } else {
+                      setSidebarView(null)
+                    }
                   }}
                   title="Volver"
                   aria-label="Volver"
@@ -1273,14 +1177,14 @@ export default function App() {
                 </button>
                 <div className="user-top-crumb">
                   <span className="crumb-prefix">Interiores / </span>
-                  <span className="crumb-name">{sidebarView.data.title}</span>
+                  <span className="crumb-name"><b>{sidebarView.data.title}</b></span>
                 </div>
               </div>
 
               <div className="interior-panel-body" style={{ padding: '16px 20px' }}>
-                <div className="interior-location-badge">
-                  <MapPin size={15} style={{ color: sidebarView.data.iconColor }} />
-                  <span style={{ color: sidebarView.data.iconColor }}>{sidebarView.data.locationLabel}</span>
+                <div className="green-badge" style={{ marginBottom: 14 }}>
+                  <MapPin size={14} />
+                  <span>{sidebarView.data.locationLabel}</span>
                 </div>
 
                 <div className="interior-card-divider" />
@@ -1290,16 +1194,12 @@ export default function App() {
                     <div key={idx} className="interior-metric-block">
                       <div className="row between interior-metric-row">
                         <span className="interior-metric-label">{m.label}</span>
-                        <span className="interior-metric-val bold" style={{ color: m.valueColor }}>{m.value}</span>
+                        {m.value.toLowerCase().includes('enlace activo') ? (
+                          <span className="enlace-activo-badge">{m.value}</span>
+                        ) : (
+                          <span className="interior-metric-val bold" style={{ color: m.valueColor }}>{m.value}</span>
+                        )}
                       </div>
-                      {m.bar && (
-                        <div className="interior-metric-progress">
-                          <div
-                            className="interior-progress-fill"
-                            style={{ width: `${(m.bar.current / m.bar.max) * 100}%` }}
-                          />
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -1368,7 +1268,7 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
                     <button
-                      className="cta"
+                      className="cta no-shadow"
                       style={{
                         marginTop: 12,
                         width: '100%',
@@ -1398,7 +1298,23 @@ export default function App() {
                   <>
                     <div className="interior-card-divider" />
                     <button
-                      className="interior-enter-btn blue-grad-no-shadow"
+                      className="interior-enter-btn no-shadow"
+                      style={{
+                        marginTop: 18,
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        padding: '12px 16px',
+                        borderRadius: 10,
+                        background: '#0d1f3c',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        boxShadow: 'none',
+                      }}
                       onClick={() => {
                         if (sidebarView.data.id === 'bombeo') {
                           setInteriorView('bombeo')
@@ -1419,7 +1335,7 @@ export default function App() {
             <div className="user-detail-panel whatif-result-panel">
               <div className="user-detail-topbar">
                 <button
-                  className="user-top-back-btn"
+                  className="user-top-back-btn no-border"
                   onClick={() => setSidebarView(null)}
                   title="Volver"
                   aria-label="Volver"
@@ -1427,105 +1343,119 @@ export default function App() {
                   <ChevronLeft size={18} />
                 </button>
                 <div className="user-top-crumb">
-                  <span className="crumb-prefix">Análisis / </span>
-                  <span className="crumb-name">Resultado del escenario</span>
+                  <span className="crumb-prefix">Inicio / Evacuación d... / </span>
+                  <span className="crumb-name"><b>Resultados</b></span>
                 </div>
               </div>
 
               <div className="whatif-result-container" style={{ padding: '16px 20px' }}>
+                <h2 className="user-detail-title" style={{ margin: '4px 0 12px 0', fontSize: 20, fontWeight: 700 }}>Resultado del escenario</h2>
+
+                <div className="row gap-2" style={{ marginBottom: 14 }}>
+                  <button
+                    className="cta flex-1 no-shadow"
+                    style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, borderRadius: 8, boxShadow: 'none' }}
+                    onClick={() => setSidebarView(null)}
+                  >
+                    Editar ajustes
+                  </button>
+                  <button
+                    className="esc-secondary-btn flex-1 no-shadow"
+                    style={{ padding: '9px 12px', fontSize: 13, borderRadius: 8, boxShadow: 'none' }}
+                    onClick={() => setSidebarView(null)}
+                  >
+                    Descartar escenario
+                  </button>
+                </div>
+
                 {(() => {
                   const sc = WHAT_IF_SCENARIOS[whatIfTarget] || WHAT_IF_SCENARIOS['V-PH-01'] || WHAT_IF_SCENARIOS['CD-MT-01']
                   return (
                     <>
-                      <h4 className="whatif-question-title">{sc.title}</h4>
+                      <h4 className="whatif-question-title" style={{ fontSize: 14.5, fontWeight: 700, margin: '0 0 10px 0', color: '#0f172a' }}>{sc.title}</h4>
 
-                      <div className="whatif-chips-group">
-                        <span className="whatif-chip">Flujo de carga radial</span>
-                        <span className="whatif-chip">Red de ventilación</span>
-                        <span className="whatif-chip">Dilución por zona</span>
+                      <div className="whatif-kpi-summary-list">
+                        <div className="row between whatif-kpi-row">
+                          <span className="whatif-kpi-lbl">Zonas bajo el mínimo</span>
+                          <b className="mono">8 / 8</b>
+                        </div>
+                        <div className="row between whatif-kpi-row">
+                          <span className="whatif-kpi-lbl">Rutas de evacuación</span>
+                          <b className="mono">3</b>
+                        </div>
+                        <div className="row between whatif-kpi-row">
+                          <span className="whatif-kpi-lbl">Resuelto</span>
+                          <b className="mono">{sc.ms} ms</b>
+                        </div>
+                        <div className="row between whatif-kpi-row">
+                          <span className="whatif-kpi-lbl">Horizonte</span>
+                          <b className="mono">{whatIfHorizon} min</b>
+                        </div>
                       </div>
 
-                      <div className="whatif-meta-line">
-                        <Clock size={13} className="whatif-clock-icon" />
-                        <span>Resuelto en {sc.ms} ms · horizonte {whatIfHorizon} min</span>
-                      </div>
-
-                      <div className="whatif-section-title">Antes y después</div>
-                      <div className="whatif-compare-list">
+                      <div className="whatif-section-title" style={{ marginTop: 16 }}>Antes y después</div>
+                      <div className="whatif-compare-grid-cards">
                         {sc.beforeAfter.map((row, idx) => (
-                          <div key={idx} className="whatif-compare-row">
-                            <span className="whatif-compare-label">{row.label}</span>
-                            <div className="whatif-compare-values">
-                              <span className="mono">{row.before}</span>
-                              <span className="arrow">→</span>
-                              <span
-                                className="mono bold"
-                                style={{
-                                  color: row.trendColor || 'inherit',
-                                }}
-                              >
-                                {row.after}
-                              </span>
-                              <span className="whatif-unit">{row.unit}</span>
-                              {row.trend === 'down' ? (
-                                <TrendingDown size={14} style={{ color: row.trendColor || '#ff9800' }} />
-                              ) : row.trend === 'up' ? (
-                                <TrendingUp size={14} style={{ color: row.trendColor || '#f44336' }} />
-                              ) : null}
+                          <div key={idx} className="whatif-compare-card-block">
+                            <span className="whatif-compare-card-title">{row.label}</span>
+                            <div className="whatif-compare-2col-box">
+                              <div className="whatif-col">
+                                <span className="whatif-col-lbl">Antes</span>
+                                <span className="whatif-col-val">{row.before} {row.unit}</span>
+                              </div>
+                              <div className="whatif-col-divider" />
+                              <div className="whatif-col">
+                                <span className="whatif-col-lbl">Después</span>
+                                <span className="whatif-col-val" style={{ color: row.trendColor || 'inherit' }}>
+                                  {row.after} {row.unit}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
 
-                      <div className="whatif-section-title" style={{ marginTop: 14 }}>
-                        Consecuencias proyectadas ({sc.consequences.length})
+                      <div className="whatif-section-title" style={{ marginTop: 16 }}>
+                        Consecuencias proyectadas
                       </div>
-                      <div className="whatif-consequences-stack">
+                      <div className="whatif-consequences-list-styled">
                         {sc.consequences.map((c) => (
-                          <div key={c.id} className="whatif-consequence-card">
-                            <span
-                              className={`whatif-severity-dot ${c.level}`}
-                              title={c.levelLabel}
-                            />
-                            <div className="whatif-consequence-info">
-                              <b className="whatif-consequence-title">{c.title}</b>
-                              <p className="whatif-consequence-desc">{c.desc}</p>
-                              <span className={`whatif-severity-tag ${c.level}`}>
-                                {c.levelLabel}
-                              </span>
+                          <div key={c.id} className={`whatif-consequence-card-styled ${c.level}`}>
+                            <div className="whatif-card-top-row">
+                              <b className="whatif-card-title">{c.title}</b>
+                              {c.hasTarget && (
+                                <button
+                                  className="whatif-target-btn"
+                                  title="Localizar en 3D"
+                                  onClick={() => {
+                                    if (c.coords) setZoom(100)
+                                  }}
+                                >
+                                  <Target size={15} />
+                                </button>
+                              )}
                             </div>
-                            {c.hasTarget && (
-                              <button
-                                className="whatif-target-btn"
-                                title="Localizar en 3D"
-                                onClick={() => {
-                                  if (c.coords) setZoom(100)
-                                }}
-                              >
-                                <Target size={14} />
-                              </button>
-                            )}
+                            <p className="whatif-card-desc">{c.desc}</p>
+                            <div className="row between whatif-card-bottom-row">
+                              <span className="whatif-card-level-label">
+                                {c.level === 'critical' ? 'Crítico' : 'Alto'}
+                              </span>
+                              <span className="whatif-card-time-label">a los 2.3 h</span>
+                            </div>
                           </div>
                         ))}
                       </div>
 
-                      <div className="whatif-section-title" style={{ marginTop: 14 }}>Acciones recomendadas (Mitigación)</div>
-                      <div className="whatif-mitigations-list">
-                        {sc.mitigations.map((m) => (
-                          <div key={m.id} className="whatif-mitigation-item">
-                            <span className="whatif-mitigation-bullet">•</span>
-                            <span>{m.text}</span>
-                          </div>
-                        ))}
+                      <div className="whatif-section-title" style={{ marginTop: 16 }}>
+                        Acciones recomendadas
                       </div>
-
-                      <button
-                        className="whatif-reconfig-btn"
-                        onClick={() => setSidebarView(null)}
-                      >
-                        <SlidersHorizontal size={15} />
-                        <span>Modificar parámetros de maniobra</span>
-                      </button>
+                      <div className="whatif-actions-box">
+                        <ul>
+                          {sc.mitigations.map((m) => (
+                            <li key={m.id}>{m.text}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </>
                   )
                 })()}
@@ -2790,25 +2720,34 @@ export default function App() {
               </select>
 
               <label className="field-label" style={{ marginTop: 8 }}>Ejes de simulación activos</label>
-              <div className="whatif-axes-toggle-row">
-                <button
-                  className={`whatif-axis-pill ${whatIfAxes.carga ? 'active' : ''}`}
+              <div className="whatif-axes-check-list">
+                <div
+                  className="whatif-check-row"
                   onClick={() => setWhatIfAxes((a) => ({ ...a, carga: !a.carga }))}
                 >
-                  Flujo de carga radial
-                </button>
-                <button
-                  className={`whatif-axis-pill ${whatIfAxes.vent ? 'active' : ''}`}
+                  <span className={`whatif-custom-checkbox ${whatIfAxes.carga ? 'checked' : ''}`}>
+                    {whatIfAxes.carga && <Check size={14} />}
+                  </span>
+                  <span className="whatif-check-label">Flujo de carga radial</span>
+                </div>
+                <div
+                  className="whatif-check-row"
                   onClick={() => setWhatIfAxes((a) => ({ ...a, vent: !a.vent }))}
                 >
-                  Red de ventilación
-                </button>
-                <button
-                  className={`whatif-axis-pill ${whatIfAxes.dilucion ? 'active' : ''}`}
+                  <span className={`whatif-custom-checkbox ${whatIfAxes.vent ? 'checked' : ''}`}>
+                    {whatIfAxes.vent && <Check size={14} />}
+                  </span>
+                  <span className="whatif-check-label">Red de ventilación</span>
+                </div>
+                <div
+                  className="whatif-check-row"
                   onClick={() => setWhatIfAxes((a) => ({ ...a, dilucion: !a.dilucion }))}
                 >
-                  Dilución por zona
-                </button>
+                  <span className={`whatif-custom-checkbox ${whatIfAxes.dilucion ? 'checked' : ''}`}>
+                    {whatIfAxes.dilucion && <Check size={14} />}
+                  </span>
+                  <span className="whatif-check-label">Dilución por zona</span>
+                </div>
               </div>
 
               <div className="row between" style={{ marginTop: 12, fontSize: 13 }}>
@@ -2826,8 +2765,8 @@ export default function App() {
               />
 
               <button
-                className="cta whatif-submit-btn"
-                style={{ marginTop: 14 }}
+                className="cta whatif-submit-btn no-shadow"
+                style={{ marginTop: 14, boxShadow: 'none' }}
                 onClick={() => setSidebarView({ type: 'whatif_result' })}
               >
                 Simular escenario

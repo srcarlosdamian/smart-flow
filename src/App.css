@@ -3434,3 +3434,266 @@ select option {
   gap: 5px;
   cursor: pointer;
 }
+
+/* -------------------------------------------------------------------------- */
+/* USER CUSTOM OVERRIDES (Checklist, No-Shadow, Homologated 10% Background Inputs) */
+/* -------------------------------------------------------------------------- */
+.user-top-back-btn,
+.user-top-back-btn.no-border {
+  border: none !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: none !important;
+  border-radius: 8px !important;
+}
+
+.cta,
+.whatif-submit-btn,
+.esc-primary-btn,
+.interior-enter-btn,
+.blue-grad-no-shadow,
+.no-shadow {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+select,
+.field,
+.field.full,
+.whatif-select,
+.dd-trigger {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-color: rgba(255, 255, 255, 0.10) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  color: #0f172a !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  height: 38px !important;
+  padding: 0 34px 0 12px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+select:hover,
+.field:hover,
+.field.full:hover,
+.dd-trigger:hover {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(0, 0, 0, 0.22) !important;
+  box-shadow: none !important;
+}
+
+select:focus,
+.field:focus,
+.field.full:focus,
+.dd-trigger.active {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border-color: #0284c7 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.whatif-axes-check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+.whatif-check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  user-select: none;
+  transition: all .15s ease;
+}
+.whatif-check-row:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.whatif-custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  transition: all .15s ease;
+}
+.whatif-custom-checkbox.checked {
+  background: #0284c7;
+  border-color: #0284c7;
+}
+.whatif-check-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.whatif-kpi-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.whatif-kpi-row {
+  font-size: 13px;
+  color: var(--text-heading);
+}
+.whatif-kpi-lbl {
+  color: var(--muted);
+}
+.whatif-compare-grid-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+.whatif-compare-card-block {
+  position: relative;
+  padding-left: 12px;
+  border-left: 3px solid #0284c7;
+}
+.whatif-compare-card-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+.whatif-compare-2col-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.whatif-col {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.whatif-col-lbl {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.whatif-col-val {
+  font-size: 13px;
+  font-family: var(--font-mono, monospace);
+  color: #0f172a;
+}
+.whatif-col-divider {
+  width: 1px;
+  background: var(--line);
+}
+.whatif-consequences-list-styled {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.whatif-consequence-card-styled {
+  position: relative;
+  padding: 10px 12px 10px 14px;
+  border-radius: 0 8px 8px 0;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid var(--line);
+  border-left: 3px solid #ef4444;
+}
+.whatif-consequence-card-styled.critical {
+  border-left-color: #ef4444;
+}
+.whatif-consequence-card-styled.high,
+.whatif-consequence-card-styled.medium {
+  border-left-color: #f59e0b;
+}
+.whatif-card-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.whatif-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+}
+.whatif-card-desc {
+  font-size: 12.5px;
+  color: #334155;
+  margin: 6px 0;
+  line-height: 1.4;
+}
+.whatif-card-bottom-row {
+  margin-top: 4px;
+  font-size: 12px;
+}
+.whatif-card-level-label {
+  color: #64748b;
+  font-weight: 500;
+}
+.whatif-card-time-label {
+  color: #0f172a;
+  font-weight: 700;
+}
+.whatif-actions-box {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--line);
+}
+.whatif-actions-box ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.whatif-actions-box li {
+  font-size: 12.5px;
+  color: #1e293b;
+  line-height: 1.45;
+}
+
+.green-badge {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border-radius: 9999px !important;
+  padding: 4px 10px !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  width: fit-content !important;
+  border: none !important;
+}
+.enlace-activo-badge {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border-radius: 6px !important;
+  padding: 2px 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  border: none !important;
+}

@@ -41,7 +41,6 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
   state.current = { mode, zoom, theme, activeSimulations, onZoomChange }
   const matsRef = useRef<{
     scene: THREE.Scene
-    floorMat: THREE.MeshBasicMaterial
     fineMat: THREE.LineBasicMaterial
     coarseMat: THREE.LineBasicMaterial
     neutralMats: THREE.Material[]
@@ -56,7 +55,7 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
     const p = PALETTE[state.current.theme]
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(p.bg)
-    scene.fog = new THREE.Fog(p.bg, 70, 320)
+    scene.fog = new THREE.Fog(p.bg, 250, 900)
 
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000)
 
@@ -67,15 +66,11 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
     const coarseMat = coarse.material as THREE.LineBasicMaterial
     fineMat.transparent = true
     coarseMat.transparent = true
+    fineMat.depthWrite = false
+    coarseMat.depthWrite = false
     fineMat.opacity = p.fineOp
     coarseMat.opacity = p.coarseOp
     scene.add(fine, coarse)
-
-    const floorMat = new THREE.MeshBasicMaterial({ color: p.bg })
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), floorMat)
-    floor.rotation.x = -Math.PI / 2
-    floor.position.y = -0.02
-    scene.add(floor)
 
     // Lighting for GLB 3D model materials
     const ambient = new THREE.AmbientLight(0xffffff, 1.3)
@@ -174,7 +169,7 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
       }
     )
 
-    matsRef.current = { scene, floorMat, fineMat, coarseMat, neutralMats: [] }
+    matsRef.current = { scene, fineMat, coarseMat, neutralMats: [] }
 
     // Initialize 3D Simulation Overlay Layer
     const simCtrl = createSimulations(scene)
@@ -310,7 +305,6 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, onZoomCh
     const p = PALETTE[theme]
     ;(m.scene.background as THREE.Color).setHex(p.bg)
     ;(m.scene.fog as THREE.Fog).color.setHex(p.bg)
-    m.floorMat.color.setHex(p.floor)
     m.fineMat.color.setHex(p.fine)
     m.fineMat.opacity = p.fineOp
     m.coarseMat.color.setHex(p.coarse)
