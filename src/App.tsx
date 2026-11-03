@@ -294,6 +294,24 @@ const INTERIORES_DATA: InteriorItem[] = [
   },
 ]
 
+const V_SA_01_EQUIPO: InteriorItem = {
+  id: 'v-sa-01',
+  title: 'Bearings · Rodamiento delantero',
+  subTitle: 'Ventilador V-SA-01',
+  category: 'Equipo',
+  icon: Wind,
+  iconColor: '#f59e0b',
+  locationLabel: 'SKF 6310 ball bearing · V-SA-01',
+  level: 'L1',
+  metrics: [
+    { label: 'Temperatura', value: '52.01 °C ▲ +0.32°C/min', valueColor: '#f59e0b' },
+    { label: 'Vibración', value: '3.68 mm/s (umbral: 2.8)', valueColor: '#ef4444' },
+    { label: 'Horas de operación', value: '13,078 h' },
+    { label: 'Predicción de falla', value: '18.55 d (fuera de umbral)', valueColor: '#ef4444' },
+    { label: 'Salud', value: '72%', bar: { current: 72, max: 100 }, valueColor: '#f59e0b' },
+  ],
+}
+
 export interface WhatIfConsequence {
   id: string
   level: 'critical' | 'high' | 'medium'
@@ -635,7 +653,6 @@ export default function App() {
   const [openSection, setOpenSection] = useState<string | null>(null)
   const [interiorView, setInteriorView] = useState<'bombeo' | null>(null)
   const [selectedPump, setSelectedPump] = useState<string>('BA-01')
-  const [active3DPoint, setActive3DPoint] = useState<string | null>(null)
   const [aiKpiOpen, setAiKpiOpen] = useState(true)
   const [whatIfTarget, setWhatIfTarget] = useState('V-PH-01')
   const [whatIfAction, setWhatIfAction] = useState('Parada no programada de ventilador')
@@ -1044,145 +1061,6 @@ export default function App() {
               </button>
             </div>
           )}
-
-          {/* Subtle 3D Points of Interest with Anchored Dropdowns (Guía Nexo PDF p.10, 11) */}
-          <div
-            className={`poi-subtle-indicator alerta ${active3DPoint === 'v-sa-01' ? 'active' : ''}`}
-            style={{ left: '46%', top: '38%' }}
-            onClick={() => setActive3DPoint(active3DPoint === 'v-sa-01' ? null : 'v-sa-01')}
-            title="V-SA-01: Alerta predictiva de rodamiento"
-          >
-            <div className="poi-circle-pulse" />
-            <div className="poi-center-dot" />
-            <div className="poi-mini-tag">87% · 17 d</div>
-          </div>
-
-          <div
-            className={`poi-subtle-indicator cyan ${active3DPoint === 'sb-01' ? 'active' : ''}`}
-            style={{ left: '58%', top: '56%' }}
-            onClick={() => setActive3DPoint(active3DPoint === 'sb-01' ? null : 'sb-01')}
-            title="SB-01: Sala de bombeo interior L5"
-          >
-            <div className="poi-center-dot" />
-            <div className="poi-mini-tag">SB-01 · 64%</div>
-          </div>
-
-          {active3DPoint === 'v-sa-01' && (
-            <div className="poi-anchored-dropdown glass" style={{ left: 'calc(46% + 24px)', top: '32%' }}>
-              <div className="poi-dropdown-header">
-                <div>
-                  <div className="poi-dropdown-title">Bearings · Rodamiento delantero</div>
-                  <div className="poi-dropdown-sub">SKF 6310 ball bearing · V-SA-01</div>
-                </div>
-                <button className="poi-close-btn" onClick={() => setActive3DPoint(null)}>
-                  <X size={14} />
-                </button>
-              </div>
-
-              <div className="poi-dropdown-divider" />
-
-              <div className="poi-dropdown-grid">
-                <div className="poi-grid-row">
-                  <span className="poi-k">Temperatura:</span>
-                  <span className="poi-v highlight-amber">52.01 °C <small>▲ +0.32°C/min</small></span>
-                </div>
-                <div className="poi-grid-row">
-                  <span className="poi-k">Vibración:</span>
-                  <span className="poi-v highlight-red">3.68 mm/s <small>(umbral: 2.8)</small></span>
-                </div>
-                <div className="poi-grid-row">
-                  <span className="poi-k">Horas de operación:</span>
-                  <span className="poi-v">13,078 h</span>
-                </div>
-                <div className="poi-grid-row">
-                  <span className="poi-k">Predicción de falla:</span>
-                  <span className="poi-v highlight-red">18.55 d (fuera de umbral)</span>
-                </div>
-                <div className="poi-grid-row">
-                  <span className="poi-k">Salud:</span>
-                  <span className="poi-v highlight-amber">72%</span>
-                </div>
-              </div>
-
-              <div className="poi-dropdown-divider" />
-
-              <div className="poi-dropdown-actions">
-                <button
-                  className="poi-ask-btn"
-                  onClick={() => {
-                    setActive3DPoint(null)
-                    setNexoOpen(true)
-                    sendNexoMessage('¿Por qué se degrada el rodamiento de V-SA-01?')
-                  }}
-                >
-                  <Sparkles size={14} />
-                  <span>Ask Nexo about this</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {active3DPoint === 'sb-01' && (
-            <div className="poi-anchored-dropdown glass" style={{ left: 'calc(58% + 24px)', top: '48%' }}>
-              <div className="poi-dropdown-header">
-                <div>
-                  <div className="poi-dropdown-title">Sala de bombeo SB-01</div>
-                  <div className="poi-dropdown-sub">Nivel 5 · Interior mina</div>
-                </div>
-                <button className="poi-close-btn" onClick={() => setActive3DPoint(null)}>
-                  <X size={14} />
-                </button>
-              </div>
-
-              <div className="poi-dropdown-divider" />
-
-              <div className="poi-dropdown-grid">
-                <div className="poi-grid-row">
-                  <span className="poi-k">Nivel del sumidero:</span>
-                  <span className="poi-v highlight-cyan">64%</span>
-                </div>
-                <div className="poi-grid-row">
-                  <span className="poi-k">Bombas activas:</span>
-                  <span className="poi-v">2 / 4 en marcha</span>
-                </div>
-                <div className="poi-grid-row">
-                  <span className="poi-k">Caudal total:</span>
-                  <span className="poi-v">152 L/s</span>
-                </div>
-                <div className="poi-grid-row">
-                  <span className="poi-k">Estado:</span>
-                  <span className="poi-v highlight-red">BA-04 en falla (81°C)</span>
-                </div>
-              </div>
-
-              <div className="poi-dropdown-divider" />
-
-              <div className="poi-dropdown-actions">
-                <button
-                  className="poi-enter-scene-btn"
-                  onClick={() => {
-                    setActive3DPoint(null)
-                    setInteriorView('bombeo')
-                    setSidebarView({ type: 'interior', data: INTERIORES_DATA[2] })
-                  }}
-                >
-                  <DoorOpen size={14} />
-                  <span>Entrar a la Sala 3D</span>
-                </button>
-                <button
-                  className="poi-ask-btn secondary"
-                  onClick={() => {
-                    setActive3DPoint(null)
-                    setNexoOpen(true)
-                    sendNexoMessage('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')
-                  }}
-                >
-                  <Sparkles size={14} />
-                  <span>Preguntar a Nexo</span>
-                </button>
-              </div>
-            </div>
-          )}
         </>
       )}
 
@@ -1484,6 +1362,36 @@ export default function App() {
                       onClick={() => setInteriorView(null)}
                     >
                       <span>Volver al modelo general de la mina</span>
+                    </button>
+                  </>
+                ) : sidebarView.data.id === 'v-sa-01' ? (
+                  <>
+                    <div className="interior-card-divider" />
+                    <button
+                      className="cta"
+                      style={{
+                        marginTop: 12,
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        padding: '11px 16px',
+                        borderRadius: 10,
+                        background: 'linear-gradient(135deg, #0284c7 0%, #00b4d8 100%)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        boxShadow: 'none',
+                      }}
+                      onClick={() => {
+                        setNexoOpen(true)
+                        sendNexoMessage('¿Por qué se degrada el rodamiento de V-SA-01?')
+                      }}
+                    >
+                      <Sparkles size={16} />
+                      <span>Ask Nexo about this</span>
                     </button>
                   </>
                 ) : (
@@ -2961,6 +2869,18 @@ export default function App() {
               })}
 
               <div className="interiores-group-title">POR EQUIPO</div>
+
+              <div
+                className="interior-item-row"
+                onClick={() => setSidebarView({ type: 'interior', data: V_SA_01_EQUIPO })}
+                title="Ver diagnóstico del rodamiento delantero V-SA-01"
+              >
+                <div className="interior-item-left">
+                  <Wind size={18} style={{ color: '#f59e0b' }} />
+                  <span className="interior-item-title">Ventilador V-SA-01</span>
+                </div>
+                <ChevronRight size={16} className="row-chevron" />
+              </div>
 
               <div className="interior-item-row disabled" title="Selecciona una subestación en el visor para entrar">
                 <div className="interior-item-left">
