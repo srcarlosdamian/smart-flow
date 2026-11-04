@@ -3662,19 +3662,21 @@ export default function App() {
       {nexoOpen && (
         <aside className="glass nexo-drawer" aria-label="Nexo IA">
           <div className="nexo-drawer-top" ref={nexoMoreRef}>
-            <div className="nexo-top-actions">
-              <button
-                className={`nexo-settings-btn ${ddOpen === 'nexoSettings' ? 'active' : ''}`}
-                title="Configuración de Nexo IA"
-                aria-label="Configuración de Nexo IA"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setDdOpen((d) => (d === 'nexoSettings' ? null : 'nexoSettings'))
-                }}
-              >
-                <Settings size={17} />
-              </button>
+            {/* Left: Configuration gear icon (no background, matching size, weight and color) */}
+            <button
+              className={`nexo-drawer-settings-btn ${ddOpen === 'nexoSettings' ? 'active' : ''}`}
+              title="Configuración de Nexo IA"
+              aria-label="Configuración de Nexo IA"
+              onClick={(e) => {
+                e.stopPropagation()
+                setDdOpen((d) => (d === 'nexoSettings' ? null : 'nexoSettings'))
+              }}
+            >
+              <Settings size={18} />
+            </button>
 
+            {/* Right: History and Close icons */}
+            <div className="nexo-top-actions">
               <button
                 className={`nexo-more-btn ${nexoMoreOpen ? 'active' : ''}`}
                 title="Historial y más opciones"
@@ -3684,7 +3686,7 @@ export default function App() {
                   setNexoMoreView('main')
                 }}
               >
-                <EllipsisVertical size={17} />
+                <EllipsisVertical size={18} />
               </button>
 
               <button
@@ -3701,7 +3703,7 @@ export default function App() {
             </div>
 
             {ddOpen === 'nexoSettings' && (
-              <div className="dd-menu nexo-settings-menu" style={{ top: '100%', right: 0, left: 'auto', width: 280 }}>
+              <div className="dd-menu nexo-settings-menu" style={{ top: 'calc(100% + 6px)', left: 0, right: 'auto', width: 280 }}>
                 <div className="dd-group-title">CONFIGURACIÓN NEXO IA</div>
 
                 <div className="row between switch-row nexo-switch-row" onClick={() => setNexoEnabled((v) => !v)}>

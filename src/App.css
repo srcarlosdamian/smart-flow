@@ -314,33 +314,102 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 }
 .nexo-drawer-top {
   position: relative;
-  display: flex; align-items: center; justify-content: flex-end; height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
 }
 .nexo-top-actions {
-  display: flex; align-items: center; gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.nexo-top-actions .nexo-settings-btn {
-  width: 28px; height: 28px; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--muted); background: transparent; border: none; cursor: pointer;
+.nexo-drawer-settings-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  padding: 0;
   transition: background .15s ease, color .15s ease;
 }
-.nexo-top-actions .nexo-settings-btn:hover,
-.nexo-top-actions .nexo-settings-btn.active {
-  background: var(--hover-bg); color: var(--text);
+.nexo-drawer-settings-btn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  stroke: var(--muted);
+}
+.nexo-drawer-settings-btn:hover,
+.nexo-drawer-settings-btn.active {
+  background: var(--hover-bg) !important;
+  color: var(--text);
+}
+.nexo-drawer-settings-btn:hover svg,
+.nexo-drawer-settings-btn.active svg {
+  color: var(--text);
+  stroke: var(--text);
 }
 .nexo-more-btn {
-  width: 28px; height: 28px; border-radius: 50%; color: var(--muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
   transition: background .15s ease, color .15s ease;
 }
+.nexo-more-btn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  stroke: var(--muted);
+}
 .nexo-more-btn:hover, .nexo-more-btn.active {
-  color: var(--text); background: var(--seg-bg);
+  color: var(--text);
+  background: var(--hover-bg);
+}
+.nexo-more-btn:hover svg, .nexo-more-btn.active svg {
+  color: var(--text);
+  stroke: var(--text);
 }
 .nexo-close-btn {
-  width: 28px; height: 28px; border-radius: 6px; color: var(--muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background .15s ease, color .15s ease;
+}
+.nexo-close-btn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  stroke: var(--muted);
 }
 .nexo-close-btn:hover {
-  color: var(--text); background: var(--hover-bg);
+  color: var(--text);
+  background: var(--hover-bg);
+}
+.nexo-close-btn:hover svg {
+  color: var(--text);
+  stroke: var(--text);
 }
 .nexo-history-menu {
   top: calc(100% + 8px); left: 0; right: 0; padding: 12px; gap: 2px;
