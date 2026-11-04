@@ -4700,3 +4700,314 @@ select:focus,
   padding: 7px 0 !important;
   border-bottom: 1px solid var(--line) !important;
 }
+
+/* ==========================================================================
+   Comprehensive Dark Mode Overrides (General Review)
+   ========================================================================== */
+
+/* 1. MODO DE VISUALIZACIÓN / Custom Dropdown Triggers */
+.app[data-theme="dark"] .dd-trigger {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #f1f5f9 !important;
+  box-shadow: none !important;
+}
+.app[data-theme="dark"] .dd-trigger span {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .dd-trigger svg {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .dd-trigger:hover {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+.app[data-theme="dark"] .dd-trigger.active {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  border-color: #38bdf8 !important;
+}
+
+/* 2. Form Selects, Fields & Native Dropdowns */
+.app[data-theme="dark"] select,
+.app[data-theme="dark"] .field,
+.app[data-theme="dark"] .field.full,
+.app[data-theme="dark"] .whatif-select {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #f1f5f9 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+}
+.app[data-theme="dark"] select:hover,
+.app[data-theme="dark"] .field:hover,
+.app[data-theme="dark"] .field.full:hover,
+.app[data-theme="dark"] .whatif-select:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.26) !important;
+}
+.app[data-theme="dark"] select:focus,
+.app[data-theme="dark"] .field:focus,
+.app[data-theme="dark"] .field.full:focus,
+.app[data-theme="dark"] .whatif-select:focus {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] select option {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+/* 3. Popover Menus (Projection, Zoom, Settings, More) */
+.app[data-theme="dark"] .dd-menu,
+.app[data-theme="dark"] .track-add-menu,
+.app[data-theme="dark"] .zoom-menu,
+.app[data-theme="dark"] .nexo-settings-menu,
+.app[data-theme="dark"] .nexo-more-menu {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .dd-group-title {
+  color: #94a3b8 !important;
+}
+.app[data-theme="dark"] .dd-item {
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .dd-item:hover,
+.app[data-theme="dark"] .dd-item.selected {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .dd-check {
+  color: #38bdf8 !important;
+}
+.app[data-theme="dark"] .dd-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+/* 4. Accordion Headers, Actions & Chevrons */
+.app[data-theme="dark"] .section-head {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .section-action-btn,
+.app[data-theme="dark"] .accordion-chevron-btn {
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .section-action-btn:hover,
+.app[data-theme="dark"] .accordion-chevron-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .section-action-btn svg,
+.app[data-theme="dark"] .accordion-chevron-btn svg,
+.app[data-theme="dark"] .section-head svg {
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .section-head:hover svg {
+  color: #ffffff !important;
+}
+
+/* 5. Left Floating Toolbar */
+.app[data-theme="dark"] .sidebar {
+  background: rgba(15, 23, 42, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.5) !important;
+}
+.app[data-theme="dark"] .sidebar hr {
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+.app[data-theme="dark"] .sidebar .icon-btn {
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .sidebar .icon-btn svg {
+  color: #cbd5e1 !important;
+  stroke: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .sidebar .icon-btn:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .sidebar .icon-btn:hover svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+.app[data-theme="dark"] .sidebar .icon-btn.active {
+  background: rgba(255, 255, 255, 0.20) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .sidebar .icon-btn.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* 6. What-If Simulation Panel & Cards */
+.app[data-theme="dark"] .whatif-check-label {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .whatif-col-val {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .whatif-card-title {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .whatif-card-desc {
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .whatif-card-time-label {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .whatif-compare-card-title {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .whatif-compare-2col-box {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.app[data-theme="dark"] .whatif-consequence-card-styled {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.app[data-theme="dark"] .whatif-actions-box {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.app[data-theme="dark"] .whatif-target-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .whatif-target-btn:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .whatif-target-btn svg {
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .whatif-simulation-player {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .whatif-player-title,
+.app[data-theme="dark"] .whatif-player-time,
+.app[data-theme="dark"] .whatif-player-btn {
+  color: #f1f5f9 !important;
+}
+
+/* 7. Bombeo & Evacuation Detail Panels */
+.app[data-theme="dark"] .bombeo-pump-card-v2 {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .bombeo-pump-card-v2:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+.app[data-theme="dark"] .bombeo-pump-card-v2 b {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .pump-badge-v2.reserva {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .pump-bar-v2-track {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+.app[data-theme="dark"] .evacuacion-alert-card {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-left: 3px solid #ef4444 !important;
+}
+.app[data-theme="dark"] .evac-alert-location {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .evac-alert-status-pill {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .evac-alert-meta {
+  color: #94a3b8 !important;
+}
+
+/* 8. Floating Bars & In-Scene Overlays */
+.app[data-theme="dark"] .ai-kpi-bar {
+  background: rgba(15, 23, 42, 0.90) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+.app[data-theme="dark"] .ai-kpi-val {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .ai-kpi-label,
+.app[data-theme="dark"] .ai-kpi-val small {
+  color: #94a3b8 !important;
+}
+.app[data-theme="dark"] .bombeo-bottom-strip {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+}
+.app[data-theme="dark"] .poi-anchored-dropdown {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55) !important;
+}
+.app[data-theme="dark"] .poi-dropdown-title {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .poi-dropdown-sub {
+  color: #94a3b8 !important;
+}
+.app[data-theme="dark"] .bombeo-top-badge {
+  background: rgba(15, 23, 42, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+}
+.app[data-theme="dark"] .bombeo-badge-title {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .bombeo-badge-sub {
+  color: #94a3b8 !important;
+}
+.app[data-theme="dark"] .bombeo-close-btn {
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .bombeo-close-btn:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .bombeo-bottom-kpi-strip {
+  background: rgba(15, 23, 42, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+}
+.app[data-theme="dark"] .strip-lbl {
+  color: #94a3b8 !important;
+}
+.app[data-theme="dark"] .strip-val {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .bombeo-pump-overlay-card {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .overlay-title,
+.app[data-theme="dark"] .overlay-metric .m-val {
+  color: #f1f5f9 !important;
+}
+.app[data-theme="dark"] .overlay-metric {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+.app[data-theme="dark"] .overlay-metric .m-label {
+  color: #94a3b8 !important;
+}
+.app[data-theme="dark"] .bombeo-section-title {
+  color: #f1f5f9 !important;
+}
