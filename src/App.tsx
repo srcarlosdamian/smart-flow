@@ -20,7 +20,7 @@ import InteriorBombeoView from './InteriorBombeoView'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
 
-export function NexoLogo({ width = 16, height = 20, color = 'currentColor' }: { width?: number; height?: number; color?: string }) {
+export function NexoLogo({ width = 16, height = 20, color = '#ffffff' }: { width?: number; height?: number; color?: string }) {
   return (
     <svg width={width} height={height} viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M2.30986 8.23786C1.52047 9.62654 1.94747 11.3897 3.28474 12.2633C3.70779 12.5397 4.18751 12.7021 4.67897 12.7444L3.66391 14.5026C3.16334 14.3689 2.68149 14.1558 2.23782 13.8659C0.0538579 12.4392 -0.643495 9.55972 0.6457 7.29182L4.79077 0H6.99271L2.30986 8.23786Z" fill={color} />
@@ -3807,7 +3807,7 @@ export default function App() {
 
             <div className="nexo-welcome">
               <div className="nexo-avatar-circle">
-                <NexoLogo width={24} height={30} />
+                <NexoLogo width={24} height={30} color="#ffffff" />
               </div>
 
               <h2 className="nexo-greeting">¿Cómo puedo ayudarte hoy?</h2>
