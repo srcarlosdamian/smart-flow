@@ -1167,14 +1167,14 @@ export default function App() {
             onClick={() => setZoom(clamp(zoom + 10))}
             {...showHelp('Acercar vista', 'Incrementa la escala de acercamiento sobre el modelo 3D.')}
           >
-            <ZoomIn size={20} />
+            <ZoomIn size={18} />
           </button>
           <button
             className="icon-btn"
             onClick={() => setZoom(clamp(zoom - 10))}
             {...showHelp('Alejar vista', 'Reduce la escala de visualización general.')}
           >
-            <ZoomOut size={20} />
+            <ZoomOut size={18} />
           </button>
 
           <hr />
@@ -1185,28 +1185,28 @@ export default function App() {
             onClick={() => setActiveTool((t) => (t === 'level-up' ? '' : 'level-up'))}
             {...showHelp('Nivel superior', 'Permite elevar o alternar nivel en la mina.')}
           >
-            <SquareArrowUp size={20} />
+            <SquareArrowUp size={18} />
           </button>
           <button
             className={`icon-btn ${mode === 'perspective' ? 'active' : ''}`}
             onClick={() => { setSelectedProj('3D - Perspectiva'); setMode('perspective') }}
             {...showHelp('3D Perspectiva', 'Vista en volumen y geometría 3D de la mina.')}
           >
-            <Box size={20} />
+            <Box size={18} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'shift' ? 'active' : ''}`}
             onClick={() => setActiveTool((t) => (t === 'shift' ? '' : 'shift'))}
             {...showHelp('Vista lateral', 'Desplaza la perspectiva a la derecha o lateral.')}
           >
-            <SquareArrowRight size={20} />
+            <SquareArrowRight size={18} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'select' ? 'active' : ''}`}
             onClick={() => setActiveTool((t) => (t === 'select' ? '' : 'select'))}
             {...showHelp('Selección de área', 'Caja delimitadora para aislar o seleccionar un sector.')}
           >
-            <SquareMousePointer size={20} />
+            <SquareMousePointer size={18} />
           </button>
 
           <hr />
@@ -1220,7 +1220,7 @@ export default function App() {
             }}
             {...showHelp('Ajustar todo', 'Encuadra y centra toda la infraestructura de la mina en el visor.')}
           >
-            <Scan size={20} />
+            <Scan size={18} />
           </button>
 
           <hr />
@@ -1236,7 +1236,7 @@ export default function App() {
             }}
             {...showHelp('Cargar modelo', 'Importa o carga un modelo 3D local al gemelo digital.')}
           >
-            <Upload size={20} />
+            <Upload size={18} />
           </button>
 
           <hr />
@@ -1247,35 +1247,35 @@ export default function App() {
             onClick={() => setActiveTool((t) => (t === 'ruler' ? '' : 'ruler'))}
             {...showHelp('Medición', 'Mide distancias tridimensionales entre puntos o túneles.')}
           >
-            <Ruler size={20} />
+            <Ruler size={18} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'area' ? 'active' : ''}`}
             onClick={() => setActiveTool((t) => (t === 'area' ? '' : 'area'))}
             {...showHelp('Área / Polígono', 'Calcula el área o sección transversal de galerías.')}
           >
-            <Diamond size={20} />
+            <Diamond size={18} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'cable' ? 'active' : ''}`}
             onClick={() => setActiveTool((t) => (t === 'cable' ? '' : 'cable'))}
             {...showHelp('Cableado y redes', 'Muestra conductos eléctricos y cableado de comunicación.')}
           >
-            <Cable size={20} />
+            <Cable size={18} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'light' ? 'active' : ''}`}
             onClick={() => setActiveTool((t) => (t === 'light' ? '' : 'light'))}
             {...showHelp('Iluminación', 'Alterna visualización de luminarias y postes de seguridad.')}
           >
-            <Lightbulb size={20} />
+            <Lightbulb size={18} />
           </button>
           <button
             className={`icon-btn ${activeTool === 'wrench-left' ? 'active' : ''}`}
             onClick={() => setActiveTool((t) => (t === 'wrench-left' ? '' : 'wrench-left'))}
             {...showHelp('Ajustes y herramientas', 'Herramientas de configuración y mantenimiento del visor.')}
           >
-            <Wrench size={20} />
+            <Wrench size={18} />
           </button>
 
           <hr />
@@ -1286,14 +1286,14 @@ export default function App() {
             onClick={() => {}}
             {...showHelp('Deshacer', 'Deshace la última acción o cambio de visualización.')}
           >
-            <Undo2 size={20} />
+            <Undo2 size={18} />
           </button>
           <button
             className="icon-btn"
             onClick={() => {}}
             {...showHelp('Rehacer', 'Rehace la acción previa revertida.')}
           >
-            <Redo2 size={20} />
+            <Redo2 size={18} />
           </button>
         </nav>
       )}
