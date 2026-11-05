@@ -1213,7 +1213,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     <Calendar size={16} />
                   </button>
                   <button
-                    className="dd-trigger full grow"
+                    className={`dd-trigger full grow ${openDd === 'whatifTarget' ? 'active' : ''}`}
                     onClick={() => setOpenDd(openDd === 'whatifTarget' ? null : 'whatifTarget')}
                   >
                     <span>Nodo What-If</span>
@@ -1229,7 +1229,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                         className={`dd-item ${shiftStart === t ? 'selected' : ''}`}
                         onClick={() => {
                           setShiftStart(t)
-                          setOpenDd('personalSearch')
+                          setOpenDd(null)
                         }}
                       >
                         <span>{t}</span>
@@ -1252,7 +1252,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                         className={`dd-item ${whatIfTarget === item ? 'selected' : ''}`}
                         onClick={() => {
                           setWhatIfTarget(item)
-                          setOpenDd('personalSearch')
+                          setOpenDd(null)
                         }}
                       >
                         <span>{item}</span>

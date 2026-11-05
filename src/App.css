@@ -637,7 +637,7 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 }
 .dd-item:hover { background: var(--hover-bg); }
 .dd-item span { flex: 1; }
-.dd-check { color: #1976d2; }
+.dd-check { color: #334155; }
 .dd-tag {
   font-size: 11px; color: var(--muted);
   background: var(--field-bg); padding: 2px 6px; border-radius: 4px;
@@ -836,8 +836,8 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   background: transparent;
 }
 .chk-box.checked {
-  background: #1976d2;
-  border-color: #1976d2;
+  background: #334155;
+  border-color: #334155;
   color: #ffffff;
 }
 .checklist-names {
@@ -1037,8 +1037,8 @@ input[type=range] { width: 100%; accent-color: #1976d2; }
   transition: border-color .18s ease, box-shadow .18s ease;
 }
 .auth-input:focus {
-  border-color: #1976d2;
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.18);
+  border-color: #475569;
+  box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.15);
 }
 .auth-input.error {
   border-color: #f44336;
@@ -2963,8 +2963,8 @@ select:focus,
 .field:focus,
 .field.full:focus {
   outline: none !important;
-  border-color: #0284c7 !important;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.22) !important;
+  border-color: #475569 !important;
+  box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.15) !important;
   background-color: #ffffff !important;
 }
 
@@ -3856,9 +3856,12 @@ select:hover,
 select:focus,
 .field:focus,
 .field.full:focus,
-.dd-trigger.active {
+.whatif-select:focus,
+.dd-trigger.active,
+.dd-trigger:focus,
+.dd-trigger:focus-visible {
   background-color: rgba(255, 255, 255, 0.22) !important;
-  border-color: #0284c7 !important;
+  border-color: #475569 !important;
   box-shadow: none !important;
   outline: none !important;
 }
@@ -3897,8 +3900,8 @@ select:focus,
   transition: all .15s ease;
 }
 .whatif-custom-checkbox.checked {
-  background: #0284c7;
-  border-color: #0284c7;
+  background: #334155 !important;
+  border-color: #334155 !important;
 }
 .whatif-check-label {
   font-size: 13.5px;
@@ -4809,9 +4812,11 @@ select:focus,
   background-color: rgba(255, 255, 255, 0.14) !important;
   border-color: rgba(255, 255, 255, 0.28) !important;
 }
-.app[data-theme="dark"] .dd-trigger.active {
+.app[data-theme="dark"] .dd-trigger.active,
+.app[data-theme="dark"] .dd-trigger:focus,
+.app[data-theme="dark"] .dd-trigger:focus-visible {
   background-color: rgba(255, 255, 255, 0.18) !important;
-  border-color: #38bdf8 !important;
+  border-color: #94a3b8 !important;
 }
 
 /* 2. Form Selects, Fields & Native Dropdowns */
@@ -4836,7 +4841,7 @@ select:focus,
 .app[data-theme="dark"] .field.full:focus,
 .app[data-theme="dark"] .whatif-select:focus {
   background-color: rgba(15, 23, 42, 0.95) !important;
-  border-color: #38bdf8 !important;
+  border-color: #94a3b8 !important;
   color: #ffffff !important;
 }
 .app[data-theme="dark"] select option {
@@ -4891,7 +4896,13 @@ select:focus,
   color: #ffffff !important;
 }
 .app[data-theme="dark"] .dd-check {
-  color: #38bdf8 !important;
+  color: #cbd5e1 !important;
+}
+.app[data-theme="dark"] .chk-box.checked,
+.app[data-theme="dark"] .whatif-custom-checkbox.checked {
+  background: #475569 !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
 }
 .app[data-theme="dark"] .dd-divider {
   border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
