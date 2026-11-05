@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import {
-  Globe, Users, Crosshair, X, Plus, Minus, Compass, Home, Maximize2, Minimize2,
+  Globe, Users, Crosshair, X,
 } from 'lucide-react'
 import type { Theme } from './Scene3D'
 
 interface Props {
   theme: Theme
   onClose: () => void
+  surfaceMode?: SurfaceMode
+  onSurfaceModeChange?: (mode: SurfaceMode) => void
+  showRelief?: boolean
+  actionTrigger?: { type: string; id: number } | null
 }
 
 type SurfaceMode = 'satelite' | 'mapa' | 'relieve'
@@ -22,12 +26,37 @@ const EXTERIOR_PEOPLE = [
   { id: 'alejandro', name: 'Alejandro Ruiz', role: 'Operador', coords: [24.9710, -106.2745] as [number, number], vehicle: 'Cargador L-02' },
 ]
 
-export default function SurfaceView({ theme, onClose }: Props) {
+export default function SurfaceView({
+  theme,
+  onClose,
+  surfaceMode: propSurfaceMode,
+  onSurfaceModeChange,
+  showRelief = true,
+  actionTrigger,
+}: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const tileLayerRef = useRef<L.TileLayer | null>(null)
-  const [surfaceMode, setSurfaceMode] = useState<SurfaceMode>('relieve')
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [localSurfaceMode, setLocalSurfaceMode] = useState<SurfaceMode>('satelite')
+
+  const surfaceMode = propSurfaceMode ?? localSurfaceMode
+
+  // Respond to Left Floating Toolbar actions: ZoomIn, ZoomOut, Reset, Focus, Fit
+  useEffect(() => {
+    if (!actionTrigger || !mapRef.current) return
+    const map = mapRef.current
+    if (actionTrigger.type === 'zoomIn') {
+      map.zoomIn()
+    } else if (actionTrigger.type === 'zoomOut') {
+      map.zoomOut()
+    } else if (actionTrigger.type === 'reset') {
+      map.setView(MINE_CENTER, 13, { animate: true })
+    } else if (actionTrigger.type === 'focus') {
+      map.setView(MINE_CENTER, 15, { animate: true })
+    } else if (actionTrigger.type === 'fit') {
+      map.setView(MINE_CENTER, 12, { animate: true })
+    }
+  }, [actionTrigger])
 
   // Initialize Leaflet map
   useEffect(() => {
@@ -99,10 +128,12 @@ export default function SurfaceView({ theme, onClose }: Props) {
     let url = ''
     let options: L.TileLayerOptions = { maxZoom: 18 }
 
-    if (surfaceMode === 'satelite') {
+    const activeMode = (!showRelief && surfaceMode === 'relieve') ? 'satelite' : surfaceMode
+
+    if (activeMode === 'satelite') {
       // High-resolution Esri World Imagery
       url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-    } else if (surfaceMode === 'relieve') {
+    } else if (activeMode === 'relieve') {
       // OpenTopoMap with contour relief
       url = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       options = { maxZoom: 17, subdomains: ['a', 'b', 'c'] }
@@ -116,22 +147,11 @@ export default function SurfaceView({ theme, onClose }: Props) {
 
     const layer = L.tileLayer(url, options).addTo(map)
     tileLayerRef.current = layer
-  }, [surfaceMode, theme])
+  }, [surfaceMode, theme, showRelief])
 
-  const handleZoomIn = () => mapRef.current?.zoomIn()
-  const handleZoomOut = () => mapRef.current?.zoomOut()
-  const handleHome = () => mapRef.current?.setView(MINE_CENTER, 13)
-  const handleCompass = () => {
-    mapRef.current?.setView(MINE_CENTER, mapRef.current.getZoom(), { animate: true })
-  }
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.()
-      setIsFullscreen(true)
-    } else {
-      document.exitFullscreen?.()
-      setIsFullscreen(false)
-    }
+  const handleModeChange = (mode: SurfaceMode) => {
+    setLocalSurfaceMode(mode)
+    onSurfaceModeChange?.(mode)
   }
 
   return (
@@ -158,43 +178,23 @@ export default function SurfaceView({ theme, onClose }: Props) {
         </button>
       </div>
 
-      {/* Right-Side Tool Controls matching Figma & screenshot */}
-      <div className="surface-right-toolbar">
-        <button className="surface-tool-btn" onClick={handleZoomIn} title="Acercar (Zoom in)">
-          <Plus size={18} />
-        </button>
-        <button className="surface-tool-btn" onClick={handleZoomOut} title="Alejar (Zoom out)">
-          <Minus size={18} />
-        </button>
-        <hr className="surface-tool-sep" />
-        <button className="surface-tool-btn" onClick={handleCompass} title="Brújula (Restablecer orientación al norte)">
-          <Compass size={18} />
-        </button>
-        <button className="surface-tool-btn" onClick={handleHome} title="Inicio (Vista predeterminada)">
-          <Home size={18} />
-        </button>
-        <button className="surface-tool-btn" onClick={toggleFullscreen} title="Pantalla completa">
-          {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-        </button>
-      </div>
-
       {/* Bottom-Left Mode Segmented Switch: Satélite | Mapa | Relieve */}
       <div className="surface-bottom-switch">
         <button
           className={`surface-switch-btn ${surfaceMode === 'satelite' ? 'active' : ''}`}
-          onClick={() => setSurfaceMode('satelite')}
+          onClick={() => handleModeChange('satelite')}
         >
           Satélite
         </button>
         <button
           className={`surface-switch-btn ${surfaceMode === 'mapa' ? 'active' : ''}`}
-          onClick={() => setSurfaceMode('mapa')}
+          onClick={() => handleModeChange('mapa')}
         >
           Mapa
         </button>
         <button
           className={`surface-switch-btn ${surfaceMode === 'relieve' ? 'active' : ''}`}
-          onClick={() => setSurfaceMode('relieve')}
+          onClick={() => handleModeChange('relieve')}
         >
           Relieve
         </button>

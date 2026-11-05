@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { Sliders, Copy, Check, RotateCcw, X, User, Move, Droplets, Activity, AlertTriangle } from 'lucide-react'
+import { Sliders, Copy, Check, RotateCcw, X, Move, Droplets, Activity, AlertTriangle } from 'lucide-react'
 import type { Theme } from './Scene3D'
 
 export interface Pump3D {
@@ -744,7 +744,10 @@ export default function InteriorBombeoView({
               onSelectPump?.(pump.id)
             }}
           >
-            <div className="bombeo-badge-top-box">{pump.name}</div>
+            <div className="bombeo-badge-top-box">
+              <span className={`callout-dot ${pump.status === 'marcha' ? 'green' : pump.status === 'reserva' ? 'yellow' : 'red'}`} />
+              <span>{pump.name.toUpperCase()}</span>
+            </div>
             {pump.status === 'marcha' && (
               <div className="bombeo-badge-bottom-box">{pump.flow}</div>
             )}
@@ -753,7 +756,6 @@ export default function InteriorBombeoView({
             )}
             {pump.status === 'falla' && (
               <div className="bombeo-badge-bottom-box falla">
-                <AlertTriangle size={11} style={{ display: 'inline', marginRight: 3, verticalAlign: -1 }} />
                 <span>Falla</span>
               </div>
             )}
@@ -761,7 +763,7 @@ export default function InteriorBombeoView({
         )
       })}
 
-      {/* Sump 3D Badge (image 2) */}
+      {/* Sump 3D Badge */}
       {sumpCoord && sumpCoord.visible && (
         <div
           className="bombeo-3d-sump-badge"
@@ -770,7 +772,8 @@ export default function InteriorBombeoView({
             top: `${sumpCoord.y}px`,
           }}
         >
-          SUMIDERO 85%
+          <span className="callout-dot cyan" />
+          <span>SUMIDERO 85%</span>
         </div>
       )}
 
@@ -790,17 +793,19 @@ export default function InteriorBombeoView({
               transform: 'translate(-50%, -100%)',
               zIndex: 15,
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              padding: '4px 8px 4px 6px',
-              borderRadius: 20,
-              background: 'rgba(15, 23, 42, 0.82)',
-              border: '1px solid rgba(255, 255, 255, 0.22)',
+              padding: '4px 10px',
+              borderRadius: 6,
+              background: 'rgba(15, 23, 42, 0.75)',
+              border: '1px solid rgba(255, 255, 255, 0.16)',
               color: '#ffffff',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
               fontSize: 11,
-              fontWeight: 600,
+              fontWeight: 700,
+              letterSpacing: '0.5px',
+              textTransform: 'uppercase',
               userSelect: 'none',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
@@ -809,24 +814,8 @@ export default function InteriorBombeoView({
             onClick={() => onSelectWorker?.(w)}
             title={`Clic para ver telemetría de ${w.name}`}
           >
-            {/* Click indicator icon with semi-transparent blur background requested by user */}
-            <span
-              style={{
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <User size={11} style={{ color: '#38bdf8' }} />
-            </span>
-            <span>{w.name}</span>
+            <span className="callout-dot green" />
+            <span>{w.name.toUpperCase()}</span>
           </div>
         )
       })}

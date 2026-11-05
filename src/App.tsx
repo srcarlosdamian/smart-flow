@@ -5,6 +5,7 @@ import {
   ZoomIn, ZoomOut, SquareArrowUp, Box, SquareArrowRight, SquareMousePointer,
   Scan, Ruler, Diamond, Cable, Lightbulb, Undo2, Redo2,
   Fullscreen, UserRoundSearch, Layers2, CircleGauge, Waypoints, AudioWaveform, Siren, Trash,
+  Maximize2,
   Wind, Flame, Zap, Wifi, MapPin, Activity, Users, Minus,
   Grid3x3, Workflow, Check, ArrowLeft, ArrowUp, Plus, PanelRightClose, LandPlot, Settings,
   EllipsisVertical, Ellipsis, TextAlignStart, Pin, SquareArrowOutUpRight,
@@ -148,8 +149,8 @@ const projections: { id: string; label: string; view: ViewMode; icon: typeof Box
 
 const cameras: { id: string; label: string; view: ViewMode; icon: typeof Box; reset?: boolean }[] = [
   { id: 'Superior', label: 'Superior', view: 'top', icon: SquareArrowUp },
-  { id: 'Frontal', label: 'Frontal', view: 'perspective', icon: SquareMousePointer },
-  { id: 'Derecha', label: 'Derecha', view: 'perspective', icon: SquareArrowRight },
+  { id: 'Frontal', label: 'Frontal', view: 'front', icon: SquareMousePointer },
+  { id: 'Derecha', label: 'Derecha', view: 'right', icon: SquareArrowRight },
   { id: 'Isométrica', label: 'Isométrica', view: 'isometric', icon: Box },
   { id: 'Ajustar todo', label: 'Ajustar todo', view: 'perspective', icon: Fullscreen, reset: true },
 ]
@@ -640,6 +641,9 @@ export default function App() {
   const [mode, setMode] = useState<ViewMode>('perspective')
   const [selectedProj, setSelectedProj] = useState('3D - Perspectiva')
   const [selectedCam, setSelectedCam] = useState<string>('')
+  const [surfaceMode, setSurfaceMode] = useState<'satelite' | 'mapa' | 'relieve'>('satelite')
+  const [surfaceShowRelief, setSurfaceShowRelief] = useState(true)
+  const [surfaceAction, setSurfaceAction] = useState<{ type: string; id: number } | null>(null)
   const [zoom, setZoom] = useState(50)
   const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | 'shiftStart' | 'shiftEnd' | 'whatif_target' | 'whatif_action' | null>(null)
   const [nexoOpen, setNexoOpen] = useState(false)
@@ -1256,6 +1260,10 @@ export default function App() {
       ) : selectedProj === '3D - Superficie' ? (
         <SurfaceView
           theme={theme}
+          surfaceMode={surfaceMode}
+          onSurfaceModeChange={setSurfaceMode}
+          showRelief={surfaceShowRelief}
+          actionTrigger={surfaceAction}
           onClose={() => {
             setSelectedProj('3D - Perspectiva')
             setMode('perspective')
@@ -1370,143 +1378,214 @@ export default function App() {
         </header>
       )}
 
-      {/* Left vertical floating toolbar (media_1793692573494_09fceee3.png & Figma Default) */}
-      {!interiorView && selectedProj !== '3D - Superficie' && (
+      {/* Left vertical floating toolbar (Diagrama 2D: Zoom in/out/fit; Superficie: 5 tools; 3D: full tools) */}
+      {!interiorView && (
         <nav className="glass sidebar">
-          {/* Group 1: Zoom In / Zoom Out */}
-          <button
-            className="icon-btn"
-            onClick={() => setZoom(clamp(zoom + 10))}
-            {...showHelp('Acercar vista', 'Incrementa la escala de acercamiento sobre el modelo 3D.')}
-          >
-            <ZoomIn size={18} />
-          </button>
-          <button
-            className="icon-btn"
-            onClick={() => setZoom(clamp(zoom - 10))}
-            {...showHelp('Alejar vista', 'Reduce la escala de visualización general.')}
-          >
-            <ZoomOut size={18} />
-          </button>
+          {selectedProj === '2D - Diagrama de planta' ? (
+            /* 2D - Diagrama de planta: ONLY zoom, alejar y ver todo */
+            <>
+              <button
+                className="icon-btn"
+                onClick={() => setZoom(clamp(zoom + 10))}
+                {...showHelp('Acercar vista', 'Incrementa la escala del diagrama 2D.')}
+              >
+                <ZoomIn size={18} />
+              </button>
+              <button
+                className="icon-btn"
+                onClick={() => setZoom(clamp(zoom - 10))}
+                {...showHelp('Alejar vista', 'Reduce la escala del diagrama 2D.')}
+              >
+                <ZoomOut size={18} />
+              </button>
+              <hr />
+              <button
+                className="icon-btn"
+                onClick={() => setZoom(50)}
+                {...showHelp('Ver todo', 'Ajusta el zoom para ver el diagrama de planta completo.')}
+              >
+                <Maximize2 size={18} />
+              </button>
+            </>
+          ) : selectedProj === '3D - Superficie' ? (
+            /* 3D - Superficie: Acercar, alejar, resetear, enfocarse y ajustar el sitio */
+            <>
+              <button
+                className="icon-btn"
+                onClick={() => setSurfaceAction({ type: 'zoomIn', id: Date.now() })}
+                {...showHelp('Acercar', 'Acerca la vista del mapa de superficie.')}
+              >
+                <ZoomIn size={18} />
+              </button>
+              <button
+                className="icon-btn"
+                onClick={() => setSurfaceAction({ type: 'zoomOut', id: Date.now() })}
+                {...showHelp('Alejar', 'Aleja la vista del mapa de superficie.')}
+              >
+                <ZoomOut size={18} />
+              </button>
+              <hr />
+              <button
+                className="icon-btn"
+                onClick={() => setSurfaceAction({ type: 'reset', id: Date.now() })}
+                {...showHelp('Resetear', 'Restablece la orientación hacia el norte y centro.')}
+              >
+                <RotateCcw size={18} />
+              </button>
+              <button
+                className="icon-btn"
+                onClick={() => setSurfaceAction({ type: 'focus', id: Date.now() })}
+                {...showHelp('Enfocarse', 'Enfoca las cuadrillas y vehículos en superficie.')}
+              >
+                <Crosshair size={18} />
+              </button>
+              <button
+                className="icon-btn"
+                onClick={() => setSurfaceAction({ type: 'fit', id: Date.now() })}
+                {...showHelp('Ajustar el sitio', 'Ajusta la extensión completa del sitio minero.')}
+              >
+                <Maximize2 size={18} />
+              </button>
+            </>
+          ) : (
+            /* Standard 3D navigation tools */
+            <>
+              {/* Group 1: Zoom In / Zoom Out */}
+              <button
+                className="icon-btn"
+                onClick={() => setZoom(clamp(zoom + 10))}
+                {...showHelp('Acercar vista', 'Incrementa la escala de acercamiento sobre el modelo 3D.')}
+              >
+                <ZoomIn size={18} />
+              </button>
+              <button
+                className="icon-btn"
+                onClick={() => setZoom(clamp(zoom - 10))}
+                {...showHelp('Alejar vista', 'Reduce la escala de visualización general.')}
+              >
+                <ZoomOut size={18} />
+              </button>
 
-          <hr />
+              <hr />
 
-          {/* Group 2: Camera & Selection Navigation */}
-          <button
-            className={`icon-btn ${activeTool === 'level-up' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => (t === 'level-up' ? '' : 'level-up'))}
-            {...showHelp('Nivel superior', 'Permite elevar o alternar nivel en la mina.')}
-          >
-            <SquareArrowUp size={18} />
-          </button>
-          <button
-            className={`icon-btn ${mode === 'perspective' ? 'active' : ''}`}
-            onClick={() => { setSelectedProj('3D - Perspectiva'); setMode('perspective') }}
-            {...showHelp('3D Perspectiva', 'Vista en volumen y geometría 3D de la mina.')}
-          >
-            <Box size={18} />
-          </button>
-          <button
-            className={`icon-btn ${activeTool === 'shift' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => (t === 'shift' ? '' : 'shift'))}
-            {...showHelp('Vista lateral', 'Desplaza la perspectiva a la derecha o lateral.')}
-          >
-            <SquareArrowRight size={18} />
-          </button>
-          <button
-            className={`icon-btn ${activeTool === 'select' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => (t === 'select' ? '' : 'select'))}
-            {...showHelp('Selección de área', 'Caja delimitadora para aislar o seleccionar un sector.')}
-          >
-            <SquareMousePointer size={18} />
-          </button>
+              {/* Group 2: Camera & Selection Navigation */}
+              <button
+                className={`icon-btn ${activeTool === 'level-up' ? 'active' : ''}`}
+                onClick={() => setActiveTool((t) => (t === 'level-up' ? '' : 'level-up'))}
+                {...showHelp('Nivel superior', 'Permite elevar o alternar nivel en la mina.')}
+              >
+                <SquareArrowUp size={18} />
+              </button>
+              <button
+                className={`icon-btn ${mode === 'perspective' ? 'active' : ''}`}
+                onClick={() => { setSelectedProj('3D - Perspectiva'); setMode('perspective') }}
+                {...showHelp('3D Perspectiva', 'Vista en volumen y geometría 3D de la mina.')}
+              >
+                <Box size={18} />
+              </button>
+              <button
+                className={`icon-btn ${activeTool === 'shift' ? 'active' : ''}`}
+                onClick={() => setActiveTool((t) => (t === 'shift' ? '' : 'shift'))}
+                {...showHelp('Vista lateral', 'Desplaza la perspectiva a la derecha o lateral.')}
+              >
+                <SquareArrowRight size={18} />
+              </button>
+              <button
+                className={`icon-btn ${activeTool === 'select' ? 'active' : ''}`}
+                onClick={() => setActiveTool((t) => (t === 'select' ? '' : 'select'))}
+                {...showHelp('Selección de área', 'Caja delimitadora para aislar o seleccionar un sector.')}
+              >
+                <SquareMousePointer size={18} />
+              </button>
 
-          <hr />
+              <hr />
 
-          {/* Group 3: Frame / Scan */}
-          <button
-            className={`icon-btn ${activeTool === 'fit' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTool((t) => (t === 'fit' ? '' : 'fit'))
-              setZoom(50)
-            }}
-            {...showHelp('Ajustar todo', 'Encuadra y centra toda la infraestructura de la mina en el visor.')}
-          >
-            <Scan size={18} />
-          </button>
+              {/* Group 3: Frame / Scan */}
+              <button
+                className={`icon-btn ${activeTool === 'fit' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTool((t) => (t === 'fit' ? '' : 'fit'))
+                  setZoom(50)
+                }}
+                {...showHelp('Ajustar todo', 'Encuadra y centra toda la infraestructura de la mina en el visor.')}
+              >
+                <Scan size={18} />
+              </button>
 
-          <hr />
+              <hr />
 
-          {/* Group 4: Export / Upload */}
-          <button
-            className={`icon-btn ${activeTool === 'upload' ? 'active' : ''}`}
-            onClick={() => {
-              const input = document.createElement('input')
-              input.type = 'file'
-              input.accept = '.glb,.gltf,.obj'
-              input.click()
-            }}
-            {...showHelp('Cargar modelo', 'Importa o carga un modelo 3D local al gemelo digital.')}
-          >
-            <Upload size={18} />
-          </button>
+              {/* Group 4: Export / Upload */}
+              <button
+                className={`icon-btn ${activeTool === 'upload' ? 'active' : ''}`}
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.accept = '.glb,.gltf,.obj'
+                  input.click()
+                }}
+                {...showHelp('Cargar modelo', 'Importa o carga un modelo 3D local al gemelo digital.')}
+              >
+                <Upload size={18} />
+              </button>
 
-          <hr />
+              <hr />
 
-          {/* Group 5: Measurement & Engineering Tools */}
-          <button
-            className={`icon-btn ${activeTool === 'ruler' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => (t === 'ruler' ? '' : 'ruler'))}
-            {...showHelp('Medición', 'Mide distancias tridimensionales entre puntos o túneles.')}
-          >
-            <Ruler size={18} />
-          </button>
-          <button
-            className={`icon-btn ${activeTool === 'area' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => (t === 'area' ? '' : 'area'))}
-            {...showHelp('Área / Polígono', 'Calcula el área o sección transversal de galerías.')}
-          >
-            <Diamond size={18} />
-          </button>
-          <button
-            className={`icon-btn ${activeTool === 'cable' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => (t === 'cable' ? '' : 'cable'))}
-            {...showHelp('Cableado y redes', 'Muestra conductos eléctricos y cableado de comunicación.')}
-          >
-            <Cable size={18} />
-          </button>
-          <button
-            className={`icon-btn ${activeTool === 'light' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => (t === 'light' ? '' : 'light'))}
-            {...showHelp('Iluminación', 'Alterna visualización de luminarias y postes de seguridad.')}
-          >
-            <Lightbulb size={18} />
-          </button>
-          <button
-            className={`icon-btn ${activeTool === 'wrench-left' ? 'active' : ''}`}
-            onClick={() => setActiveTool((t) => (t === 'wrench-left' ? '' : 'wrench-left'))}
-            {...showHelp('Ajustes y herramientas', 'Herramientas de configuración y mantenimiento del visor.')}
-          >
-            <Wrench size={18} />
-          </button>
+              {/* Group 5: Measurement & Engineering Tools */}
+              <button
+                className={`icon-btn ${activeTool === 'ruler' ? 'active' : ''}`}
+                onClick={() => setActiveTool((t) => (t === 'ruler' ? '' : 'ruler'))}
+                {...showHelp('Medición', 'Mide distancias tridimensionales entre puntos o túneles.')}
+              >
+                <Ruler size={18} />
+              </button>
+              <button
+                className={`icon-btn ${activeTool === 'area' ? 'active' : ''}`}
+                onClick={() => setActiveTool((t) => (t === 'area' ? '' : 'area'))}
+                {...showHelp('Área / Polígono', 'Calcula el área o sección transversal de galerías.')}
+              >
+                <Diamond size={18} />
+              </button>
+              <button
+                className={`icon-btn ${activeTool === 'cable' ? 'active' : ''}`}
+                onClick={() => setActiveTool((t) => (t === 'cable' ? '' : 'cable'))}
+                {...showHelp('Cableado y redes', 'Muestra conductos eléctricos y cableado de comunicación.')}
+              >
+                <Cable size={18} />
+              </button>
+              <button
+                className={`icon-btn ${activeTool === 'light' ? 'active' : ''}`}
+                onClick={() => setActiveTool((t) => (t === 'light' ? '' : 'light'))}
+                {...showHelp('Iluminación', 'Alterna visualización de luminarias y postes de seguridad.')}
+              >
+                <Lightbulb size={18} />
+              </button>
+              <button
+                className={`icon-btn ${activeTool === 'wrench-left' ? 'active' : ''}`}
+                onClick={() => setActiveTool((t) => (t === 'wrench-left' ? '' : 'wrench-left'))}
+                {...showHelp('Ajustes y herramientas', 'Herramientas de configuración y mantenimiento del visor.')}
+              >
+                <Wrench size={18} />
+              </button>
 
-          <hr />
+              <hr />
 
-          {/* Group 6: History Undo / Redo */}
-          <button
-            className="icon-btn"
-            onClick={() => {}}
-            {...showHelp('Deshacer', 'Deshace la última acción o cambio de visualización.')}
-          >
-            <Undo2 size={18} />
-          </button>
-          <button
-            className="icon-btn"
-            onClick={() => {}}
-            {...showHelp('Rehacer', 'Rehace la acción previa revertida.')}
-          >
-            <Redo2 size={18} />
-          </button>
+              {/* Group 6: History Undo / Redo */}
+              <button
+                className="icon-btn"
+                onClick={() => {}}
+                {...showHelp('Deshacer', 'Deshace la última acción o cambio de visualización.')}
+              >
+                <Undo2 size={18} />
+              </button>
+              <button
+                className="icon-btn"
+                onClick={() => {}}
+                {...showHelp('Rehacer', 'Rehace la acción previa revertida.')}
+              >
+                <Redo2 size={18} />
+              </button>
+            </>
+          )}
         </nav>
       )}
 
@@ -2928,52 +3007,164 @@ export default function App() {
                   <span>Modo de visualización</span>
                 </div>
                 <div className="vis-controls">
-                    <button
-                      className={`dd-trigger full ${ddOpen === 'proj' ? 'active' : ''}`}
-                      onClick={() => setDdOpen((d) => (d === 'proj' ? null : 'proj'))}
-                    >
-                      <span>{selectedProj}</span>
-                      <ChevronDown size={16} />
-                    </button>
-                    {ddOpen === 'proj' && (
-                      <div className="dd-menu">
-                        <div className="dd-group-title">PROYECCIÓN</div>
-                        {projections.map(({ id, label, icon: I }) => (
+                  <button
+                    className={`dd-trigger full ${ddOpen === 'proj' ? 'active' : ''}`}
+                    onClick={() => setDdOpen((d) => (d === 'proj' ? null : 'proj'))}
+                  >
+                    <span>{selectedProj}</span>
+                    <ChevronDown size={16} />
+                  </button>
+                  {ddOpen === 'proj' && (
+                    <div className="dd-menu">
+                      <div className="dd-group-title">PROYECCIÓN</div>
+                      {projections.map(({ id, label, icon: I }) => (
+                        <button
+                          key={id}
+                          className={`dd-item ${selectedProj === id ? 'selected' : ''}`}
+                          onClick={() => {
+                            setSelectedProj(id)
+                            const pr = projections.find((p) => p.id === id)
+                            if (pr) setMode(pr.view)
+                            setDdOpen(null)
+                          }}
+                        >
+                          <I size={18} />
+                          <span>{label}</span>
+                          {selectedProj === id && <Check size={16} className="dd-check" />}
+                        </button>
+                      ))}
+
+                      <div className="dd-divider" />
+
+                      <div className="dd-group-title">CÁMARA</div>
+                      {cameras.map(({ id, label, view, icon: I, reset }) => {
+                        const isSel = selectedCam === id
+                        return (
                           <button
                             key={id}
-                            className={`dd-item ${selectedProj === id ? 'active' : ''}`}
+                            className={`dd-item ${isSel ? 'selected' : ''}`}
                             onClick={() => {
-                              setSelectedProj(id)
-                              const pr = projections.find((p) => p.id === id)
-                              if (pr) setMode(pr.view)
+                              setSelectedCam(id)
+                              setSelectedProj('3D - Perspectiva')
+                              setMode(view)
+                              if (reset) setZoom(50)
                               setDdOpen(null)
                             }}
                           >
                             <I size={18} />
                             <span>{label}</span>
+                            {isSel && <Check size={16} className="dd-check" />}
                           </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="section" style={{ marginTop: 12 }}>
-                <div className="section-head">
-                  <span>Superficie exterior</span>
+              {/* Segmented Switch: Satélite | Mapa | Relieve (Figma / Conmutador Vista Superficie archetype) */}
+              <div className="section" style={{ marginTop: 14 }}>
+                <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 8 }}>
+                  <span>Capa de mapa</span>
                 </div>
-                <div className="surface-stat-grid">
-                  <div className="surface-stat-box">
-                    <small>Personal exterior</small>
-                    <b>11 afuera</b>
-                  </div>
-                  <div className="surface-stat-box">
-                    <small>Precisión GPS</small>
-                    <b>±50 m</b>
-                  </div>
+                <div
+                  className="surface-bottom-switch"
+                  style={{
+                    position: 'relative',
+                    bottom: 'auto',
+                    left: 'auto',
+                    width: '100%',
+                    display: 'flex',
+                    margin: 0,
+                    boxShadow: 'none',
+                    padding: 3,
+                  }}
+                >
+                  <button
+                    className={`surface-switch-btn ${surfaceMode === 'satelite' ? 'active' : ''}`}
+                    onClick={() => setSurfaceMode('satelite')}
+                    style={{ flex: 1, textAlign: 'center' }}
+                  >
+                    Satélite
+                  </button>
+                  <button
+                    className={`surface-switch-btn ${surfaceMode === 'mapa' ? 'active' : ''}`}
+                    onClick={() => setSurfaceMode('mapa')}
+                    style={{ flex: 1, textAlign: 'center' }}
+                  >
+                    Mapa
+                  </button>
+                  <button
+                    className={`surface-switch-btn ${surfaceMode === 'relieve' ? 'active' : ''}`}
+                    onClick={() => setSurfaceMode('relieve')}
+                    style={{ flex: 1, textAlign: 'center' }}
+                  >
+                    Relieve
+                  </button>
                 </div>
 
-                <div className="esc-block-title" style={{ marginTop: 14 }}>Personal y vehículos en exterior</div>
+                {/* Quitar relieve toggle */}
+                <div
+                  className="row between"
+                  style={{
+                    padding: '10px 4px 6px',
+                    marginTop: 6,
+                    borderBottom: '1px solid var(--border)',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setSurfaceShowRelief((v) => !v)}
+                >
+                  <span style={{ fontSize: 13, color: 'var(--text)' }}>Relieve 3D / Sombras</span>
+                  <div className="row gap-2 switch-row">
+                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                      {surfaceShowRelief ? 'Activo' : 'Sin relieve'}
+                    </span>
+                    <span className={`mui-switch ${surfaceShowRelief ? 'checked' : ''}`}>
+                      <span className="mui-switch-track" />
+                      <span className="mui-switch-thumb" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Superficie exterior */}
+              <div className="section" style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14 }}>
+                <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Superficie exterior
+                  </span>
+                </div>
+                <div className="diagram-data-grid" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Personal interior</span>
+                    <b style={{ fontWeight: 600 }}>30 adentro</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Personal exterior</span>
+                    <b style={{ fontWeight: 600 }}>11 afuera</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Precisión GPS</span>
+                    <b style={{ fontWeight: 600 }}>±50 m</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Temperatura exterior</span>
+                    <b style={{ fontWeight: 600 }}>21.5 °C</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Viento</span>
+                    <b style={{ fontWeight: 600 }}>12 km/h NE</b>
+                  </div>
+                </div>
+              </div>
+
+              {/* Título y lista de Personal y vehículos en exterior dividida con línea */}
+              <div className="section" style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14 }}>
+                <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    PERSONAL Y VEHÍCULOS EN EXTERIOR
+                  </span>
+                </div>
                 <div className="personal-list">
                   {[
                     { name: 'Juan García', role: 'Acarreo', area: 'Camión T-01' },
@@ -2990,6 +3181,153 @@ export default function App() {
                       <span className="user-signal-badge online" style={{ fontSize: 11 }}>En línea</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          ) : selectedProj === '2D - Diagrama de planta' ? (
+            /* Contextual Sidebar for 2D - Diagrama de planta (Buscar, Modo visualización, Lugar, Rampa y Trazos) */
+            <div className="diagram-sidebar-panel">
+              <div
+                className="search"
+                onClick={() => setSearchOpen(true)}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: 'pointer' }}
+                {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
+              >
+                <span>Buscar</span><small>Ctrl + K</small><Search size={14} />
+              </div>
+
+              {/* Modo de visualización */}
+              <div className="vis-block">
+                <div className="section-head no-chevron" style={{ cursor: 'default' }}>
+                  <span>Modo de visualización</span>
+                </div>
+                <div className="vis-controls">
+                  <button
+                    className={`dd-trigger full ${ddOpen === 'proj' ? 'active' : ''}`}
+                    onClick={() => setDdOpen((d) => (d === 'proj' ? null : 'proj'))}
+                  >
+                    <span>{selectedProj}</span>
+                    <ChevronDown size={16} />
+                  </button>
+                  {ddOpen === 'proj' && (
+                    <div className="dd-menu">
+                      <div className="dd-group-title">PROYECCIÓN</div>
+                      {projections.map(({ id, label, icon: I }) => (
+                        <button
+                          key={id}
+                          className={`dd-item ${selectedProj === id ? 'selected' : ''}`}
+                          onClick={() => {
+                            setSelectedProj(id)
+                            const pr = projections.find((p) => p.id === id)
+                            if (pr) setMode(pr.view)
+                            setDdOpen(null)
+                          }}
+                        >
+                          <I size={18} />
+                          <span>{label}</span>
+                          {selectedProj === id && <Check size={16} className="dd-check" />}
+                        </button>
+                      ))}
+
+                      <div className="dd-divider" />
+
+                      <div className="dd-group-title">CÁMARA</div>
+                      {cameras.map(({ id, label, view, icon: I, reset }) => {
+                        const isSel = selectedCam === id
+                        return (
+                          <button
+                            key={id}
+                            className={`dd-item ${isSel ? 'selected' : ''}`}
+                            onClick={() => {
+                              setSelectedCam(id)
+                              setSelectedProj('3D - Perspectiva')
+                              setMode(view)
+                              if (reset) setZoom(50)
+                              setDdOpen(null)
+                            }}
+                          >
+                            <I size={18} />
+                            <span>{label}</span>
+                            {isSel && <Check size={16} className="dd-check" />}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Sección Lugar dividida por línea */}
+              <div className="diagram-context-section" style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14 }}>
+                <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Lugar</span>
+                </div>
+                <div className="diagram-data-grid" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Complejo minero</span>
+                    <b style={{ fontWeight: 600 }}>Ciénaga de Ntra. Señora</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Cota de referencia</span>
+                    <b style={{ fontWeight: 600 }}>-340 m s.n.m.</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Coordenadas UTM</span>
+                    <b style={{ fontWeight: 600, fontFamily: 'monospace' }}>13N 342100 E, 2761800 N</b>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Rampa dividida por línea */}
+              <div className="diagram-context-section" style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14 }}>
+                <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rampa</span>
+                </div>
+                <div className="diagram-data-grid" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Rampa principal</span>
+                    <b style={{ fontWeight: 600 }}>RP-01 (Nivel 1 a Nivel 4)</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Pendiente media</span>
+                    <b style={{ fontWeight: 600 }}>-12.0 %</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Sección de galería</span>
+                    <b style={{ fontWeight: 600 }}>4.5 m × 4.2 m</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Longitud total rampa</span>
+                    <b style={{ fontWeight: 600 }}>1,840 m</b>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Trazos dividida por línea */}
+              <div className="diagram-context-section" style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14 }}>
+                <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Trazos</span>
+                </div>
+                <div className="diagram-traces-list" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {[
+                    { name: 'Rampa N1 → N2', val: '240 m' },
+                    { name: 'Galería Nivel 1 (Norte)', val: '420 m' },
+                    { name: 'Galería Nivel 2 (Taller)', val: '680 m' },
+                    { name: 'Acceso Chancador', val: '180 m' },
+                    { name: 'Nivel 4 (Sur)', val: '320 m' },
+                    { name: 'Chimenea Ch-02', val: '95 m' },
+                  ].map((trace, idx) => (
+                    <div key={idx} className="row between" style={{ fontSize: 13, padding: '4px 0', borderBottom: idx < 5 ? '1px dashed var(--border)' : 'none' }}>
+                      <span style={{ color: 'var(--muted)' }}>{trace.name}</span>
+                      <b style={{ fontWeight: 600, fontFamily: 'monospace' }}>{trace.val}</b>
+                    </div>
+                  ))}
+                  <div className="row between" style={{ fontSize: 13, marginTop: 6, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+                    <span style={{ fontWeight: 700 }}>Total desarrollo activo</span>
+                    <b style={{ fontWeight: 700, color: 'var(--accent, #0284c7)', fontFamily: 'monospace' }}>1,935 m</b>
+                  </div>
                 </div>
               </div>
             </div>
@@ -4335,7 +4673,7 @@ export default function App() {
         </aside>
       )}
 
-      {!interiorView && (
+      {!interiorView && selectedProj !== '2D - Diagrama de planta' && selectedProj !== '3D - Superficie' && (
         <ul
           className="glass levels"
           {...showHelp('Niveles', 'Acceso a las capas estructurales, niveles (L1 General a L5 Interior), rampas, cotas y parámetros técnicos del diseño de la mina.')}

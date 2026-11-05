@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { createSimulations, SIM_ENTITIES, type SimEntity } from './simulations3D'
 
-export type ViewMode = 'perspective' | 'isometric' | 'top'
+export type ViewMode = 'perspective' | 'isometric' | 'top' | 'front' | 'right'
 export type Theme = 'dark' | 'light'
 
 interface Props {
@@ -338,9 +338,25 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
       const curP = PALETTE[currentTheme]
       const dist = 38 * (50 / z)
       let desired: THREE.Vector3
-      if (m === 'perspective') desired = new THREE.Vector3(Math.sin(yaw) * dist, 12 + pitchOff * 24, Math.cos(yaw) * dist - 6)
-      else if (m === 'isometric') desired = new THREE.Vector3(Math.sin(yaw + Math.PI / 4) * dist, dist * 0.85, Math.cos(yaw + Math.PI / 4) * dist - 6)
-      else desired = new THREE.Vector3(0.001, dist * 1.5, -6)
+      if (m === 'perspective') {
+        camera.up.set(0, 1, 0)
+        desired = new THREE.Vector3(Math.sin(yaw) * dist, 12 + pitchOff * 24, Math.cos(yaw) * dist - 6)
+      } else if (m === 'isometric') {
+        camera.up.set(0, 1, 0)
+        desired = new THREE.Vector3(Math.sin(yaw + Math.PI / 4) * dist, dist * 0.85, Math.cos(yaw + Math.PI / 4) * dist - 6)
+      } else if (m === 'top') {
+        camera.up.set(0, 0, -1)
+        desired = new THREE.Vector3(0.001, dist * 1.5, -6)
+      } else if (m === 'front') {
+        camera.up.set(0, 1, 0)
+        desired = new THREE.Vector3(0.001, 2.5, dist - 6)
+      } else if (m === 'right') {
+        camera.up.set(0, 1, 0)
+        desired = new THREE.Vector3(dist, 2.5, -6)
+      } else {
+        camera.up.set(0, 1, 0)
+        desired = new THREE.Vector3(Math.sin(yaw) * dist, 12 + pitchOff * 24, Math.cos(yaw) * dist - 6)
+      }
       camPos.lerp(desired, 0.08)
       camera.position.copy(camPos)
       camera.lookAt(target)

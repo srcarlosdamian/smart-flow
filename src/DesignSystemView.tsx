@@ -13,8 +13,6 @@ import {
   Plus,
   Minus,
   Check,
-  CheckCheck,
-  AlertTriangle,
   CircleAlert,
   CirclePlus,
   CircleMinus,
@@ -66,7 +64,6 @@ import {
   Repeat,
   SquareArrowOutUpRight,
   Target,
-  User,
   X,
   Droplets,
 } from 'lucide-react'
@@ -1529,66 +1526,64 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <span style={codePillStyle}>.user-action-btn / .permanencia-chip</span>
                 </div>
 
-                {/* User Action Buttons (Full width) */}
+                {/* User Action Buttons (Full width canonical 36px) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Acción Neutral (36px)</b> — <code>.user-action-btn</code> (Estándar y peligro)
+                    <b>Full-Width Acción Neutral (36px)</b> — <code>.user-action-btn</code> (Componente canónico homologado)
                   </small>
                   <div className="user-action-buttons" style={{ marginBottom: 0 }}>
-                    <button className="user-action-btn">
+                    <button className="user-action-btn" style={{ height: 36, minHeight: 36 }}>
                       <Crosshair size={16} />
                       <span>Centrar en el mapa</span>
                     </button>
-                    <button
-                      className="user-action-btn"
-                      style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
-                    >
-                      <AlertTriangle size={15} />
-                      <span>Terminar evacuación</span>
+                  </div>
+                </div>
+
+                {/* Permanencia Chips (Full width left-aligned 36px) */}
+                <div>
+                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
+                    <b>Full-Width Alineado a la Izquierda (36px)</b> — <code>.permanencia-chip</code> (Mismo alto 36px)
+                  </small>
+                  <div className="permanencia-chip-list">
+                    <button className="permanencia-chip" style={{ height: 36, minHeight: 36, display: 'flex', alignItems: 'center' }}>
+                      Camión T-03 · Nivel N02 (1h 45m)
                     </button>
                   </div>
                 </div>
 
-                {/* Permanencia Chips (Full width left-aligned) */}
+                {/* Escenario Secondary Buttons: Full vs Auto (36px) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Alineado a la Izquierda</b> — <code>.permanencia-chip</code> (Hover neutro)
-                  </small>
-                  <div className="permanencia-chip-list">
-                    <button className="permanencia-chip">Camión T-03 · Nivel N02 (1h 45m)</button>
-                  </div>
-                </div>
-
-                {/* Escenario Secondary Buttons: Full vs Auto */}
-                <div>
-                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width vs Auto-Width</b> — <code>.esc-secondary-btn.full</code> vs <code>.esc-secondary-btn</code>
+                    <b>Full-Width vs Auto-Width (36px)</b> — <code>.esc-secondary-btn.full</code> vs <code>.esc-secondary-btn</code>
                   </small>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <button className="esc-secondary-btn full no-shadow">
+                    <button className="esc-secondary-btn full no-shadow" style={{ height: 36, minHeight: 36 }}>
                       Descartar escenario (Full-Width)
                     </button>
                     <div>
-                      <button className="esc-secondary-btn">Restablecer (Auto-Width)</button>
+                      <button className="esc-secondary-btn" style={{ height: 36, minHeight: 36 }}>
+                        Restablecer (Auto-Width)
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Flex 1 Row Buttons (.auxilio-action-btn & .auxilio-tab-btn) */}
+                {/* Flex 1 Row Buttons (.auxilio-action-btn & Conmutador Segmentado) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Botones Flex (1/2 Fila)</b> — <code>.auxilio-action-btn</code> &amp; <code>.auxilio-tab-btn</code>
+                    <b>Botones Flex (36px) &amp; Pestañas Activa / Inactiva (.surface-bottom-switch)</b>
                   </small>
                   <div className="auxilio-card-actions" style={{ marginTop: 0, marginBottom: 8 }}>
                     <button
                       className={`auxilio-action-btn ${auxilioAttended ? 'active' : ''}`}
                       onClick={() => setAuxilioAttended((v) => !v)}
+                      style={{ height: 36, minHeight: 36 }}
                     >
                       {auxilioAttended ? 'Atendido (Activo)' : 'Atender (Clic para alternar)'}
                     </button>
                   </div>
 
-                  {/* Conmutador Segmentado de Peticiones de Auxilio (Reutilizando .surface-bottom-switch) */}
+                  {/* Pestañas Activa / Inactiva con Conmutador Vista Superficie (.surface-bottom-switch) */}
                   <div
                     className="surface-bottom-switch"
                     style={{
@@ -1600,36 +1595,39 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                       margin: 0,
                       boxShadow: 'none',
                       padding: 3,
+                      height: 36,
+                      minHeight: 36,
+                      alignItems: 'center',
                     }}
                   >
                     <button
                       className={`surface-switch-btn ${auxilioTab === 'sin_cerrar' ? 'active' : ''}`}
                       onClick={() => setAuxilioTab('sin_cerrar')}
-                      style={{ flex: 1, textAlign: 'center' }}
+                      style={{ flex: 1, textAlign: 'center', height: '100%' }}
                     >
-                      3 sin resolver
+                      Pestaña activa
                     </button>
                     <button
                       className={`surface-switch-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
                       onClick={() => setAuxilioTab('resueltas')}
-                      style={{ flex: 1, textAlign: 'center' }}
+                      style={{ flex: 1, textAlign: 'center', height: '100%' }}
                     >
-                      3 resueltas
+                      Pestaña inactiva
                     </button>
                   </div>
                 </div>
 
-                {/* Inline Link Action Buttons */}
+                {/* Inline Link Action Buttons (36px) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Acciones Inline con Ícono (Auto-Width)</b> — <code>.evac-action-link-btn</code> &amp; <code>.whatif-reconfig-btn</code>
+                    <b>Acciones Inline con Ícono (36px)</b> — <code>.evac-action-link-btn</code> &amp; <code>.whatif-reconfig-btn</code>
                   </small>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <button className="evac-action-link-btn" style={{ padding: '5px 10px' }}>
+                    <button className="evac-action-link-btn" style={{ height: 36, minHeight: 36, padding: '0 12px', display: 'inline-flex', alignItems: 'center' }}>
                       <Check size={14} />
                       <span>Acción inline</span>
                     </button>
-                    <button className="whatif-reconfig-btn" style={{ width: 'auto', padding: '6px 12px' }}>
+                    <button className="whatif-reconfig-btn" style={{ height: 36, minHeight: 36, width: 'auto', padding: '0 14px', display: 'inline-flex', alignItems: 'center' }}>
                       <RotateCw size={14} />
                       <span>Reconfigurar</span>
                     </button>
@@ -1847,11 +1845,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     <code style={codePillStyle}>.green-badge</code>
                   </div>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="pump-status-dot-v2 marcha" />
-                      <span className="pump-badge-v2 marcha">En marcha</span>
-                    </div>
-                    <code style={codePillStyle}>.pump-badge-v2.marcha</code>
+                    <span className="green-badge">En marcha</span>
+                    <code style={codePillStyle}>.green-badge (homologado sin punto)</code>
                   </div>
                   <div className="row between">
                     <span className="user-ai-status">Óptimo</span>
@@ -1876,11 +1871,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="pump-status-dot-v2 falla" />
-                      <span className="pump-badge-v2 falla">En falla</span>
-                    </div>
-                    <code style={codePillStyle}>.pump-badge-v2.falla</code>
+                    <span className="evac-alert-tag-critical">En falla</span>
+                    <code style={codePillStyle}>.evac-alert-tag-critical (sin punto)</code>
                   </div>
                   <div className="row between">
                     <span className="evac-alert-tag-critical">Crítico</span>
@@ -1928,7 +1920,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                   <div className="row between">
                     <span className="ai-nexo-tag">NEXO IA</span>
-                    <code style={codePillStyle}>.ai-nexo-tag</code>
+                    <code style={codePillStyle}>.ai-nexo-tag (gradiente metálico)</code>
                   </div>
                 </div>
               </div>
@@ -1977,11 +1969,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="pump-status-dot-v2 reserva" />
-                      <span className="pump-badge-v2 reserva">En reserva</span>
-                    </div>
-                    <code style={codePillStyle}>.pump-badge-v2.reserva</code>
+                    <span className="auxilio-status-unattended">En reserva</span>
+                    <code style={codePillStyle}>.auxilio-status-unattended (sin punto)</code>
                   </div>
                   <div className="row between">
                     <span className="auxilio-status-unattended">Sin atender</span>
@@ -1992,12 +1981,12 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     <code style={codePillStyle}>.status-badge-unapplied</code>
                   </div>
                   <div className="row between">
-                    <span className="whatif-chip">Horizonte 30m</span>
-                    <code style={codePillStyle}>.whatif-chip</code>
+                    <span className="auxilio-status-unattended">Horizonte 30m</span>
+                    <code style={codePillStyle}>.auxilio-status-unattended (homologado)</code>
                   </div>
                   <div className="row between">
-                    <small className="dd-tag">Por defecto</small>
-                    <code style={codePillStyle}>.dd-tag</code>
+                    <span className="auxilio-status-unattended">Por defecto</span>
+                    <code style={codePillStyle}>.auxilio-status-unattended (homologado)</code>
                   </div>
                 </div>
               </div>
@@ -2007,124 +1996,126 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
             <div className="glass" style={cardSurfaceStyle}>
               <div style={labelTagStyle}>
                 <span>
-                  4.6 BADGES FLOTANTES EN ESCENA 3D (SALA DE BOMBEO, PERSONAL &amp; VEHÍCULOS)
+                  4.6 BADGES FLOTANTES EN ESCENA 3D (TRANSPARENTE CON BLUR, TEXTO BLANCO &amp; BOLITA)
                 </span>
-                <span style={codePillStyle}>In-Scene 3D Overlays</span>
+                <span style={codePillStyle}>In-Scene 3D Overlays Homologados</span>
               </div>
 
               <div
                 style={{
                   display: 'flex',
                   flexWrap: 'wrap',
-                  gap: 18,
+                  gap: 16,
                   alignItems: 'center',
-                  padding: '16px 20px',
+                  padding: '18px 20px',
                   borderRadius: 12,
                   background: '#0f172a',
                   border: '1px solid rgba(255,255,255,0.12)',
                 }}
               >
-                {/* Pump 3D Badge: Marcha (Two-box sketch design) */}
+                {/* Pump 3D Badge: Marcha (Top box with green dot + flow) */}
                 <div
                   className="bombeo-3d-badge marcha"
                   style={{ position: 'relative', transform: 'none' }}
                 >
-                  <div className="bombeo-badge-top-box">BA-01</div>
+                  <div className="bombeo-badge-top-box">
+                    <span className="callout-dot green" />
+                    <span>BA-01</span>
+                  </div>
                   <div className="bombeo-badge-bottom-box">78 L/s</div>
                 </div>
 
-                {/* Pump 3D Badge: Reserva */}
+                {/* Pump 3D Badge: Reserva (Top box with yellow dot + reserva) */}
                 <div
                   className="bombeo-3d-badge reserva"
                   style={{ position: 'relative', transform: 'none' }}
                 >
-                  <div className="bombeo-badge-top-box">BA-03</div>
-                  <div className="bombeo-badge-bottom-box reserva">Reserva</div>
+                  <div className="bombeo-badge-top-box">
+                    <span className="callout-dot yellow" />
+                    <span>BA-03</span>
+                  </div>
+                  <div className="bombeo-badge-bottom-box reserva">RESERVA</div>
                 </div>
 
-                {/* Pump 3D Badge: Falla */}
+                {/* Pump 3D Badge: Falla (Top box with red dot + falla) */}
                 <div
                   className="bombeo-3d-badge falla"
                   style={{ position: 'relative', transform: 'none' }}
                 >
-                  <div className="bombeo-badge-top-box">BA-04</div>
-                  <div className="bombeo-badge-bottom-box falla">
-                    <AlertTriangle size={11} style={{ display: 'inline', marginRight: 3, verticalAlign: -1 }} />
-                    <span>Falla</span>
+                  <div className="bombeo-badge-top-box">
+                    <span className="callout-dot red" />
+                    <span>BA-04</span>
                   </div>
+                  <div className="bombeo-badge-bottom-box falla">FALLA</div>
                 </div>
 
-                {/* Sump 3D Badge */}
+                {/* Sump 3D Badge (Sumidero with cyan dot) */}
                 <div
                   className="bombeo-3d-sump-badge"
                   style={{ position: 'relative', transform: 'none' }}
                 >
-                  SUMIDERO 85%
+                  <span className="callout-dot cyan" />
+                  <span>SUMIDERO 85%</span>
                 </div>
 
-                {/* Interior Worker 3D Badge with Semi-Transparent Blurred Touch Icon */}
+                {/* Interior Worker 3D Badge (Manuel Reyes) */}
                 <div
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 7,
-                    padding: '4px 10px 4px 5px',
-                    borderRadius: 999,
-                    background: 'rgba(15, 23, 42, 0.86)',
-                    border: '1px solid rgba(56, 189, 248, 0.45)',
-                    color: '#f8fafc',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                    gap: 6,
+                    padding: '4px 10px',
+                    borderRadius: 6,
+                    background: 'rgba(15, 23, 42, 0.75)',
+                    border: '1px solid rgba(255, 255, 255, 0.16)',
+                    color: '#ffffff',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: '0.5px',
+                    textTransform: 'uppercase',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                   }}
                 >
-                  <span
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: '50%',
-                      background: 'rgba(255, 255, 255, 0.18)',
-                      backdropFilter: 'blur(8px)',
-                      WebkitBackdropFilter: 'blur(8px)',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid rgba(255,255,255,0.28)',
-                    }}
-                  >
-                    <User size={12} color="#38bdf8" />
-                  </span>
-                  <span>M. Reyes</span>
+                  <span className="callout-dot green" />
+                  <span>MANUEL REYES</span>
                 </div>
 
                 {/* Simulated Vehicle 3D Badge (Jumbo J-01) */}
                 <div
-                  style={{
-                    display: 'inline-flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    padding: '4px 12px',
-                    borderRadius: 6,
-                    background: 'rgba(15, 23, 42, 0.92)',
-                    border: '1.5px solid #eab308',
-                    color: '#f8fafc',
-                    lineHeight: 1.25,
-                  }}
+                  className="bombeo-3d-badge"
+                  style={{ position: 'relative', transform: 'none' }}
                 >
-                  <span style={{ fontSize: 12, fontWeight: 600 }}>Jumbo J-01</span>
-                  <span style={{ fontSize: 10.5, color: '#94a3b8' }}>Perforación</span>
+                  <div className="bombeo-badge-top-box">
+                    <span className="callout-dot green" />
+                    <span>JUMBO J-01</span>
+                  </div>
+                  <div className="bombeo-badge-bottom-box">PERFORACIÓN</div>
                 </div>
 
-                {/* Surface Worker Marker */}
-                <div className="surface-worker-marker" style={{ marginLeft: 6 }}>
-                  <div className="marker-pulse" />
-                  <div className="marker-dot">
-                    <User size={14} color="#fff" />
-                  </div>
-                  <div className="marker-label">
-                    <b>Juan García</b>
-                    <small>Camión T-01</small>
-                  </div>
+                {/* Surface Worker Marker (Juan García) */}
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 10px',
+                    borderRadius: 6,
+                    background: 'rgba(15, 23, 42, 0.75)',
+                    border: '1px solid rgba(255, 255, 255, 0.16)',
+                    color: '#ffffff',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: '0.5px',
+                    textTransform: 'uppercase',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                  }}
+                >
+                  <span className="callout-dot green" />
+                  <span>JUAN GARCÍA</span>
                 </div>
               </div>
             </div>
@@ -2500,26 +2491,30 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                <div className="evacuacion-alert-card">
-                  <div className="evac-alert-top-row">
-                    <div className="evac-alert-title-group">
-                      <Flame size={16} style={{ color: '#ef4444' }} />
-                      <b style={{ fontSize: 14, color: 'var(--text)' }}>Incendio</b>
-                      <span className="evac-alert-tag-critical">Crítico</span>
+                {/* Incendio homologado exactamente al mismo patrón .auxilio-card */}
+                <div className="auxilio-card">
+                  <div className="auxilio-card-row1">
+                    <span className="auxilio-type-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <Flame size={15} style={{ color: '#ef4444' }} />
+                      <span>Incendio</span>
+                    </span>
+                    <div className="auxilio-status-group">
+                      <span className="auxilio-status-unattended">Sin atender</span>
+                      <span className="auxilio-status-critical">Crítico</span>
                     </div>
-                    <span className="evac-alert-status-pill">Sin atender</span>
                   </div>
-                  <div className="evac-alert-location">Subestación Eléctrica Principal · Nivel 2</div>
-                  <div className="evac-alert-meta">Reportado 14:18 · Humo detectado</div>
-                  <div className="evac-alert-actions">
-                    <button className="evac-action-link-btn" style={{ padding: '4px 10px' }}>
-                      <Check size={14} />
-                      <span>Atender</span>
-                    </button>
-                    <button className="evac-action-link-btn" style={{ padding: '4px 10px' }}>
-                      <CheckCheck size={14} />
-                      <span>Resolver</span>
-                    </button>
+                  <div className="auxilio-card-row2">
+                    <MapPin size={14} className="auxilio-icon" />
+                    <span>Subestación Eléctrica Principal · Nivel 2</span>
+                  </div>
+                  <div className="auxilio-card-row3">
+                    <span>Reportado 14:18</span>
+                    <span>·</span>
+                    <span>Humo detectado</span>
+                  </div>
+                  <div className="auxilio-card-actions">
+                    <button className="auxilio-action-btn">Atender</button>
+                    <button className="auxilio-action-btn">Resolver</button>
                   </div>
                 </div>
               </div>

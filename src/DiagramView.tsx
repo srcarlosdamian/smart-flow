@@ -43,7 +43,6 @@ export default function DiagramView({ theme, zoom, onZoomChange }: Props) {
   const gridColor = isDark ? 'rgba(56, 189, 248, 0.08)' : 'rgba(15, 23, 42, 0.06)'
   const cyanStroke = isDark ? '#38bdf8' : '#0284c7'
   const orangeStroke = isDark ? '#fb923c' : '#ea580c'
-  const nodeFill = isDark ? '#0f2942' : '#ffffff'
   const textColor = isDark ? '#94a3b8' : '#475569'
 
   const scale = zoom / 50
@@ -119,56 +118,7 @@ export default function DiagramView({ theme, zoom, onZoomChange }: Props) {
             <path d="M -50,110 L 30,150 L 100,120 L 140,180 C 110,220 50,210 0,180 Z" />
           </g>
 
-          {/* Topological Nodes (Key Landmarks: Ramps, Shelters, Workshops) */}
-          {[
-            { x: -300, y: -90, label: 'Nivel 1 - Galería Norte', tag: 'N1' },
-            { x: -220, y: -110, label: 'Rampa N1-N2', tag: 'R-01' },
-            { x: -60, y: -80, label: 'Rampa Principal', tag: 'RP' },
-            { x: 140, y: -70, label: 'Nivel 2 - Taller Mecánico', tag: 'N2' },
-            { x: 270, y: 0, label: 'Nivel 3 - Chancador', tag: 'N3', alert: true },
-            { x: 310, y: 150, label: 'Frente de Voladura', tag: 'FV' },
-            { x: -120, y: 130, label: 'Refugio R-02', tag: 'R-02', shelter: true },
-            { x: 70, y: 160, label: 'Nivel 4 - Galería Principal', tag: 'N4' },
-          ].map((node, idx) => (
-            <g key={idx} transform={`translate(${node.x}, ${node.y})`}>
-              <circle
-                r="10"
-                fill={node.shelter ? '#22c55e' : node.alert ? '#ef4444' : cyanStroke}
-                stroke={nodeFill}
-                strokeWidth="2.5"
-              />
-              <text
-                y="3.5"
-                textAnchor="middle"
-                fill="#ffffff"
-                fontSize="9"
-                fontWeight="700"
-                fontFamily="Titillium Web, sans-serif"
-              >
-                {node.tag}
-              </text>
-              <rect
-                x="-55"
-                y="14"
-                width="110"
-                height="18"
-                rx="4"
-                fill={nodeFill}
-                stroke={isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'}
-                strokeWidth="1"
-              />
-              <text
-                y="26.5"
-                textAnchor="middle"
-                fill={textColor}
-                fontSize="9.5"
-                fontWeight="600"
-                fontFamily="Titillium Web, sans-serif"
-              >
-                {node.label}
-              </text>
-            </g>
-          ))}
+          {/* Clean Schematic Line Architecture (Galerías, Rampas y Trazos) */}
         </g>
       </svg>
 
