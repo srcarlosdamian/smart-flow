@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { Sliders, Copy, Check, RotateCcw, X, User, Move } from 'lucide-react'
+import { Sliders, Copy, Check, RotateCcw, X, User, Move, Droplets, Activity, AlertTriangle } from 'lucide-react'
 import type { Theme } from './Scene3D'
 
 export interface Pump3D {
@@ -258,6 +258,7 @@ function createConstructionWorker(worker: WorkerData): THREE.Group {
 
 export default function InteriorBombeoView({
   theme = 'light',
+  onClose,
   selectedPumpId,
   onSelectPump,
   onSelectWorker,
@@ -266,6 +267,7 @@ export default function InteriorBombeoView({
   const [activePump, setActivePump] = useState<string | null>(selectedPumpId || null)
   const [screenCoords, setScreenCoords] = useState<Record<string, { x: number; y: number; visible: boolean }>>({})
   const [workerCoords, setWorkerCoords] = useState<Record<string, { x: number; y: number; visible: boolean }>>({})
+  const [sumpCoord, setSumpCoord] = useState<{ x: number; y: number; visible: boolean } | null>(null)
 
   // Draggable lighting editor state
   const isDark = theme === 'dark'
@@ -532,6 +534,30 @@ export default function InteriorBombeoView({
       scene.add(wg)
     })
 
+    // 5. CONCRETE SUMP PIT & WATER SURFACE (Sumidero 85%)
+    const sumpGroup = new THREE.Group()
+    sumpGroup.position.set(4.6, 0, 2.6)
+    const pitGeo = new THREE.BoxGeometry(3.2, 0.45, 2.8)
+    const pitMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85, metalness: 0.1 })
+    const pitMesh = new THREE.Mesh(pitGeo, pitMat)
+    pitMesh.position.set(0, 0.22, 0)
+    pitMesh.receiveShadow = true
+    sumpGroup.add(pitMesh)
+
+    const waterGeo = new THREE.PlaneGeometry(2.9, 2.5)
+    const waterMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      roughness: 0.1,
+      metalness: 0.5,
+      transparent: true,
+      opacity: 0.85,
+    })
+    const waterMesh = new THREE.Mesh(waterGeo, waterMat)
+    waterMesh.rotation.x = -Math.PI / 2
+    waterMesh.position.set(0, 0.44, 0)
+    sumpGroup.add(waterMesh)
+    scene.add(sumpGroup)
+
     // Raycasting for pump & worker selection on click
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
@@ -604,6 +630,18 @@ export default function InteriorBombeoView({
       })
       setWorkerCoords(newWorkerCoords)
 
+      // Project sump badge position (above sump pit at [4.6, 0.8, 2.6])
+      const sumpWp = new THREE.Vector3(4.6, 0.9, 2.6)
+      sumpWp.project(camera)
+      const isBehindSump = sumpWp.z > 1
+      const sx = (sumpWp.x * 0.5 + 0.5) * width
+      const sy = (-(sumpWp.y * 0.5) + 0.5) * height
+      setSumpCoord({
+        x: sx,
+        y: sy,
+        visible: !isBehindSump && sx > 20 && sx < width - 20 && sy > 20 && sy < height - 20,
+      })
+
       renderer.render(scene, camera)
     }
 
@@ -666,8 +704,27 @@ export default function InteriorBombeoView({
   }
 
   return (
-    <div className="interior-bombeo-container" ref={mountRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* 1. In-Scene 3D Badges projected over pumps */}
+    <div className="interior-bombeo-container" ref={mountRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden' }}>
+      {/* Top Left Room Badge from sketch (image 2) */}
+      <div className="bombeo-top-badge glass">
+        <div className="bombeo-badge-sub">L5 · INTERIOR</div>
+        <div className="bombeo-badge-title">
+          <Droplets size={16} className="bombeo-badge-icon" />
+          <span>Sala de bombeo SB-01</span>
+        </div>
+      </div>
+
+      {/* Top Right Close Button */}
+      <button
+        className="bombeo-close-btn glass"
+        onClick={onClose}
+        title="Salir de la sala"
+        aria-label="Cerrar"
+      >
+        <X size={18} />
+      </button>
+
+      {/* 1. In-Scene 3D Badges projected over pumps (image 2) */}
       {PUMPS.map((pump) => {
         const coord = screenCoords[pump.id]
         if (!coord || !coord.visible) return null
@@ -676,7 +733,7 @@ export default function InteriorBombeoView({
         return (
           <div
             key={pump.id}
-            className={`bombeo-pump-3d-badge ${isSelected ? 'active' : ''} ${pump.status === 'falla' ? 'error' : ''}`}
+            className={`bombeo-3d-badge ${pump.status} ${isSelected ? 'selected' : ''}`}
             style={{
               left: `${coord.x}px`,
               top: `${coord.y}px`,
@@ -687,13 +744,35 @@ export default function InteriorBombeoView({
               onSelectPump?.(pump.id)
             }}
           >
-            <span className="pump-badge-name">{pump.name}</span>
-            <span className="pump-badge-flow">
-              {pump.status === 'marcha' ? pump.flow : pump.status === 'reserva' ? 'Reserva' : 'Falla'}
-            </span>
+            <div className="bombeo-badge-top-box">{pump.name}</div>
+            {pump.status === 'marcha' && (
+              <div className="bombeo-badge-bottom-box">{pump.flow}</div>
+            )}
+            {pump.status === 'reserva' && (
+              <div className="bombeo-badge-bottom-box reserva">Reserva</div>
+            )}
+            {pump.status === 'falla' && (
+              <div className="bombeo-badge-bottom-box falla">
+                <AlertTriangle size={11} style={{ display: 'inline', marginRight: 3, verticalAlign: -1 }} />
+                <span>Falla</span>
+              </div>
+            )}
           </div>
         )
       })}
+
+      {/* Sump 3D Badge (image 2) */}
+      {sumpCoord && sumpCoord.visible && (
+        <div
+          className="bombeo-3d-sump-badge"
+          style={{
+            left: `${sumpCoord.x}px`,
+            top: `${sumpCoord.y}px`,
+          }}
+        >
+          SUMIDERO 85%
+        </div>
+      )}
 
       {/* 2. In-Scene 3D Badges projected over Construction Workers */}
       {WORKERS_DATA.map((w) => {
@@ -752,6 +831,45 @@ export default function InteriorBombeoView({
         )
       })}
 
+      {/* Bottom KPI strip (image 2) */}
+      <div className="bombeo-bottom-kpi-strip glass">
+        <div className="bombeo-strip-item">
+          <Droplets size={16} style={{ color: '#00b0ff' }} />
+          <div className="strip-text">
+            <span className="strip-lbl">NIVEL SUMIDERO</span>
+            <span className="strip-val" style={{ color: '#ef4444' }}>85%</span>
+          </div>
+        </div>
+        <div className="bombeo-strip-divider" />
+        <div className="bombeo-strip-item">
+          <span className="strip-dot green" />
+          <div className="strip-text">
+            <span className="strip-lbl">EN MARCHA</span>
+            <span className="strip-val" style={{ color: '#00e676' }}>3 / 4</span>
+          </div>
+        </div>
+        <div className="bombeo-strip-divider" />
+        <div className="bombeo-strip-item">
+          <Activity size={16} style={{ color: '#00b0ff' }} />
+          <div className="strip-text">
+            <span className="strip-lbl">CAUDAL TOTAL</span>
+            <span className="strip-val">157 L/s</span>
+          </div>
+        </div>
+        <div className="bombeo-strip-divider" />
+        <div className="bombeo-strip-item clickable" onClick={() => onSelectPump?.('BA-04')}>
+          <AlertTriangle size={16} style={{ color: '#ef4444' }} />
+          <div className="strip-text">
+            <span className="strip-lbl">EN FALLA</span>
+            <span className="strip-val" style={{ color: '#ef4444' }}>1</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bombeo-bottom-hint">
+        Arrastra para girar · rueda para acercar · clic en una bomba
+      </div>
+
       {/* 3. Bottom-Left Trigger for Lighting & Color Editor */}
       {!editorOpen && (
         <button
@@ -759,8 +877,8 @@ export default function InteriorBombeoView({
           onClick={() => setEditorOpen(true)}
           style={{
             position: 'absolute',
-            bottom: 24,
-            left: 20,
+            bottom: 84,
+            left: 24,
             zIndex: 40,
             display: 'flex',
             alignItems: 'center',

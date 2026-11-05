@@ -237,6 +237,20 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   right: 356px;
 }
 
+.app.in-interior .right-col {
+  top: 18px !important;
+  right: 18px !important;
+  width: 326px !important;
+  max-height: calc(100vh - 36px) !important;
+  z-index: 50 !important;
+}
+
+.app.in-interior .panel {
+  max-height: calc(100vh - 40px) !important;
+  overflow-y: auto !important;
+  padding: 14px 16px !important;
+}
+
 .nexo-bar-wrap {
   position: relative; width: 100%;
 }
@@ -3154,67 +3168,81 @@ select option {
 .bombeo-3d-badge {
   position: absolute;
   transform: translate(-50%, -100%);
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(6px);
-  border: 2px solid #334155;
-  color: #f8fafc;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  z-index: 8;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  transition: all 0.15s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-  pointer-events: auto;
+  gap: 3px;
+  cursor: pointer;
+  z-index: 12;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  user-select: none;
 }
 
 .bombeo-3d-badge:hover,
 .bombeo-3d-badge.selected {
   transform: translate(-50%, -105%) scale(1.08);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
 }
 
-.bombeo-3d-badge.marcha {
+.bombeo-badge-top-box {
+  background: #0b1320;
+  border: 1.5px solid #334155;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.bombeo-3d-badge.marcha .bombeo-badge-top-box {
   border-color: #00e676;
 }
 
-.bombeo-3d-badge.marcha .badge-flow {
-  color: #00e676;
+.bombeo-badge-bottom-box {
+  background: rgba(11, 19, 32, 0.95);
+  border: 1.5px solid #00e676;
+  border-radius: 5px;
+  padding: 2px 8px;
   font-size: 11px;
+  font-weight: 700;
+  color: #00e676;
+  box-shadow: 0 2px 8px rgba(0, 230, 118, 0.25);
 }
 
-.bombeo-3d-badge.falla {
+.bombeo-badge-bottom-box.reserva {
+  border-color: #64748b;
+  color: #94a3b8;
+}
+
+.bombeo-3d-badge.falla .bombeo-badge-top-box {
+  background: #450a0a;
   border-color: #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
 }
 
-.bombeo-3d-badge.falla .badge-alarm {
+.bombeo-badge-bottom-box.falla {
+  border-color: #ef4444;
   color: #ef4444;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  animation: pulse 1.5s infinite;
 }
 
 .bombeo-3d-sump-badge {
   position: absolute;
   transform: translate(-50%, -50%);
-  padding: 4px 12px;
+  background: #06182a;
+  border: 2px solid #00e5ff;
   border-radius: 6px;
-  background: rgba(2, 132, 199, 0.9);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
   color: #ffffff;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.5);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.55), inset 0 0 8px rgba(0, 229, 255, 0.2);
+  z-index: 12;
+  user-select: none;
   pointer-events: none;
-  z-index: 8;
 }
 
 .bombeo-bottom-hint {
