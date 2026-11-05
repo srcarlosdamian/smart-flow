@@ -13,9 +13,231 @@ import * as THREE from 'three'
  * 7. Movimiento de personal: Floating worker avatars with trailing displacement ribbons (estelas de desplazamiento).
  */
 
+export interface SimEntity {
+  id: string
+  name: string
+  type: 'worker' | 'vehicle'
+  tag: string
+  role: string
+  turno: string
+  ingreso: string
+  zona: string
+  velocidad: string
+  bateria: string
+  ultimoPunto: string
+  routeIndex: number
+  color: string
+}
+
+export const SIM_ENTITIES: SimEntity[] = [
+  {
+    id: 'sim-worker-1',
+    name: 'Victor Navarro',
+    type: 'worker',
+    tag: 'Trabajador',
+    role: 'Operador',
+    turno: 'Turno A (06:00 - 18:00)',
+    ingreso: '06:15',
+    zona: 'Nivel 3 - Sector B',
+    velocidad: '4 km/h',
+    bateria: '78%',
+    ultimoPunto: 'CP-07 (14:22)',
+    routeIndex: 0,
+    color: '#00e676',
+  },
+  {
+    id: 'sim-vehicle-1',
+    name: 'Jumbo J-01',
+    type: 'vehicle',
+    tag: 'Vehículo',
+    role: 'Perforación',
+    turno: 'Turno A (06:00 - 18:00)',
+    ingreso: '06:00',
+    zona: 'Nivel 2 - Rampa Sur',
+    velocidad: '8 km/h',
+    bateria: '85%',
+    ultimoPunto: 'CP-03 (14:15)',
+    routeIndex: 1,
+    color: '#eab308',
+  },
+  {
+    id: 'sim-worker-2',
+    name: 'Manuel Reyes',
+    type: 'worker',
+    tag: 'Trabajador',
+    role: 'Operador mecánico',
+    turno: 'Turno A (06:00 - 18:00)',
+    ingreso: '06:30',
+    zona: 'Nivel 3 - Sector B',
+    velocidad: '3.6 km/h',
+    bateria: '92%',
+    ultimoPunto: 'CP-05 (14:18)',
+    routeIndex: 2,
+    color: '#00e676',
+  },
+  {
+    id: 'sim-vehicle-2',
+    name: 'Camión T-01',
+    type: 'vehicle',
+    tag: 'Vehículo',
+    role: 'Acarreo',
+    turno: 'Turno A (06:00 - 18:00)',
+    ingreso: '06:15',
+    zona: 'Nivel 3 - Sector B',
+    velocidad: '12 km/h',
+    bateria: '78%',
+    ultimoPunto: 'CP-07 (14:22)',
+    routeIndex: 3,
+    color: '#f59e0b',
+  },
+  {
+    id: 'sim-vehicle-3',
+    name: 'Scoop ST-02',
+    type: 'vehicle',
+    tag: 'Vehículo',
+    role: 'Carga',
+    turno: 'Turno A (06:00 - 18:00)',
+    ingreso: '06:00',
+    zona: 'Nivel 4 - Galería 12',
+    velocidad: '10 km/h',
+    bateria: '88%',
+    ultimoPunto: 'CP-09 (14:10)',
+    routeIndex: 4,
+    color: '#f97316',
+  },
+]
+
+function create3DMiningVehicle(entity: SimEntity): THREE.Group {
+  const g = new THREE.Group()
+  g.userData = { isSimEntity: true, entity }
+
+  // Yellow chassis
+  const chassisMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.35, metalness: 0.15 })
+  const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.55, 2.2), chassisMat)
+  chassis.position.set(0, 0.45, 0)
+  g.add(chassis)
+
+  // Cab / Canopy (Dark gray)
+  const cabMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 })
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.55, 0.8), cabMat)
+  cab.position.set(0, 0.9, -0.4)
+  g.add(cab)
+
+  // Steering wheel detail
+  const wheelDetail = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 8, 16), cabMat)
+  wheelDetail.rotation.x = Math.PI / 4
+  wheelDetail.position.set(0.18, 0.95, -0.45)
+  g.add(wheelDetail)
+
+  // 4 Wheels
+  const tireMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 })
+  const tireGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.28, 16)
+  const wheelPositions: [number, number, number][] = [
+    [-0.68, 0.32, 0.65],
+    [0.68, 0.32, 0.65],
+    [-0.68, 0.32, -0.65],
+    [0.68, 0.32, -0.65],
+  ]
+  wheelPositions.forEach((pos) => {
+    const tire = new THREE.Mesh(tireGeo, tireMat)
+    tire.rotation.z = Math.PI / 2
+    tire.position.set(...pos)
+    g.add(tire)
+  })
+
+  // Vehicle equipment
+  if (entity.name.includes('Jumbo')) {
+    const boomGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.8, 10)
+    const boom = new THREE.Mesh(boomGeo, cabMat)
+    boom.rotation.x = Math.PI / 2 - 0.15
+    boom.position.set(0, 0.75, 1.3)
+    g.add(boom)
+  } else if (entity.name.includes('Scoop')) {
+    const bucketGeo = new THREE.BoxGeometry(1.2, 0.5, 0.7)
+    const bucket = new THREE.Mesh(bucketGeo, chassisMat)
+    bucket.position.set(0, 0.35, 1.3)
+    g.add(bucket)
+  } else {
+    // Haul truck bed
+    const bedGeo = new THREE.BoxGeometry(1.15, 0.45, 1.0)
+    const bed = new THREE.Mesh(bedGeo, chassisMat)
+    bed.position.set(0, 0.7, 0.5)
+    g.add(bed)
+  }
+
+  g.scale.set(0.75, 0.75, 0.75)
+  return g
+}
+
+function create3DWorkerModel(entity: SimEntity): THREE.Group {
+  const g = new THREE.Group()
+  g.userData = { isSimEntity: true, entity }
+
+  // Hard Hat (Yellow)
+  const hatMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.35 })
+  const hatDome = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hatMat)
+  hatDome.position.set(0, 1.45, 0)
+  g.add(hatDome)
+  const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.03, 16), hatMat)
+  brim.position.set(0, 1.42, 0)
+  g.add(brim)
+
+  // Head (Flesh)
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xf5cba7, roughness: 0.6 })
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), headMat)
+  head.position.set(0, 1.35, 0)
+  g.add(head)
+
+  // Torso / Orange Safety Vest with silver stripes
+  const vestMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.5 })
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.2, 0.55, 16), vestMat)
+  torso.position.set(0, 0.95, 0)
+  g.add(torso)
+
+  // Blue patch/pants & walking legs
+  const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
+  const legGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.55, 12)
+  const leftLeg = new THREE.Mesh(legGeo, pantsMat)
+  leftLeg.position.set(-0.11, 0.42, 0.1)
+  leftLeg.rotation.x = 0.25
+  g.add(leftLeg)
+
+  const rightLeg = new THREE.Mesh(legGeo, pantsMat)
+  rightLeg.position.set(0.11, 0.42, -0.1)
+  rightLeg.rotation.x = -0.25
+  g.add(rightLeg)
+
+  // Boots
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 })
+  const leftBoot = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.2), bootMat)
+  leftBoot.position.set(-0.11, 0.1, 0.15)
+  g.add(leftBoot)
+
+  const rightBoot = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.2), bootMat)
+  rightBoot.position.set(0.11, 0.1, -0.15)
+  g.add(rightBoot)
+
+  // Glowing Green Highlight Ring at feet (matching media_1793839145768_d43bd7da.png)
+  const ringGeo = new THREE.RingGeometry(0.45, 0.65, 24)
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0x00e676,
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.8,
+  })
+  const ring = new THREE.Mesh(ringGeo, ringMat)
+  ring.rotation.x = -Math.PI / 2
+  ring.position.set(0, 0.02, 0)
+  g.add(ring)
+
+  g.scale.set(0.85, 0.85, 0.85)
+  return g
+}
+
 export interface SimulationsController {
   group: THREE.Group
   update: (time: number, activeSimulations: string[]) => void
+  getEntities: () => { mesh: THREE.Group; entity: SimEntity }[]
   dispose: () => void
 }
 
@@ -495,64 +717,26 @@ export function createSimulations(scene: THREE.Scene): SimulationsController {
     ]),
   ]
 
-  interface WorkerAvatar {
-    avatarMesh: THREE.Mesh
-    haloMesh: THREE.Mesh
-    trailLine: THREE.Line
-    trailGeo: THREE.BufferGeometry
+  interface SimAvatar {
+    mesh: THREE.Group
     route: THREE.CatmullRomCurve3
+    entity: SimEntity
     t: number
     speed: number
-    history: THREE.Vector3[]
   }
-  const workerAvatars: WorkerAvatar[] = []
+  const simAvatars: SimAvatar[] = []
 
-  const avatarGeo = new THREE.SphereGeometry(0.42, 12, 12)
-  const avatarHaloGeo = new THREE.RingGeometry(0.55, 0.75, 16)
+  SIM_ENTITIES.forEach((ent, idx) => {
+    const route = workerRoutes[ent.routeIndex % workerRoutes.length]
+    const mesh = ent.type === 'vehicle' ? create3DMiningVehicle(ent) : create3DWorkerModel(ent)
+    personalGroup.add(mesh)
 
-  workerRoutes.forEach((route, idx) => {
-    // Floating avatar head
-    const mat = new THREE.MeshBasicMaterial({ color: 0x00e676 })
-    const avatar = new THREE.Mesh(avatarGeo, mat)
-    personalGroup.add(avatar)
-
-    // Pulsing halo disc under worker
-    const haloMat = new THREE.MeshBasicMaterial({
-      color: 0x00e676,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.6,
-    })
-    const halo = new THREE.Mesh(avatarHaloGeo, haloMat)
-    halo.rotation.x = Math.PI / 2
-    personalGroup.add(halo)
-
-    // Trailing ribbon wake (estela de desplazamiento)
-    const TRAIL_LENGTH = 20
-    const history: THREE.Vector3[] = []
-    const startPt = route.getPointAt(0)
-    for (let k = 0; k < TRAIL_LENGTH; k++) {
-      history.push(startPt.clone())
-    }
-    const trailGeo = new THREE.BufferGeometry().setFromPoints(history)
-    const trailMat = new THREE.LineBasicMaterial({
-      color: 0x00e676,
-      transparent: true,
-      opacity: 0.7,
-      linewidth: 2,
-    })
-    const trailLine = new THREE.Line(trailGeo, trailMat)
-    personalGroup.add(trailLine)
-
-    workerAvatars.push({
-      avatarMesh: avatar,
-      haloMesh: halo,
-      trailLine,
-      trailGeo,
+    simAvatars.push({
+      mesh,
       route,
+      entity: ent,
       t: (idx * 0.22) % 1,
-      speed: 0.08 + idx * 0.02,
-      history,
+      speed: ent.type === 'vehicle' ? 0.045 : 0.03,
     })
   })
 
@@ -657,29 +841,30 @@ export function createSimulations(scene: THREE.Scene): SimulationsController {
       epicenter.scale.setScalar(1 + 0.15 * Math.sin(time * 8))
     }
 
-    // 7. Update Personnel movement avatars & trailing wakes
+    // 7. Update Personnel & Vehicles movement along tunnel lines
     if (hasPersonal) {
-      workerAvatars.forEach((w) => {
-        // Back-and-forth ping-pong movement along tunnel route
-        const cycle = (time * w.speed + w.t) % 2
+      simAvatars.forEach((av) => {
+        const cycle = (time * av.speed + av.t) % 2
         const progress = cycle > 1 ? 2 - cycle : cycle
-        const pos = w.route.getPointAt(progress)
+        const pos = av.route.getPointAt(progress)
+        const nextT = Math.min(1, Math.max(0, progress + (cycle > 1 ? -0.01 : 0.01)))
+        const nextPos = av.route.getPointAt(nextT)
 
-        w.avatarMesh.position.copy(pos)
-        w.haloMesh.position.set(pos.x, pos.y - 0.45, pos.z)
-        w.haloMesh.scale.setScalar(1 + 0.15 * Math.sin(time * 5 + w.t))
-
-        // Update trailing wake history
-        w.history.unshift(pos.clone())
-        w.history.pop()
-        w.trailGeo.setFromPoints(w.history)
+        av.mesh.position.copy(pos)
+        if (pos.distanceTo(nextPos) > 0.01) {
+          av.mesh.lookAt(nextPos)
+        }
       })
     }
+  }
+
+  const getEntities = () => {
+    return simAvatars.map((av) => ({ mesh: av.mesh, entity: av.entity }))
   }
 
   const dispose = () => {
     scene.remove(masterGroup)
   }
 
-  return { group: masterGroup, update, dispose }
+  return { group: masterGroup, update, getEntities, dispose }
 }

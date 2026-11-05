@@ -1,88 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { X, AlertTriangle, Droplets, ChevronLeft, ShieldCheck, Wrench, Mountain } from 'lucide-react'
-import { NexoLogo } from './App'
+import { Sliders, Copy, Check, RotateCcw, X, User, Move } from 'lucide-react'
 import type { Theme } from './Scene3D'
 
-interface Props {
-  roomId?: string | null
-  theme?: Theme
-  onClose: () => void
-  selectedPumpId?: string | null
-  onSelectPump?: (id: string) => void
-  onAskNexo?: (query: string) => void
-}
-
-const ROOM_INFO: Record<string, {
-  level: string
-  title: string
-  icon: any
-  iconColor: string
-  nexoPill: string
-  nexoQuery: string
-  kpis: { label: string; val: string; unit?: string; status?: string }[]
-}> = {
-  refugio: {
-    level: 'L5 · INTERIOR',
-    title: 'Refugio R-01',
-    icon: ShieldCheck,
-    iconColor: '#00e676',
-    nexoPill: 'Nexo IA: Enlace activo y 69h O₂',
-    nexoQuery: '¿Cuál es la autonomía de oxígeno en Refugio R-01?',
-    kpis: [
-      { label: 'OCUPACIÓN', val: '1 / 12', unit: 'personas' },
-      { label: 'AUTONOMÍA O₂', val: '69', unit: 'h', status: 'green' },
-      { label: 'COMUNICACIÓN', val: 'Enlace activo', status: 'green' },
-      { label: 'ÚLTIMA INSPECCIÓN', val: '2026-07-11' },
-    ],
-  },
-  taller: {
-    level: 'L2 · INTERIOR',
-    title: 'Taller mecánico TM-01',
-    icon: Wrench,
-    iconColor: '#ffb300',
-    nexoPill: 'Nexo IA: 2 órdenes en proceso',
-    nexoQuery: 'Personal y técnicos en Taller Mecánico',
-    kpis: [
-      { label: 'ÓRDENES ACTIVAS', val: '2', unit: 'activas' },
-      { label: 'BAHÍAS OCUPADAS', val: '2 / 2', status: 'green' },
-      { label: 'TÉCNICOS EN TURNO', val: '4' },
-      { label: 'HORAS PENDIENTES', val: '29', unit: 'h' },
-    ],
-  },
-  chancador: {
-    level: 'L3 · INTERIOR',
-    title: 'Chancador primario CH-01',
-    icon: Mountain,
-    iconColor: '#ff5722',
-    nexoPill: 'Nexo IA: Monitoreo de chancado L3',
-    nexoQuery: 'Monitoreo de vibración y carga en Chancador CH-01',
-    kpis: [
-      { label: 'NIVEL DE TOLVA', val: '78%' },
-      { label: 'ESTADO MOTOR', val: 'En marcha', status: 'green' },
-      { label: 'VIBRACIÓN', val: '2.1', unit: 'mm/s' },
-      { label: 'TEMPERATURA', val: '64', unit: '°C' },
-    ],
-  },
-  bombeo: {
-    level: 'L5 · INTERIOR',
-    title: 'Sala de bombeo SB-01',
-    icon: Droplets,
-    iconColor: '#00b0ff',
-    nexoPill: 'Nexo IA: 1 alerta en BA-04',
-    nexoQuery: '¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?',
-    kpis: [
-      { label: 'NIVEL SUMIDERO', val: '64%' },
-      { label: 'EN MARCHA', val: '2 / 4', status: 'green' },
-      { label: 'CAUDAL TOTAL', val: '152', unit: 'L/s' },
-      { label: 'EN FALLA', val: '1', status: 'red' },
-    ],
-  },
-}
-
-interface Pump3D {
+export interface Pump3D {
   id: string
   name: string
   flow: string
@@ -95,41 +17,356 @@ interface Pump3D {
   pos: [number, number, number]
 }
 
-const PUMPS: Pump3D[] = [
+export interface WorkerData {
+  id: string
+  name: string
+  tag: string
+  role: string
+  turno: string
+  ingreso: string
+  zona: string
+  velocidad: string
+  bateria: string
+  ultimoPunto: string
+  pos: [number, number, number]
+  rotY: number
+}
+
+export const PUMPS: Pump3D[] = [
   { id: 'BA-01', name: 'BA-01', flow: '78 L/s', pressure: '12.4 bar', temp: '62°C', hours: '3120 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-6, 0, 0] },
   { id: 'BA-02', name: 'BA-02', flow: '74 L/s', pressure: '11.9 bar', temp: '59°C', hours: '2870 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-2, 0, 0] },
-  { id: 'BA-03', name: 'BA-03', flow: '0 L/s', pressure: '0.0 bar', temp: '24°C', hours: '1490 h', status: 'reserva', color: '#94a3b8', statusText: 'Reserva', pos: [2, 0, 0] },
+  { id: 'BA-03', name: 'BA-03', flow: '0 L/s', pressure: '0.0 bar', temp: '24°C', hours: '1490 h', status: 'reserva', color: '#94a3b8', statusText: 'En reserva', pos: [2, 0, 0] },
   { id: 'BA-04', name: 'BA-04', flow: '0 L/s', pressure: '0.0 bar', temp: '81°C', hours: '4650 h', status: 'falla', color: '#ef4444', statusText: 'Falla', pos: [6, 0, 0] },
 ]
 
-export default function InteriorBombeoView({ roomId = 'bombeo', theme = 'light', onClose, selectedPumpId, onSelectPump, onAskNexo }: Props) {
+export const WORKERS_DATA: WorkerData[] = [
+  {
+    id: 'W-01',
+    name: 'Victor Navarro',
+    tag: 'Trabajador',
+    role: 'Operador',
+    turno: 'Turno A (06:00 - 18:00)',
+    ingreso: '06:15',
+    zona: 'Sala de bombeo SB-01 (L5)',
+    velocidad: '4 km/h',
+    bateria: '78%',
+    ultimoPunto: 'CP-07 (14:22)',
+    pos: [-3.8, 0, 3.2],
+    rotY: 0.35,
+  },
+  {
+    id: 'W-02',
+    name: 'Manuel Reyes',
+    tag: 'Trabajador',
+    role: 'Operador mecánico',
+    turno: 'Turno A (06:00 - 18:00)',
+    ingreso: '06:30',
+    zona: 'Sala de bombeo SB-01 (L5)',
+    velocidad: '3.6 km/h',
+    bateria: '92%',
+    ultimoPunto: 'CP-05 (14:18)',
+    pos: [3.6, 0, 2.6],
+    rotY: -0.5,
+  },
+]
+
+export interface LightingConfig {
+  bgColor: string
+  fogDensity: number
+  floorColor: string
+  floorRoughness: number
+  floorMetalness: number
+  ambientColor: string
+  ambientIntensity: number
+  hemiSkyColor: string
+  hemiGroundColor: string
+  hemiIntensity: number
+  dirColor: string
+  dirIntensity: number
+  dirX: number
+  dirY: number
+  dirZ: number
+  fillColor: string
+  fillIntensity: number
+  lampIntensity: number
+  pipeColor: string
+}
+
+const DEFAULT_LIGHTING_DARK: LightingConfig = {
+  bgColor: '#08111e',
+  fogDensity: 0.016,
+  floorColor: '#0b1626',
+  floorRoughness: 0.82,
+  floorMetalness: 0.12,
+  ambientColor: '#8da2be',
+  ambientIntensity: 1.4,
+  hemiSkyColor: '#607d8b',
+  hemiGroundColor: '#101827',
+  hemiIntensity: 1.1,
+  dirColor: '#f8fafc',
+  dirIntensity: 1.6,
+  dirX: 10,
+  dirY: 16,
+  dirZ: 12,
+  fillColor: '#0284c7',
+  fillIntensity: 0.9,
+  lampIntensity: 1.5,
+  pipeColor: '#cbd5e1',
+}
+
+const DEFAULT_LIGHTING_LIGHT: LightingConfig = {
+  bgColor: '#eef2f6',
+  fogDensity: 0.012,
+  floorColor: '#e2e8f0',
+  floorRoughness: 0.65,
+  floorMetalness: 0.05,
+  ambientColor: '#ffffff',
+  ambientIntensity: 1.8,
+  hemiSkyColor: '#ffffff',
+  hemiGroundColor: '#cbd5e1',
+  hemiIntensity: 1.3,
+  dirColor: '#ffffff',
+  dirIntensity: 1.8,
+  dirX: 10,
+  dirY: 16,
+  dirZ: 12,
+  fillColor: '#38bdf8',
+  fillIntensity: 0.8,
+  lampIntensity: 1.2,
+  pipeColor: '#ffffff',
+}
+
+interface Props {
+  roomId?: string | null
+  theme?: Theme
+  onClose?: () => void
+  selectedPumpId?: string | null
+  onSelectPump?: (id: string) => void
+  onSelectWorker?: (worker: WorkerData) => void
+  onAskNexo?: (query: string) => void
+}
+
+/**
+ * Creates a procedural 3D construction worker figure matching reference screenshot.
+ * Features yellow hard hat, flesh head, high-vis orange vest, dark pants & boots in walking step pose.
+ */
+function createConstructionWorker(worker: WorkerData): THREE.Group {
+  const g = new THREE.Group()
+  g.position.set(...worker.pos)
+  g.rotation.y = worker.rotY
+  g.userData = { isWorker: true, workerId: worker.id, workerData: worker }
+
+  // 1. Hard Hat (Yellow with wide brim matching reference screenshot)
+  const hatColor = 0xf59e0b
+  const hatMat = new THREE.MeshStandardMaterial({ color: hatColor, roughness: 0.35, metalness: 0.1 })
+  const hatDome = new THREE.Mesh(new THREE.SphereGeometry(0.25, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.55), hatMat)
+  hatDome.position.set(0, 1.52, 0)
+  g.add(hatDome)
+
+  const brimGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.035, 24)
+  const brim = new THREE.Mesh(brimGeo, hatMat)
+  brim.position.set(0, 1.50, 0)
+  g.add(brim)
+
+  // 2. Head (Flesh tone)
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xf5cba7, roughness: 0.6 })
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.21, 20, 20), headMat)
+  head.position.set(0, 1.42, 0)
+  g.add(head)
+
+  // 3. Torso / High-Vis Safety Vest (Orange with silver reflective horizontal bands)
+  const vestMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.5 })
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.23, 0.62, 20), vestMat)
+  torso.position.set(0, 0.98, 0)
+  g.add(torso)
+
+  // Silver reflective stripes
+  const stripeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.25, metalness: 0.5 })
+  const stripeTop = new THREE.Mesh(new THREE.CylinderGeometry(0.265, 0.265, 0.06, 20), stripeMat)
+  stripeTop.position.set(0, 1.08, 0)
+  g.add(stripeTop)
+
+  const stripeMid = new THREE.Mesh(new THREE.CylinderGeometry(0.255, 0.255, 0.06, 20), stripeMat)
+  stripeMid.position.set(0, 0.92, 0)
+  g.add(stripeMid)
+
+  // Waist belt
+  const beltMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 })
+  const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.08, 20), beltMat)
+  belt.position.set(0, 0.66, 0)
+  g.add(belt)
+
+  // 4. Arms (Walking swing pose)
+  const armGeo = new THREE.CylinderGeometry(0.075, 0.065, 0.52, 12)
+  const handMat = headMat
+
+  // Left arm forward
+  const leftArmGroup = new THREE.Group()
+  leftArmGroup.position.set(-0.32, 1.15, 0)
+  leftArmGroup.rotation.x = -0.35
+  const leftArm = new THREE.Mesh(armGeo, vestMat)
+  leftArm.position.set(0, -0.22, 0)
+  leftArmGroup.add(leftArm)
+  const leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 12), handMat)
+  leftHand.position.set(0, -0.48, 0)
+  leftArmGroup.add(leftHand)
+  g.add(leftArmGroup)
+
+  // Right arm back
+  const rightArmGroup = new THREE.Group()
+  rightArmGroup.position.set(0.32, 1.15, 0)
+  rightArmGroup.rotation.x = 0.35
+  const rightArm = new THREE.Mesh(armGeo, vestMat)
+  rightArm.position.set(0, -0.22, 0)
+  rightArmGroup.add(rightArm)
+  const rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 12), handMat)
+  rightHand.position.set(0, -0.48, 0)
+  rightArmGroup.add(rightHand)
+  g.add(rightArmGroup)
+
+  // 5. Legs (Navy blue trousers in natural walking step pose)
+  const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
+  const legGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.62, 14)
+
+  // Left leg forward
+  const leftLegGroup = new THREE.Group()
+  leftLegGroup.position.set(-0.13, 0.62, 0)
+  leftLegGroup.rotation.x = 0.32
+  const leftLeg = new THREE.Mesh(legGeo, pantsMat)
+  leftLeg.position.set(0, -0.28, 0)
+  leftLegGroup.add(leftLeg)
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.85 })
+  const leftBoot = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.1, 0.22), bootMat)
+  leftBoot.position.set(0, -0.58, 0.04)
+  leftLegGroup.add(leftBoot)
+  g.add(leftLegGroup)
+
+  // Right leg back
+  const rightLegGroup = new THREE.Group()
+  rightLegGroup.position.set(0.13, 0.62, 0)
+  rightLegGroup.rotation.x = -0.32
+  const rightLeg = new THREE.Mesh(legGeo, pantsMat)
+  rightLeg.position.set(0, -0.28, 0)
+  rightLegGroup.add(rightLeg)
+  const rightBoot = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.1, 0.22), bootMat)
+  rightBoot.position.set(0, -0.58, 0.04)
+  rightLegGroup.add(rightBoot)
+  g.add(rightLegGroup)
+
+  return g
+}
+
+export default function InteriorBombeoView({
+  theme = 'light',
+  selectedPumpId,
+  onSelectPump,
+  onSelectWorker,
+}: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
   const [activePump, setActivePump] = useState<string | null>(selectedPumpId || null)
   const [screenCoords, setScreenCoords] = useState<Record<string, { x: number; y: number; visible: boolean }>>({})
-  const [sumpCoords, setSumpCoords] = useState<{ x: number; y: number; visible: boolean }>({ x: 0, y: 0, visible: false })
+  const [workerCoords, setWorkerCoords] = useState<Record<string, { x: number; y: number; visible: boolean }>>({})
 
-  const room = ROOM_INFO[roomId || 'bombeo'] || ROOM_INFO.bombeo
-  const RoomIcon = room.icon
+  // Draggable lighting editor state
+  const isDark = theme === 'dark'
+  const [editorOpen, setEditorOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [cfg, setCfg] = useState<LightingConfig>(isDark ? DEFAULT_LIGHTING_DARK : DEFAULT_LIGHTING_LIGHT)
+  const [editorPos, setEditorPos] = useState({ x: 20, y: 120 })
+  const dragRef = useRef<{ isDragging: boolean; startX: number; startY: number; origX: number; origY: number }>({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    origX: 20,
+    origY: 120,
+  })
+
+  // Three.js object references for real-time live updates
+  const sceneRef = useRef<THREE.Scene | null>(null)
+  const ambLightRef = useRef<THREE.AmbientLight | null>(null)
+  const hemiLightRef = useRef<THREE.HemisphereLight | null>(null)
+  const dirLightRef = useRef<THREE.DirectionalLight | null>(null)
+  const fillLightRef = useRef<THREE.DirectionalLight | null>(null)
+  const floorMatRef = useRef<THREE.MeshStandardMaterial | null>(null)
+  const clayMatRef = useRef<THREE.MeshStandardMaterial | null>(null)
+  const orbLightsRef = useRef<THREE.PointLight[]>([])
 
   useEffect(() => {
     if (selectedPumpId) setActivePump(selectedPumpId)
   }, [selectedPumpId])
 
+  // Update theme defaults when theme prop changes
+  useEffect(() => {
+    setCfg(theme === 'dark' ? DEFAULT_LIGHTING_DARK : DEFAULT_LIGHTING_LIGHT)
+  }, [theme])
+
+  // Live update Three.js scene when config changes
+  useEffect(() => {
+    if (!sceneRef.current) return
+    const sc = sceneRef.current
+
+    // Background & Fog
+    const bgCol = new THREE.Color(cfg.bgColor)
+    sc.background = bgCol
+    if (sc.fog) {
+      sc.fog.color = bgCol
+      ;(sc.fog as THREE.FogExp2).density = cfg.fogDensity
+    }
+
+    // Floor Material
+    if (floorMatRef.current) {
+      floorMatRef.current.color = new THREE.Color(cfg.floorColor)
+      floorMatRef.current.roughness = cfg.floorRoughness
+      floorMatRef.current.metalness = cfg.floorMetalness
+    }
+
+    // Pipe Clay Material
+    if (clayMatRef.current) {
+      clayMatRef.current.color = new THREE.Color(cfg.pipeColor)
+    }
+
+    // Lights
+    if (ambLightRef.current) {
+      ambLightRef.current.color = new THREE.Color(cfg.ambientColor)
+      ambLightRef.current.intensity = cfg.ambientIntensity
+    }
+    if (hemiLightRef.current) {
+      hemiLightRef.current.color = new THREE.Color(cfg.hemiSkyColor)
+      hemiLightRef.current.groundColor = new THREE.Color(cfg.hemiGroundColor)
+      hemiLightRef.current.intensity = cfg.hemiIntensity
+    }
+    if (dirLightRef.current) {
+      dirLightRef.current.color = new THREE.Color(cfg.dirColor)
+      dirLightRef.current.intensity = cfg.dirIntensity
+      dirLightRef.current.position.set(cfg.dirX, cfg.dirY, cfg.dirZ)
+    }
+    if (fillLightRef.current) {
+      fillLightRef.current.color = new THREE.Color(cfg.fillColor)
+      fillLightRef.current.intensity = cfg.fillIntensity
+    }
+
+    // Pump Indicator Lights
+    orbLightsRef.current.forEach((pl) => {
+      pl.intensity = cfg.lampIntensity
+    })
+  }, [cfg])
+
   useEffect(() => {
     const container = mountRef.current
     if (!container) return
 
-    // Scene & Renderer - Studio Clay Aesthetic with Dark/Light Mode Adaptability
-    const isDark = theme === 'dark'
-    const bgColor = isDark ? 0x091424 : 0xedf2f7
+    // Scene setup
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(bgColor)
-    scene.fog = new THREE.FogExp2(bgColor, isDark ? 0.02 : 0.015)
+    sceneRef.current = scene
 
-    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000)
-    camera.position.set(-3, 4.2, 13)
+    const bgCol = new THREE.Color(cfg.bgColor)
+    scene.background = bgCol
+    scene.fog = new THREE.FogExp2(bgCol, cfg.fogDensity)
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    const camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 150)
+    camera.position.set(0, 3.8, 12.8)
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
     renderer.setSize(container.clientWidth, container.clientHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.shadowMap.enabled = true
@@ -139,113 +376,87 @@ export default function InteriorBombeoView({ roomId = 'bombeo', theme = 'light',
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.05
-    controls.target.set(0, 1.2, -0.5)
-    controls.maxPolarAngle = Math.PI / 2 - 0.02
-    controls.minDistance = 5
-    controls.maxDistance = 24
+    controls.target.set(0, 1.3, -0.2)
+    controls.maxPolarAngle = Math.PI / 2 - 0.01 // Never dip below floor
+    controls.minDistance = 4
+    controls.maxDistance = 28
 
     // Lighting
-    const ambLight = new THREE.AmbientLight(isDark ? 0xa0aec0 : 0xffffff, isDark ? 1.2 : 1.8)
+    const ambLight = new THREE.AmbientLight(cfg.ambientColor, cfg.ambientIntensity)
     scene.add(ambLight)
+    ambLightRef.current = ambLight
 
-    const hemiLight = new THREE.HemisphereLight(isDark ? 0x64748b : 0xffffff, isDark ? 0x1e293b : 0xdbeafe, isDark ? 0.9 : 1.2)
+    const hemiLight = new THREE.HemisphereLight(cfg.hemiSkyColor, cfg.hemiGroundColor, cfg.hemiIntensity)
     scene.add(hemiLight)
+    hemiLightRef.current = hemiLight
 
-    const mainDir = new THREE.DirectionalLight(0xffffff, isDark ? 1.3 : 1.6)
-    mainDir.position.set(10, 16, 12)
+    const mainDir = new THREE.DirectionalLight(cfg.dirColor, cfg.dirIntensity)
+    mainDir.position.set(cfg.dirX, cfg.dirY, cfg.dirZ)
+    mainDir.castShadow = true
+    mainDir.shadow.mapSize.width = 2048
+    mainDir.shadow.mapSize.height = 2048
     scene.add(mainDir)
+    dirLightRef.current = mainDir
 
-    const fillDir = new THREE.DirectionalLight(isDark ? 0x38bdf8 : 0xe0f2fe, 0.8)
+    const fillDir = new THREE.DirectionalLight(cfg.fillColor, cfg.fillIntensity)
     fillDir.position.set(-12, 10, -6)
     scene.add(fillDir)
+    fillLightRef.current = fillDir
 
-    // Overhead Industrial Lamps
-    const lampPositions: [number, number, number][] = [
-      [-4, 5.2, -1],
-      [4, 5.2, -1],
-    ]
-
-    lampPositions.forEach((lPos) => {
-      // Chain
-      const chainGeo = new THREE.CylinderGeometry(0.02, 0.02, 2.5, 6)
-      const chainMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.2, roughness: 0.5 })
-      const chain = new THREE.Mesh(chainGeo, chainMat)
-      chain.position.set(lPos[0], lPos[1] + 1.2, lPos[2])
-      scene.add(chain)
-
-      // Lamp Shade Cone
-      const coneGeo = new THREE.ConeGeometry(0.7, 0.5, 24, 1, true)
-      const coneMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.1, roughness: 0.35, side: THREE.DoubleSide })
-      const cone = new THREE.Mesh(coneGeo, coneMat)
-      cone.position.set(lPos[0], lPos[1], lPos[2])
-      scene.add(cone)
+    // 1. INFINITE FLOOR (No back walls or studio enclosure)
+    const floorGeo = new THREE.PlaneGeometry(160, 160, 32, 32)
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(cfg.floorColor),
+      roughness: cfg.floorRoughness,
+      metalness: cfg.floorMetalness,
     })
-
-    // Room Geometry: Clay Wall and Floor
-    const roomMat = new THREE.MeshStandardMaterial({
-      color: isDark ? 0x111c2e : 0xedf2f7,
-      roughness: isDark ? 0.8 : 0.65,
-      metalness: 0.05,
-    })
-
-    // Back Wall
-    const wallGeo = new THREE.BoxGeometry(32, 16, 0.4)
-    const backWall = new THREE.Mesh(wallGeo, roomMat)
-    backWall.position.set(0, 6, -5)
-    scene.add(backWall)
-
-    // Floor Platform Behind Sump
-    const floorGeo = new THREE.BoxGeometry(32, 0.6, 10)
-    const floor = new THREE.Mesh(floorGeo, roomMat)
-    floor.position.set(0, -0.3, -2)
+    floorMatRef.current = floorMat
+    const floor = new THREE.Mesh(floorGeo, floorMat)
+    floor.rotation.x = -Math.PI / 2
+    floor.position.y = 0
+    floor.receiveShadow = true
     scene.add(floor)
 
-    // Front Floor in front of Sump
-    const frontFloorGeo = new THREE.BoxGeometry(32, 0.6, 8)
-    const frontFloor = new THREE.Mesh(frontFloorGeo, roomMat)
-    frontFloor.position.set(0, -0.3, 6.5)
-    scene.add(frontFloor)
+    // Subtle floor safety demarcation yellow guide line
+    const lineGeo = new THREE.PlaneGeometry(28, 0.12)
+    const lineMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.4 })
+    const guideLine = new THREE.Mesh(lineGeo, lineMat)
+    guideLine.rotation.x = -Math.PI / 2
+    guideLine.position.set(0, 0.005, 1.8)
+    scene.add(guideLine)
 
-    // Sump Pit Pit Water (Cyan Translucent Glass)
-    const waterGeo = new THREE.BoxGeometry(32, 0.5, 4.5)
-    const waterMat = new THREE.MeshStandardMaterial({
-      color: 0x0284c7,
-      roughness: 0.15,
-      metalness: 0.3,
-      transparent: true,
-      opacity: 0.65,
-    })
-    const water = new THREE.Mesh(waterGeo, waterMat)
-    water.position.set(0, -0.7, 1.8)
-    scene.add(water)
-
-    // Clay Material (Off-White Studio Clay matching Image 1)
+    // 2. PIPE CLAY MATERIAL
     const clayMat = new THREE.MeshStandardMaterial({
-      color: 0xf8fafc,
-      roughness: 0.45,
-      metalness: 0.05,
+      color: new THREE.Color(cfg.pipeColor),
+      roughness: 0.42,
+      metalness: 0.06,
     })
+    clayMatRef.current = clayMat
 
     // Overhead Header Manifold Pipe (spans all 4 pumps horizontally)
     const manifoldGeo = new THREE.CylinderGeometry(0.32, 0.32, 22, 32)
     const manifold = new THREE.Mesh(manifoldGeo, clayMat)
     manifold.rotation.z = Math.PI / 2
     manifold.position.set(0, 3.2, -1.2)
+    manifold.castShadow = true
     scene.add(manifold)
 
-    // Build 4 Pumping Trains with Off-White Clay + Blue Accent on BA-02 matching Image 1
+    // 3. BUILD 4 PUMP TRAINS
     const pumpGroups: Record<string, THREE.Group> = {}
-    const orbMeshes: Record<string, THREE.Mesh> = {}
+    orbLightsRef.current = []
 
     PUMPS.forEach((pump, pIdx) => {
       const g = new THREE.Group()
       g.position.set(...pump.pos)
+      g.userData = { isPump: true, pumpId: pump.id }
 
       // Concrete Pedestal
-      const pedGeo = new THREE.BoxGeometry(2.5, 0.45, 3.4)
-      const pedMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.65 })
+      const pedGeo = new THREE.BoxGeometry(2.5, 0.42, 3.4)
+      const pedMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.75 })
       const ped = new THREE.Mesh(pedGeo, pedMat)
-      ped.position.set(0, 0.22, -0.2)
+      ped.position.set(0, 0.21, -0.2)
+      ped.castShadow = true
+      ped.receiveShadow = true
       g.add(ped)
 
       // Pump Impeller Casing (Off-white clay)
@@ -253,6 +464,7 @@ export default function InteriorBombeoView({ roomId = 'bombeo', theme = 'light',
       const casing = new THREE.Mesh(casingGeo, clayMat)
       casing.rotation.z = Math.PI / 2
       casing.position.set(-0.35, 1.0, -0.2)
+      casing.castShadow = true
       g.add(casing)
 
       // Casing Flange Ring
@@ -260,9 +472,10 @@ export default function InteriorBombeoView({ roomId = 'bombeo', theme = 'light',
       const ring = new THREE.Mesh(ringGeo, clayMat)
       ring.rotation.z = Math.PI / 2
       ring.position.set(-0.65, 1.0, -0.2)
+      ring.castShadow = true
       g.add(ring)
 
-      // Electric Motor Cylinder: BA-02 (pIdx === 1) is Electric Blue matching Image 1!
+      // Electric Motor Cylinder: BA-02 has electric blue casing
       const isBlueAccent = pIdx === 1
       const motorMat = isBlueAccent
         ? new THREE.MeshStandardMaterial({
@@ -276,149 +489,121 @@ export default function InteriorBombeoView({ roomId = 'bombeo', theme = 'light',
       const motor = new THREE.Mesh(motorGeo, motorMat)
       motor.rotation.z = Math.PI / 2
       motor.position.set(0.7, 1.0, -0.2)
+      motor.castShadow = true
       g.add(motor)
 
       // Vertical Discharge Pipe going up to overhead manifold
       const vPipeGeo = new THREE.CylinderGeometry(0.2, 0.2, 2.2, 24)
       const vPipe = new THREE.Mesh(vPipeGeo, clayMat)
       vPipe.position.set(-0.35, 2.1, -0.8)
+      vPipe.castShadow = true
       g.add(vPipe)
 
-      // Forward Suction Pipe extending into sump pit with Valve Wheel
+      // Forward Suction Pipe extending into sump area
       const fPipeGeo = new THREE.CylinderGeometry(0.22, 0.22, 3.4, 24)
       const fPipe = new THREE.Mesh(fPipeGeo, clayMat)
       fPipe.rotation.x = 1.0
       fPipe.position.set(-0.35, 0.35, 1.0)
+      fPipe.castShadow = true
       g.add(fPipe)
-
-      // Valve Handwheel on suction pipe
-      const wheelGeo = new THREE.TorusGeometry(0.22, 0.03, 12, 24)
-      const wheel = new THREE.Mesh(wheelGeo, clayMat)
-      wheel.rotation.x = Math.PI / 2
-      wheel.position.set(-0.35, 0.7, 0.5)
-      g.add(wheel)
 
       // Glowing Indicator Orb on Pedestal front
       const orbGeo = new THREE.SphereGeometry(0.14, 16, 16)
-      const orbMat = new THREE.MeshBasicMaterial({
-        color: pump.color,
-      })
+      const orbMat = new THREE.MeshBasicMaterial({ color: pump.color })
       const orb = new THREE.Mesh(orbGeo, orbMat)
       orb.position.set(0, 0.5, 1.0)
       g.add(orb)
-      orbMeshes[pump.id] = orb
 
       // Local Point Light from the Orb
-      const orbLight = new THREE.PointLight(pump.color, 1.2, 2.8)
+      const orbLight = new THREE.PointLight(pump.color, cfg.lampIntensity, 3.5)
       orbLight.position.set(0, 0.6, 0.8)
       g.add(orbLight)
+      orbLightsRef.current.push(orbLight)
 
       pumpGroups[pump.id] = g
       scene.add(g)
     })
 
-    // Also load the user's interior_bombeo.glb if available to augment background elements
-    const gltfLoader = new GLTFLoader()
-    const glbUrl = `${import.meta.env.BASE_URL}interior_bombeo.glb`
-    gltfLoader.load(
-      glbUrl,
-      (gltf) => {
-        const obj = gltf.scene
-        // Position behind main pump stage
-        obj.position.set(0, -0.2, -6)
-        obj.scale.set(0.02, 0.02, 0.02)
-        obj.traverse((c) => {
-          if ((c as THREE.Mesh).isMesh) {
-            c.castShadow = true
-            c.receiveShadow = true
-          }
-        })
-        scene.add(obj)
-      },
-      undefined,
-      (err) => {
-        console.warn('GLB secondary load notice:', err)
-      }
-    )
+    // 4. ADD CONSTRUCTION WORKERS (Procedural Figures walking on the floor)
+    const workerGroups: Record<string, THREE.Group> = {}
+    WORKERS_DATA.forEach((w) => {
+      const wg = createConstructionWorker(w)
+      workerGroups[w.id] = wg
+      scene.add(wg)
+    })
 
-    // Raycasting for pump selection on click
+    // Raycasting for pump & worker selection on click
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
 
-    const onPointerDown = (e: MouseEvent) => {
+    const onPointerDown = (evt: PointerEvent) => {
       const rect = renderer.domElement.getBoundingClientRect()
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
-      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1
-
+      mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1
       raycaster.setFromCamera(mouse, camera)
-      let hitPumpId: string | null = null
 
-      for (const p of PUMPS) {
-        const group = pumpGroups[p.id]
-        if (group) {
-          const hits = raycaster.intersectObjects(group.children, true)
-          if (hits.length > 0) {
-            hitPumpId = p.id
-            break
+      const intersects = raycaster.intersectObjects(scene.children, true)
+      if (intersects.length > 0) {
+        // Check for worker hit first
+        let cur: THREE.Object3D | null = intersects[0].object
+        while (cur && cur !== scene) {
+          if (cur.userData?.isWorker) {
+            onSelectWorker?.(cur.userData.workerData)
+            return
           }
+          if (cur.userData?.isPump) {
+            setActivePump(cur.userData.pumpId)
+            onSelectPump?.(cur.userData.pumpId)
+            return
+          }
+          cur = cur.parent
         }
-      }
-
-      if (hitPumpId) {
-        setActivePump(hitPumpId)
-        onSelectPump?.(hitPumpId)
       }
     }
 
     renderer.domElement.addEventListener('pointerdown', onPointerDown)
 
-    // Animation Loop with screen-coordinate badge projection
-    let reqId: number
-    let clock = new THREE.Clock()
-
+    // Animation & Screen Coordinates Projection Loop
+    let animId = 0
     const animate = () => {
-      reqId = requestAnimationFrame(animate)
-      const elapsed = clock.getElapsedTime()
-
+      animId = requestAnimationFrame(animate)
       controls.update()
 
-      // Pulse red orb on BA-04
-      if (orbMeshes['BA-04']) {
-        const scale = 1 + Math.sin(elapsed * 5) * 0.25
-        orbMeshes['BA-04'].scale.set(scale, scale, scale)
-      }
-
-      // Project 3D positions of pumps to 2D screen coordinates for badges
-      const newCoords: Record<string, { x: number; y: number; visible: boolean }> = {}
       const width = container.clientWidth
       const height = container.clientHeight
 
+      // Project pump badge positions
+      const newCoords: Record<string, { x: number; y: number; visible: boolean }> = {}
       PUMPS.forEach((pump) => {
-        const wp = new THREE.Vector3(pump.pos[0] - 0.35, pump.pos[1] + 2.5, pump.pos[2] - 0.5)
+        const wp = new THREE.Vector3(pump.pos[0] - 0.35, 2.7, pump.pos[2] - 0.2)
         wp.project(camera)
-
         const isBehind = wp.z > 1
         const x = (wp.x * 0.5 + 0.5) * width
         const y = (-(wp.y * 0.5) + 0.5) * height
-
         newCoords[pump.id] = {
           x,
           y,
           visible: !isBehind && x > 20 && x < width - 20 && y > 20 && y < height - 20,
         }
       })
-
-      // Sump badge position
-      const sumpPos = new THREE.Vector3(0, -0.4, 2.2)
-      sumpPos.project(camera)
-      const sumpBehind = sumpPos.z > 1
-      setSumpCoords({
-        x: (sumpPos.x * 0.5 + 0.5) * width,
-        y: (-(sumpPos.y * 0.5) + 0.5) * height,
-        visible: !sumpBehind,
-      })
-
       setScreenCoords(newCoords)
+
+      // Project worker badge positions
+      const newWorkerCoords: Record<string, { x: number; y: number; visible: boolean }> = {}
+      WORKERS_DATA.forEach((w) => {
+        const wp = new THREE.Vector3(w.pos[0], 2.1, w.pos[2])
+        wp.project(camera)
+        const isBehind = wp.z > 1
+        const x = (wp.x * 0.5 + 0.5) * width
+        const y = (-(wp.y * 0.5) + 0.5) * height
+        newWorkerCoords[w.id] = {
+          x,
+          y,
+          visible: !isBehind && x > 20 && x < width - 20 && y > 20 && y < height - 20,
+        }
+      })
+      setWorkerCoords(newWorkerCoords)
+
       renderer.render(scene, camera)
     }
 
@@ -430,194 +615,471 @@ export default function InteriorBombeoView({ roomId = 'bombeo', theme = 'light',
       camera.updateProjectionMatrix()
       renderer.setSize(container.clientWidth, container.clientHeight)
     }
+
     window.addEventListener('resize', handleResize)
 
     return () => {
-      cancelAnimationFrame(reqId)
+      cancelAnimationFrame(animId)
       window.removeEventListener('resize', handleResize)
       renderer.domElement.removeEventListener('pointerdown', onPointerDown)
-      controls.dispose()
       renderer.dispose()
-      if (container.contains(renderer.domElement)) {
+      if (renderer.domElement.parentElement === container) {
         container.removeChild(renderer.domElement)
       }
     }
-  }, [onSelectPump])
+  }, [theme])
+
+  // Dragging logic for floating lighting editor
+  const handleDragStart = (e: React.MouseEvent) => {
+    dragRef.current = {
+      isDragging: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: editorPos.x,
+      origY: editorPos.y,
+    }
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!dragRef.current.isDragging) return
+      const dx = ev.clientX - dragRef.current.startX
+      const dy = ev.clientY - dragRef.current.startY
+      setEditorPos({
+        x: Math.max(10, Math.min(window.innerWidth - 320, dragRef.current.origX + dx)),
+        y: Math.max(70, Math.min(window.innerHeight - 300, dragRef.current.origY + dy)),
+      })
+    }
+
+    const onMouseUp = () => {
+      dragRef.current.isDragging = false
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }
+
+  const copyConfig = () => {
+    navigator.clipboard.writeText(JSON.stringify(cfg, null, 2))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
-    <div className="interior-bombeo-container" ref={mountRef}>
-      {/* Top Left Navigation Header (Matching Reference Screenshot) */}
-      <div className="bombeo-top-badge glass">
-        <button
-          className="bombeo-top-back-btn no-border"
-          onClick={onClose}
-          title="Volver"
-          aria-label="Volver"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'inherit',
-            cursor: 'pointer',
-            padding: '2px 4px',
-            display: 'flex',
-            alignItems: 'center',
-            marginRight: 6,
-          }}
-        >
-          <ChevronLeft size={18} />
-        </button>
-        <div>
-          <div className="bombeo-badge-sub">{room.level}</div>
-          <div className="bombeo-badge-title">
-            <RoomIcon size={16} className="bombeo-badge-icon" style={{ color: room.iconColor }} />
-            <span>{room.title}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Top Nexo IA Pill */}
-      <button
-        className="bombeo-nexo-top-trigger glass"
-        onClick={() => onAskNexo?.(room.nexoQuery)}
-        title="Consultar análisis de Nexo IA para esta sala"
-      >
-        <NexoLogo width={14} height={16} color="#ffffff" />
-        <span>{room.nexoPill}</span>
-      </button>
-
-      {/* Top Right Close Button */}
-      <button
-        className="bombeo-close-btn glass"
-        onClick={onClose}
-        title="Regresar a la mina"
-        aria-label="Cerrar vista interior"
-      >
-        <X size={18} />
-      </button>
-
-      {/* In-Scene 3D Badges projected over pumps (Matching Reference Screenshot) */}
+    <div className="interior-bombeo-container" ref={mountRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* 1. In-Scene 3D Badges projected over pumps */}
       {PUMPS.map((pump) => {
         const coord = screenCoords[pump.id]
         if (!coord || !coord.visible) return null
         const isSelected = activePump === pump.id
+
         return (
           <div
             key={pump.id}
-            className={`bombeo-3d-badge ${pump.status} ${isSelected ? 'selected' : ''}`}
+            className={`bombeo-pump-3d-badge ${isSelected ? 'active' : ''} ${pump.status === 'falla' ? 'error' : ''}`}
             style={{
               left: `${coord.x}px`,
               top: `${coord.y}px`,
+              cursor: 'pointer',
             }}
             onClick={() => {
               setActivePump(pump.id)
               onSelectPump?.(pump.id)
             }}
-            title={`Clic para inspeccionar ${pump.name}`}
           >
-            <div className="badge-name">{pump.name}</div>
-            {pump.status === 'marcha' && (
-              <div className="badge-flow">{pump.flow}</div>
-            )}
-            {pump.status === 'falla' && (
-              <div className="badge-alarm">
-                <AlertTriangle size={12} />
-                <span>ALARMA</span>
-              </div>
-            )}
+            <span className="pump-badge-name">{pump.name}</span>
+            <span className="pump-badge-flow">
+              {pump.status === 'marcha' ? pump.flow : pump.status === 'reserva' ? 'Reserva' : 'Falla'}
+            </span>
           </div>
         )
       })}
 
-      {/* Sump 3D Badge projected at bottom of pit */}
-      {sumpCoords.visible && (
-        <div
-          className="bombeo-3d-sump-badge"
+      {/* 2. In-Scene 3D Badges projected over Construction Workers */}
+      {WORKERS_DATA.map((w) => {
+        const coord = workerCoords[w.id]
+        if (!coord || !coord.visible) return null
+
+        return (
+          <div
+            key={w.id}
+            className="bombeo-worker-3d-badge glass"
+            style={{
+              position: 'absolute',
+              left: `${coord.x}px`,
+              top: `${coord.y}px`,
+              transform: 'translate(-50%, -100%)',
+              zIndex: 15,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '4px 8px 4px 6px',
+              borderRadius: 20,
+              background: 'rgba(15, 23, 42, 0.82)',
+              border: '1px solid rgba(255, 255, 255, 0.22)',
+              color: '#ffffff',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+              fontSize: 11,
+              fontWeight: 600,
+              userSelect: 'none',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              transition: 'transform .15s ease, border-color .15s ease',
+            }}
+            onClick={() => onSelectWorker?.(w)}
+            title={`Clic para ver telemetría de ${w.name}`}
+          >
+            {/* Click indicator icon with semi-transparent blur background requested by user */}
+            <span
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <User size={11} style={{ color: '#38bdf8' }} />
+            </span>
+            <span>{w.name}</span>
+          </div>
+        )
+      })}
+
+      {/* 3. Bottom-Left Trigger for Lighting & Color Editor */}
+      {!editorOpen && (
+        <button
+          className="glass lighting-editor-trigger"
+          onClick={() => setEditorOpen(true)}
           style={{
-            left: `${sumpCoords.x}px`,
-            top: `${sumpCoords.y}px`,
+            position: 'absolute',
+            bottom: 24,
+            left: 20,
+            zIndex: 40,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 14px',
+            borderRadius: 10,
+            border: '1px solid var(--line)',
+            background: 'var(--panel-bg)',
+            color: 'var(--text)',
+            fontSize: 12.5,
+            fontWeight: 600,
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.14)',
           }}
+          title="Abrir editor de iluminación y render de la sala"
         >
-          <span>SUMIDERO 64%</span>
-        </div>
+          <Sliders size={16} />
+          <span>Ajustar Iluminación</span>
+        </button>
       )}
 
-      {/* Bottom Floating Telemetry Strip */}
-      <div className="bombeo-bottom-kpi-strip glass">
-        {room.kpis.map((kpi, idx) => (
-          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            {idx > 0 && <div className="bombeo-strip-divider" />}
-            <div
-              className={`bombeo-strip-item ${kpi.status === 'red' ? 'clickable' : ''}`}
-              onClick={() => {
-                if (kpi.status === 'red') onAskNexo?.(room.nexoQuery)
-              }}
-              title={kpi.status === 'red' ? 'Ver diagnóstico con Nexo IA' : undefined}
-            >
-              {kpi.status && <span className={`strip-dot ${kpi.status}`} />}
-              <div className="strip-text">
-                <span className="strip-lbl">{kpi.label}</span>
-                <span className={`strip-val ${kpi.status === 'red' ? 'red' : ''}`}>
-                  {kpi.val} {kpi.unit && <small style={{ fontSize: 10, fontWeight: 500 }}>{kpi.unit}</small>}
-                </span>
-              </div>
-              {kpi.status === 'red' && <NexoLogo width={12} height={14} color="#dc2626" />}
+      {/* 4. Draggable Floating Lighting & Color Editor Window */}
+      {editorOpen && (
+        <div
+          className="glass lighting-editor-window"
+          style={{
+            position: 'absolute',
+            left: `${editorPos.x}px`,
+            top: `${editorPos.y}px`,
+            width: 310,
+            maxHeight: 'calc(100vh - 140px)',
+            zIndex: 60,
+            borderRadius: 14,
+            border: '1px solid var(--line)',
+            background: 'var(--panel-bg)',
+            color: 'var(--text)',
+            boxShadow: '0 12px 36px rgba(0,0,0,0.3)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Draggable Header */}
+          <div
+            onMouseDown={handleDragStart}
+            style={{
+              padding: '10px 14px',
+              borderBottom: '1px solid var(--line)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'grab',
+              background: 'rgba(0,0,0,0.04)',
+              userSelect: 'none',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700 }}>
+              <Move size={14} style={{ color: 'var(--muted)' }} />
+              <span>Iluminación & Render</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button
+                className="icon-btn"
+                onClick={copyConfig}
+                title="Copiar configuración JSON"
+                style={{ width: 26, height: 26 }}
+              >
+                {copied ? <Check size={14} style={{ color: '#10b981' }} /> : <Copy size={14} />}
+              </button>
+              <button
+                className="icon-btn"
+                onClick={() => setCfg(theme === 'dark' ? DEFAULT_LIGHTING_DARK : DEFAULT_LIGHTING_LIGHT)}
+                title="Restablecer valores"
+                style={{ width: 26, height: 26 }}
+              >
+                <RotateCcw size={14} />
+              </button>
+              <button
+                className="icon-btn"
+                onClick={() => setEditorOpen(false)}
+                title="Cerrar editor"
+                style={{ width: 26, height: 26 }}
+              >
+                <X size={15} />
+              </button>
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* Bottom Hint */}
-      <div className="bombeo-bottom-hint">
-        Arrastra para girar · rueda para acercar · clic en una bomba para inspeccionar
-      </div>
-
-      {/* Quick In-Scene Pump Inspection Card when a pump is selected */}
-      {activePump && (
-        <div className="bombeo-pump-overlay-card glass">
-          {(() => {
-            const p = PUMPS.find((item) => item.id === activePump)
-            if (!p) return null
-            return (
-              <>
-                <div className="overlay-header">
-                  <div className="overlay-title-row">
-                    <span className="overlay-title">{p.name} · Bomba centrífuga multietapa</span>
-                    <span className={`status-pill ${p.status}`}>{p.statusText}</span>
-                  </div>
-                  <button className="overlay-close" onClick={() => setActivePump(null)}>
-                    <X size={15} />
-                  </button>
-                </div>
-
-                <div className="overlay-metrics-grid">
-                  <div className="overlay-metric">
-                    <span className="m-label">Caudal</span>
-                    <span className="m-val">{p.flow}</span>
-                  </div>
-                  <div className="overlay-metric">
-                    <span className="m-label">Presión desc.</span>
-                    <span className="m-val">{p.pressure}</span>
-                  </div>
-                  <div className="overlay-metric">
-                    <span className="m-label">Temperatura</span>
-                    <span className="m-val" style={{ color: p.status === 'falla' ? '#ef4444' : undefined }}>{p.temp}</span>
-                  </div>
-                  <div className="overlay-metric">
-                    <span className="m-label">Horas servicio</span>
-                    <span className="m-val">{p.hours}</span>
-                  </div>
-                </div>
-
+          {/* Controls Body */}
+          <div style={{ padding: '12px 14px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* Presets */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 6 }}>
+                Presets Rápidos
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                 <button
-                  className="ask-nexo-btn"
-                  onClick={() => onAskNexo?.(`Analiza el estado y telemetría de ${p.name} en la Sala de bombeo SB-01`)}
+                  className="user-action-btn"
+                  style={{ padding: '6px 8px', fontSize: 11 }}
+                  onClick={() =>
+                    setCfg({
+                      ...cfg,
+                      bgColor: '#08111e',
+                      floorColor: '#0b1626',
+                      ambientIntensity: 1.4,
+                      dirColor: '#f8fafc',
+                      dirIntensity: 1.6,
+                      fillColor: '#0284c7',
+                    })
+                  }
                 >
-                  <NexoLogo width={14} height={16} color="#ffffff" />
-                  <span>Preguntar a Nexo sobre {p.name}</span>
+                  Subterráneo Frío
                 </button>
-              </>
-            )
-          })()}
+                <button
+                  className="user-action-btn"
+                  style={{ padding: '6px 8px', fontSize: 11 }}
+                  onClick={() =>
+                    setCfg({
+                      ...cfg,
+                      bgColor: '#141414',
+                      floorColor: '#1c1917',
+                      ambientIntensity: 1.2,
+                      dirColor: '#fef08a',
+                      dirIntensity: 1.8,
+                      fillColor: '#f97316',
+                    })
+                  }
+                >
+                  Mina Cálida
+                </button>
+                <button
+                  className="user-action-btn"
+                  style={{ padding: '6px 8px', fontSize: 11 }}
+                  onClick={() =>
+                    setCfg({
+                      ...cfg,
+                      bgColor: '#111827',
+                      floorColor: '#1f2937',
+                      ambientIntensity: 1.6,
+                      dirColor: '#ffffff',
+                      dirIntensity: 1.5,
+                      fillColor: '#38bdf8',
+                    })
+                  }
+                >
+                  Estudio Neutro
+                </button>
+                <button
+                  className="user-action-btn"
+                  style={{ padding: '6px 8px', fontSize: 11 }}
+                  onClick={() =>
+                    setCfg({
+                      ...cfg,
+                      bgColor: '#030712',
+                      floorColor: '#090d16',
+                      ambientIntensity: 0.9,
+                      dirColor: '#e2e8f0',
+                      dirIntensity: 1.2,
+                      fillColor: '#0369a1',
+                      fogDensity: 0.024,
+                    })
+                  }
+                >
+                  Oscuro Dramático
+                </button>
+              </div>
+            </div>
+
+            {/* Background & Fog */}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 6 }}>
+                Fondo & Niebla
+              </div>
+              <div className="row between" style={{ marginBottom: 6, fontSize: 12 }}>
+                <span>Color fondo</span>
+                <input
+                  type="color"
+                  value={cfg.bgColor}
+                  onChange={(e) => setCfg({ ...cfg, bgColor: e.target.value })}
+                  style={{ width: 28, height: 24, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                />
+              </div>
+              <div style={{ fontSize: 12 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Densidad niebla</span>
+                  <b>{(cfg.fogDensity * 1000).toFixed(1)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.002}
+                  max={0.05}
+                  step={0.002}
+                  value={cfg.fogDensity}
+                  onChange={(e) => setCfg({ ...cfg, fogDensity: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+
+            {/* Infinite Floor */}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 6 }}>
+                Piso Infinito
+              </div>
+              <div className="row between" style={{ marginBottom: 6, fontSize: 12 }}>
+                <span>Color piso</span>
+                <input
+                  type="color"
+                  value={cfg.floorColor}
+                  onChange={(e) => setCfg({ ...cfg, floorColor: e.target.value })}
+                  style={{ width: 28, height: 24, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                />
+              </div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Rugosidad</span>
+                  <b>{cfg.floorRoughness.toFixed(2)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.1}
+                  max={1.0}
+                  step={0.05}
+                  value={cfg.floorRoughness}
+                  onChange={(e) => setCfg({ ...cfg, floorRoughness: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ fontSize: 12 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Metalicidad</span>
+                  <b>{cfg.floorMetalness.toFixed(2)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.0}
+                  max={0.8}
+                  step={0.05}
+                  value={cfg.floorMetalness}
+                  onChange={(e) => setCfg({ ...cfg, floorMetalness: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+
+            {/* Lighting Intensities */}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 6 }}>
+                Luces & Reflejos
+              </div>
+              <div className="row between" style={{ marginBottom: 6, fontSize: 12 }}>
+                <span>Color Luz Principal</span>
+                <input
+                  type="color"
+                  value={cfg.dirColor}
+                  onChange={(e) => setCfg({ ...cfg, dirColor: e.target.value })}
+                  style={{ width: 28, height: 24, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                />
+              </div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Luz Principal (Intensidad)</span>
+                  <b>{cfg.dirIntensity.toFixed(1)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.2}
+                  max={4.0}
+                  step={0.1}
+                  value={cfg.dirIntensity}
+                  onChange={(e) => setCfg({ ...cfg, dirIntensity: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Luz Ambiente</span>
+                  <b>{cfg.ambientIntensity.toFixed(1)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.2}
+                  max={3.0}
+                  step={0.1}
+                  value={cfg.ambientIntensity}
+                  onChange={(e) => setCfg({ ...cfg, ambientIntensity: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ fontSize: 12 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Luz de Bombas / Lámparas</span>
+                  <b>{cfg.lampIntensity.toFixed(1)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.2}
+                  max={4.0}
+                  step={0.2}
+                  value={cfg.lampIntensity}
+                  onChange={(e) => setCfg({ ...cfg, lampIntensity: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+
+            {/* Piping Clay Tint */}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+              <div className="row between" style={{ fontSize: 12 }}>
+                <span style={{ fontWeight: 600 }}>Tonalidad Tuberías</span>
+                <input
+                  type="color"
+                  value={cfg.pipeColor}
+                  onChange={(e) => setCfg({ ...cfg, pipeColor: e.target.value })}
+                  style={{ width: 28, height: 24, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

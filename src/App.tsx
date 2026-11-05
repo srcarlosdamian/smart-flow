@@ -11,12 +11,14 @@ import {
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, Target, CheckCheck, Upload, Download, Camera,
+  X, Target, CheckCheck, Upload, Download, Camera, Palette,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
 import SurfaceView from './SurfaceView'
-import InteriorBombeoView from './InteriorBombeoView'
+import InteriorBombeoView, { type WorkerData } from './InteriorBombeoView'
+import BorderBeam from './BorderBeam'
+import DesignSystemView from './DesignSystemView'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
 
@@ -656,15 +658,30 @@ export default function App() {
 
   const exitInterior = () => {
     setInteriorView(null)
+    setSelectedWorker(null)
     if (window.location.hash.startsWith('#/interior')) {
       window.history.pushState(null, '', window.location.pathname)
     }
   }
 
-  // Hash routing for rooms/interiors (e.g. #/interior/bombeo)
+  const [currentRoute, setCurrentRoute] = useState<'app' | 'design-system'>(() => {
+    if (typeof window === 'undefined') return 'app'
+    const hash = window.location.hash || ''
+    const path = window.location.pathname || ''
+    return hash === '#/design-system' || path.endsWith('/design-system') ? 'design-system' : 'app'
+  })
+
+  // Hash routing for rooms/interiors & design system
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash || ''
+      const path = window.location.pathname || ''
+      if (hash === '#/design-system' || path.endsWith('/design-system')) {
+        setCurrentRoute('design-system')
+        return
+      }
+      setCurrentRoute('app')
+
       const match = hash.match(/^#\/interior\/([a-zA-Z0-9_-]+)/)
       if (match && match[1]) {
         const roomId = match[1]
@@ -687,6 +704,7 @@ export default function App() {
     }
   }, [])
   const [selectedPump, setSelectedPump] = useState<string>('BA-01')
+  const [selectedWorker, setSelectedWorker] = useState<WorkerData | null>(null)
   const [whatIfTarget, setWhatIfTarget] = useState('V-PH-01')
   const [whatIfAction, setWhatIfAction] = useState('Parada no programada de ventilador')
   const [whatIfHorizon, setWhatIfHorizon] = useState(60)
@@ -1066,6 +1084,19 @@ export default function App() {
     }
   }
 
+  if (currentRoute === 'design-system') {
+    return (
+      <DesignSystemView
+        theme={theme}
+        onToggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+        onBackToApp={() => {
+          window.location.hash = ''
+          setCurrentRoute('app')
+        }}
+      />
+    )
+  }
+
   return (
     <div className={`app ${nexoOpen ? 'nexo-open' : ''}`} data-theme={theme}>
       {interiorView ? (
@@ -1074,48 +1105,50 @@ export default function App() {
           theme={theme}
           onClose={exitInterior}
           selectedPumpId={selectedPump}
-          onSelectPump={setSelectedPump}
+          onSelectPump={(id) => {
+            setSelectedPump(id)
+            setSelectedWorker(null)
+          }}
+          onSelectWorker={(w) => setSelectedWorker(w)}
           onAskNexo={(q) => {
             setNexoOpen(true)
             sendNexoMessage(q)
           }}
         />
+      ) : selectedProj === '3D - Superficie' ? (
+        <SurfaceView
+          theme={theme}
+          onClose={() => {
+            setSelectedProj('3D - Perspectiva')
+            setMode('perspective')
+          }}
+        />
+      ) : selectedProj === '2D - Diagrama de planta' ? (
+        <DiagramView theme={theme} zoom={zoom} onZoomChange={setZoom} />
       ) : (
-        <>
-          {selectedProj === '3D - Superficie' ? (
-            <SurfaceView
-              theme={theme}
-              onClose={() => {
-                setSelectedProj('3D - Perspectiva')
-                setMode('perspective')
-              }}
-            />
-          ) : selectedProj === '2D - Diagrama de planta' ? (
-            <DiagramView theme={theme} zoom={zoom} onZoomChange={setZoom} />
-          ) : (
-            <Scene3D
-              mode={selectedProj === '2D - Vista superior' ? 'top' : mode}
-              zoom={zoom}
-              theme={theme}
-              activeSimulations={activeSimulations}
-              selectedObjectId={selected3DObjectId}
-              onZoomChange={setZoom}
-              onSelectObject={(id) => {
-                if (!id) {
-                  setSelected3DObjectId(null)
-                  if (sidebarView?.type === 'interior' && !interiorView) {
-                    setSidebarView(null)
-                  }
-                  return
-                }
-                setSelected3DObjectId(id)
-                const found = INTERIORES_DATA.find((item) => item.id === id)
-                if (found) {
-                  setSidebarView({ type: 'interior', data: found })
-                }
-              }}
-            />
-          )}
+        <Scene3D
+          mode={selectedProj === '2D - Vista superior' ? 'top' : mode}
+          zoom={zoom}
+          theme={theme}
+          activeSimulations={activeSimulations}
+          selectedObjectId={selected3DObjectId}
+          onZoomChange={setZoom}
+          onSelectObject={(id) => {
+            if (!id) {
+              setSelected3DObjectId(null)
+              if (sidebarView?.type === 'interior' && !interiorView) {
+                setSidebarView(null)
+              }
+              return
+            }
+            setSelected3DObjectId(id)
+            const found = INTERIORES_DATA.find((item) => item.id === id)
+            if (found) {
+              setSidebarView({ type: 'interior', data: found })
+            }
+          }}
+        />
+      )}
 
       <header className="glass topbar">
         <button
@@ -1155,6 +1188,17 @@ export default function App() {
             {...showHelp('Configuración', 'Ajustes generales del sistema, modo claro/oscuro, permisos y parámetros de la plataforma.')}
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          <button
+            aria-label="Sistema de diseño"
+            title="Abrir Sistema de Diseño (/design-system)"
+            onClick={() => {
+              window.location.hash = '/design-system'
+              setCurrentRoute('design-system')
+            }}
+            {...showHelp('Sistema de Diseño', 'Catálogo de componentes, tokens, badges, botones e interacción de SmartFlow (/design-system).')}
+          >
+            <Palette size={20} />
           </button>
           <button
             className="avatar"
@@ -1372,263 +1416,256 @@ export default function App() {
         )}
 
         <aside className={`glass panel ${ddOpen ? 'has-dropdown-open' : ''}`}>
-          {sidebarView?.type === 'interior' ? (
+          {selectedWorker ? (
+            /* Worker Detail Panel matching media_1793838814752_d3b96d00.png & media_1793839101437_8685ffe9.png */
             <div className="user-detail-panel interior-detail-panel">
               <div className="user-detail-topbar">
                 <button
                   className="user-top-back-btn no-border"
-                  onClick={() => {
-                    if (interiorView === 'bombeo') {
-                      setInteriorView(null)
-                    } else {
-                      setSidebarView(null)
-                      setSelected3DObjectId(null)
-                    }
-                  }}
+                  onClick={() => setSelectedWorker(null)}
                   title="Volver"
                   aria-label="Volver"
                 >
                   <ChevronLeft size={18} />
                 </button>
                 <div className="user-top-crumb">
-                  <span className="crumb-prefix">Interiores / </span>
-                  <span className="crumb-name"><b>{sidebarView.data.title}</b></span>
+                  <span className="crumb-prefix">{interiorView ? 'Sala de bombeo / ' : 'Simulaciones / '}</span>
+                  <span className="crumb-name"><b>{selectedWorker.name}</b></span>
                 </div>
               </div>
 
               <div className="interior-panel-body">
-                <h2 className="user-detail-title" style={{ margin: '4px 0 12px 0' }}>
-                  {sidebarView.data.title}
-                </h2>
-
-                <div className="interior-card-divider" />
-
-                <div className="interior-metrics-list">
-                  {sidebarView.data.metrics.map((m, idx) => (
-                    <div key={idx} className="interior-metric-block">
-                      <div className="row between interior-metric-row">
-                        <span className="interior-metric-label">{m.label}</span>
-                        {m.value.toLowerCase().includes('enlace activo') ? (
-                          <span className="enlace-activo-badge">{m.value}</span>
-                        ) : (
-                          <span className="interior-metric-val bold" style={{ color: m.valueColor }}>{m.value}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                <h2 className="user-detail-title" style={{ margin: '4px 0 2px 0' }}>{selectedWorker.name}</h2>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 12 }}>
+                  <span className="user-signal-badge online" style={{ fontSize: 11 }}>{selectedWorker.tag}</span>
+                  <span style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 500 }}>{selectedWorker.role}</span>
                 </div>
 
-                {sidebarView.data.id === 'bombeo' && interiorView === 'bombeo' ? (
-                  <>
-                    <div className="interior-card-divider" />
+                <div className="esc-block-title" style={{ marginTop: 8 }}>Información</div>
+                <div className="user-info-list">
+                  <div className="user-info-row">
+                    <span className="info-label">Tipo</span>
+                    <span className="info-value bold">{selectedWorker.tag}</span>
+                  </div>
+                  <div className="user-info-row">
+                    <span className="info-label">Rol</span>
+                    <span className="info-value bold">{selectedWorker.role}</span>
+                  </div>
+                  <div className="user-info-row">
+                    <span className="info-label">Turno</span>
+                    <span className="info-value bold">{selectedWorker.turno}</span>
+                  </div>
+                  <div className="user-info-row">
+                    <span className="info-label">Hora de ingreso</span>
+                    <span className="info-value bold">{selectedWorker.ingreso}</span>
+                  </div>
+                  <div className="user-info-row">
+                    <span className="info-label">Zona actual</span>
+                    <span className="info-value bold text-right">{selectedWorker.zona}</span>
+                  </div>
+                </div>
 
-                    {/* AI Metric Card */}
-                    <div
-                      className="user-ai-gradient-card"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        setNexoOpen(true)
-                        sendNexoMessage('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')
-                      }}
-                      title="Abrir recomendación con Nexo IA"
-                    >
-                      <div className="user-ai-card-top">
-                        <div className="user-ai-tag">
-                          <NexoLogo width={14} height={16} color="#455a64" />
-                          <span>Nexo IA · Diagnóstico Sala de Bombeo</span>
-                        </div>
-                        <span className="user-ai-status" style={{ background: '#fee2e2', color: '#dc2626' }}>1 Alerta</span>
-                      </div>
-                      <div className="user-ai-card-body">
-                        <div className="user-ai-metric-row">
-                          <span className="user-ai-lbl">Estado BA-04:</span>
-                          <b className="user-ai-val" style={{ color: '#dc2626' }}>Sobretemperatura (81°C)</b>
-                        </div>
-                        <div className="user-ai-metric-row">
-                          <span className="user-ai-lbl">Recomendación:</span>
-                          <b className="user-ai-val">Conmutar a BA-03 (Reserva)</b>
-                        </div>
-                      </div>
-                    </div>
+                <div className="esc-block-title" style={{ marginTop: 14 }}>Telemetría</div>
+                <div className="user-info-list">
+                  <div className="user-info-row">
+                    <span className="info-label">Velocidad</span>
+                    <span className="info-value bold">{selectedWorker.velocidad}</span>
+                  </div>
+                  <div className="user-info-row">
+                    <span className="info-label">Batería</span>
+                    <span className="status-pill online" style={{ fontSize: 11, padding: '2px 8px' }}>{selectedWorker.bateria}</span>
+                  </div>
+                  <div className="user-info-row">
+                    <span className="info-label">Último punto de control</span>
+                    <span className="info-value bold">{selectedWorker.ultimoPunto}</span>
+                  </div>
+                </div>
 
-                    {/* Telemetría y estado con líneas */}
-                    <div className="user-info-list" style={{ marginTop: 12 }}>
-                      <div className="user-info-row">
-                        <span className="info-label">Nivel de sumidero L5</span>
-                        <span className="info-value bold">64% (~180 m³)</span>
-                      </div>
-                      <div className="user-info-row">
-                        <span className="info-label">Bombas en marcha</span>
-                        <span className="info-value bold" style={{ color: '#16a34a' }}>2 de 4</span>
-                      </div>
-                      <div className="user-info-row">
-                        <span className="info-label">Caudal total evacuado</span>
-                        <span className="info-value bold">152 L/s</span>
-                      </div>
-                      <div className="user-info-row">
-                        <span className="info-label">Bombas en falla</span>
-                        <span className="info-value bold" style={{ color: '#dc2626' }}>1 (BA-04)</span>
-                      </div>
-                    </div>
-
-                    <div className="bombeo-section-title" style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', margin: '14px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                      BOMBAS (4)
-                    </div>
-                    <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {PUMPS_SIDEBAR.map((p) => {
-                        const isSel = selectedPump === p.id
-                        return (
-                          <div
-                            key={p.id}
-                            className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
-                            onClick={() => setSelectedPump(p.id)}
-                          >
-                            <div className="bombeo-pump-v2-header">
-                              <div className="row gap-2" style={{ alignItems: 'center' }}>
-                                <span className={`pump-status-dot-v2 ${p.status}`} />
-                                <b style={{ fontSize: 14, color: 'var(--text)' }}>{p.id}</b>
-                              </div>
-                              <div className="row gap-2" style={{ alignItems: 'center' }}>
-                                <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
-                                <span style={{ fontSize: 12, fontWeight: 600, color: p.status === 'falla' ? '#ef4444' : '#64748b' }}>{p.temp}</span>
-                              </div>
-                            </div>
-                            <div className="row between" style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
-                              <span>{p.flow}</span>
-                              <span>{p.hours}</span>
-                            </div>
-                            <div className="pump-bar-v2-track">
-                              <div
-                                className={`pump-bar-v2-fill ${p.status}`}
-                                style={{ width: p.status === 'reserva' ? '0%' : p.status === 'falla' ? '100%' : `${p.barPercent}%` }}
-                              />
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    <button
-                      className="cta full no-shadow ia-gradient"
-                      style={{
-                        marginTop: 10,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        padding: '12px 18px',
-                        borderRadius: 12,
-                        background: 'linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%)',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        boxShadow: 'none',
-                        fontSize: 13.5,
-                      }}
-                      onClick={() => {
-                        setNexoOpen(true)
-                        sendNexoMessage(
-                          selectedPump === 'BA-04'
-                            ? '¿Por qué está en falla la bomba BA-04?'
-                            : `Analiza el estado y telemetría de ${selectedPump} en la Sala de bombeo SB-01`
-                        )
-                      }}
-                    >
-                      <NexoLogo width={15} height={18} color="#fff" />
-                      <span>Preguntarle a Nexo IA sobre {selectedPump}</span>
-                    </button>
-
-                    <button
-                      className="esc-secondary-btn full no-shadow"
-                      onClick={() => setInteriorView(null)}
-                      style={{
-                        marginTop: 10,
-                        width: '100%',
-                        padding: '10px 14px',
-                        borderRadius: 8,
-                        fontSize: 13,
-                        fontWeight: 600,
-                        boxShadow: 'none',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Volver al modelo general de la mina
-                    </button>
-                  </>
-                ) : sidebarView.data.id === 'v-sa-01' ? (
-                  <>
-                    <div className="interior-card-divider" />
-                    <button
-                      className="cta no-shadow ia-gradient"
-                      style={{
-                        marginTop: 12,
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        padding: '11px 16px',
-                        borderRadius: 10,
-                        background: 'linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%)',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        boxShadow: 'none',
-                      }}
-                      onClick={() => {
-                        setNexoOpen(true)
-                        sendNexoMessage('¿Por qué se degrada el rodamiento de V-SA-01?')
-                      }}
-                    >
-                      <NexoLogo width={15} height={18} color="#fff" />
-                      <span>Preguntarle a Nexo IA sobre V-SA-01</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="interior-card-divider" />
-                    <button
-                      className="consultar-nexo-btn ia-gradient"
-                      onClick={() => {
-                        setNexoOpen(true)
-                        sendNexoMessage(`Diagnóstico del estado operativo de ${sidebarView.data.title}`)
-                      }}
-                    >
-                      <NexoLogo width={15} height={18} color="#ffffff" />
-                      <span style={{ color: '#ffffff' }}>Consultar estado con Nexo IA</span>
-                    </button>
-                    <button
-                      className="cta full no-shadow"
-                      style={{
-                        marginTop: 8,
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '12px 18px',
-                        borderRadius: 12,
-                        background: 'linear-gradient(90deg, #1253dd, #08ddf0)',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: 700,
-                        fontSize: 14,
-                        cursor: 'pointer',
-                        boxShadow: 'none',
-                      }}
-                      onClick={() => {
-                        const roomId = sidebarView.data.id || 'bombeo'
-                        navigateToInterior(roomId)
-                      }}
-                    >
-                      <span>Entrar</span>
-                    </button>
-                  </>
-                )}
+                <div style={{ position: 'relative', marginTop: 14, borderRadius: 10, overflow: 'hidden' }}>
+                  <BorderBeam size={160} duration={8} />
+                  <button
+                    className="consultar-nexo-btn ia-gradient"
+                    style={{ margin: 0, width: '100%' }}
+                    onClick={() => {
+                      setNexoOpen(true)
+                      sendNexoMessage(`Consultar estado y tareas activas de ${selectedWorker.name}`)
+                    }}
+                  >
+                    <NexoLogo width={14} height={16} color="#ffffff" />
+                    <span>Consultar estado con Nexo IA</span>
+                  </button>
+                </div>
               </div>
             </div>
-          ) : sidebarView?.type === 'whatif_result' ? (
+          ) : sidebarView?.type === 'interior' || interiorView ? (() => {
+            const currentInterior = sidebarView?.type === 'interior'
+              ? sidebarView.data
+              : INTERIORES_DATA.find((i) => i.id === interiorView) || INTERIORES_DATA[0]
+            const isBombeo = interiorView === 'bombeo' || currentInterior.id === 'bombeo'
+            return (
+              <div className="user-detail-panel interior-detail-panel">
+                <div className="user-detail-topbar">
+                  <button
+                    className="user-top-back-btn no-border"
+                    onClick={exitInterior}
+                    title="Volver"
+                    aria-label="Volver"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <div className="user-top-crumb">
+                    <span className="crumb-prefix">Interiores / </span>
+                    <span className="crumb-name">
+                      <b>{isBombeo ? 'Sala de bombeo SB-01' : currentInterior.title}</b>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="interior-panel-body">
+                  <h2 className="user-detail-title" style={{ margin: '4px 0 12px 0' }}>
+                    {isBombeo ? 'Sala de bombeo SB-01' : currentInterior.title}
+                  </h2>
+
+                  {isBombeo ? (
+                    <>
+                      {/* 2x2 Grid: Nivel sumidero, En marcha, Caudal total, En falla */}
+                      <div className="interior-metrics-2grid">
+                        <div className="interior-metric-cell">
+                          <span className="metric-cell-label">Nivel sumidero</span>
+                          <span className="metric-cell-value">64%</span>
+                        </div>
+                        <div className="interior-metric-cell">
+                          <span className="metric-cell-label">En marcha</span>
+                          <span className="metric-cell-value text-green">2 / 4</span>
+                        </div>
+                        <div className="interior-metric-cell">
+                          <span className="metric-cell-label">Caudal total</span>
+                          <span className="metric-cell-value">152 L/s</span>
+                        </div>
+                        <div className="interior-metric-cell">
+                          <span className="metric-cell-label">En falla</span>
+                          <span className="metric-cell-value text-red">1</span>
+                        </div>
+                      </div>
+
+                      <div className="interior-card-divider" />
+
+                      <div className="bombeo-section-title" style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', margin: '12px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Bombas (4)
+                      </div>
+
+                      <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {PUMPS_SIDEBAR.map((p) => {
+                          const isSel = selectedPump === p.id
+                          return (
+                            <div
+                              key={p.id}
+                              className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
+                              onClick={() => setSelectedPump(p.id)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <div className="bombeo-pump-v2-header">
+                                <div className="row gap-2" style={{ alignItems: 'center' }}>
+                                  <span className={`pump-status-dot-v2 ${p.status}`} />
+                                  <b style={{ fontSize: 14, color: 'var(--text)' }}>{p.id}</b>
+                                </div>
+                                <div className="row gap-2" style={{ alignItems: 'center' }}>
+                                  <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
+                                  <span style={{ fontSize: 12, fontWeight: 600, color: p.status === 'falla' ? '#ef4444' : '#64748b' }}>{p.temp}</span>
+                                </div>
+                              </div>
+                              <div className="row between" style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                                <span>{p.flow}</span>
+                                <span>{p.hours}</span>
+                              </div>
+                              <div className="pump-bar-v2-track">
+                                <div
+                                  className={`pump-bar-v2-fill ${p.status}`}
+                                  style={{ width: p.status === 'reserva' ? '0%' : p.status === 'falla' ? '100%' : `${p.barPercent}%` }}
+                                />
+                              </div>
+
+                              {isSel && (
+                                <button
+                                  className="consultar-nexo-btn ia-gradient"
+                                  style={{ marginTop: 8, padding: '7px 12px', fontSize: 12 }}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setNexoOpen(true)
+                                    sendNexoMessage(
+                                      selectedPump === 'BA-04'
+                                        ? '¿Por qué está en falla la bomba BA-04?'
+                                        : `Analiza el estado y telemetría de ${selectedPump} en la Sala de bombeo SB-01`
+                                    )
+                                  }}
+                                >
+                                  <NexoLogo width={12} height={14} color="#ffffff" />
+                                  <span>Preguntar a Nexo sobre {p.id}</span>
+                                </button>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="interior-metrics-list">
+                        {currentInterior.metrics?.map((m, idx) => (
+                          <div key={idx} className="interior-metric-block">
+                            <div className="row between interior-metric-row">
+                              <span className="interior-metric-label">{m.label}</span>
+                              {m.value.toLowerCase().includes('enlace activo') ? (
+                                <span className="enlace-activo-badge">{m.value}</span>
+                              ) : (
+                                <span className="interior-metric-val bold" style={{ color: m.valueColor }}>{m.value}</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="interior-card-divider" />
+                      <button
+                        className="consultar-nexo-btn ia-gradient"
+                        onClick={() => {
+                          setNexoOpen(true)
+                          sendNexoMessage((currentInterior as any).nexoQuery || `Diagnóstico del estado operativo de ${currentInterior.title}`)
+                        }}
+                      >
+                        <NexoLogo width={15} height={18} color="#ffffff" />
+                        <span style={{ color: '#ffffff' }}>Consultar estado con Nexo IA</span>
+                      </button>
+                      <button
+                        className="cta full no-shadow"
+                        style={{
+                          marginTop: 8,
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '12px 18px',
+                          borderRadius: 12,
+                          background: 'linear-gradient(90deg, #1253dd, #08ddf0)',
+                          color: '#fff',
+                          border: 'none',
+                          fontWeight: 700,
+                          fontSize: 14,
+                          cursor: 'pointer',
+                          boxShadow: 'none',
+                        }}
+                        onClick={() => {
+                          navigateToInterior(currentInterior.id)
+                        }}
+                      >
+                        <span>Entrar</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )
+          })() : sidebarView?.type === 'whatif_result' ? (
             <div className="user-detail-panel whatif-result-panel">
               <div className="user-detail-topbar">
                 <button
@@ -3686,8 +3723,6 @@ export default function App() {
             <span>Horizonte: 30 min</span>
           </div>
         </div>
-      )}
-      </>
       )}
 
       {/* SMF - V2 - 20 Nexo IA Right Drawer (340px wide, full height) */}
