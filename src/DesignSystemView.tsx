@@ -78,11 +78,12 @@ interface Props {
   theme: Theme
   onToggleTheme: () => void
   onBackToApp: () => void
+  onNavigateToLocation?: (target: string) => void
 }
 
 type SectionTab = 'all' | 'toolbars' | 'dropdowns' | 'buttons' | 'badges' | 'ia' | 'cards'
 
-export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: Props) {
+export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, onNavigateToLocation }: Props) {
   const [activeTab, setActiveTab] = useState<SectionTab>('all')
 
   // Interactive states for live toolbars & dropdowns
@@ -655,9 +656,21 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
             <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div style={labelTagStyle}>
                 <span>
-                  1.5 REPRODUCTORES DE LÍNEA DE TIEMPO — Homologados en transparencia y borde lineal con <code>.sidebar</code>
+                  1.5 REPRODUCTORES DE LÍNEA DE TIEMPO (HOMOLOGADOS &amp; NEUTROS)
                 </span>
-                <span style={codePillStyle}>.recorrido-player &amp; .whatif-simulation-player</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={codePillStyle}>.recorrido-player &amp; .whatif-simulation-player</span>
+                  {onNavigateToLocation && (
+                    <button
+                      className="ds-open-app-btn"
+                      onClick={() => onNavigateToLocation('recorrido-player')}
+                      title="Abrir reproductor en SmartFlow"
+                    >
+                      <SquareArrowOutUpRight size={12} />
+                      <span>Abrir en app</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Recorrido Player */}
@@ -831,15 +844,24 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     ))}
                   </div>
 
-                  <div className="whatif-player-slider-row">
-                    <input
-                      type="range"
-                      className="whatif-player-slider"
-                      min={0}
-                      max={30}
-                      value={whatIfSlider}
-                      onChange={(e) => setWhatIfSlider(Number(e.target.value))}
-                    />
+                  <div
+                    className="player-seekbar-wrap"
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+                      setWhatIfSlider(Math.round(pct * 30))
+                    }}
+                  >
+                    <div className="player-seekbar-bg">
+                      <div
+                        className="player-seekbar-fill"
+                        style={{ width: `${(whatIfSlider / 30) * 100}%` }}
+                      />
+                      <div
+                        className="player-seekbar-thumb"
+                        style={{ left: `${(whatIfSlider / 30) * 100}%` }}
+                      />
+                    </div>
                   </div>
 
                   <div className="whatif-player-footer">
@@ -890,7 +912,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={{ ...cardSurfaceStyle, minHeight: 410 }}>
                 <div style={labelTagStyle}>
                   <span>2.1 MODO DE VISUALIZACIÓN (PROYECCIÓN / ZOOM)</span>
-                  <span style={codePillStyle}>.dd-trigger + .dd-menu</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.dd-trigger + .dd-menu</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('dropdown-3d')}
+                        title="Abrir menú de proyección en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="vis-controls" style={{ padding: 0, position: 'relative' }}>
@@ -1175,7 +1209,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 14, minHeight: 410 }}>
                 <div style={labelTagStyle}>
                   <span>2.4 CHECKLIST MULTI-SELECCIÓN &amp; WHAT-IF</span>
-                  <span style={codePillStyle}>.personal-checklist-menu</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.personal-checklist-menu</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('checklist-personal')}
+                        title="Abrir checklist de personal en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Time Range Triggers */}
@@ -1315,7 +1361,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={labelTagStyle}>
                   <span>3.1 BOTONES PRIMARIOS &amp; EMERGENCIA (FULL vs AUTO)</span>
-                  <span style={codePillStyle}>.cta / .esc-primary-btn</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.cta / .esc-primary-btn</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('whatif')}
+                        title="Ver acciones primarias en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Full width CTA */}
@@ -1958,7 +2016,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={cardSurfaceStyle}>
                 <div style={labelTagStyle}>
                   <span>5.1 CARD IA PREDICTIVA CON &lt;BorderBeam /&gt;</span>
-                  <span style={codePillStyle}>&lt;BorderBeam /&gt;</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>&lt;BorderBeam /&gt;</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('worker-telemetria')}
+                        title="Abrir telemetría de personal en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div
@@ -2028,13 +2098,25 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={labelTagStyle}>
                   <span>5.2 BOTONES Y TRIGGERS NEXO IA</span>
-                  <span style={codePillStyle}>.ia-gradient</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.ia-gradient</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('nexo-drawer')}
+                        title="Abrir Nexo IA en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                {/* 1. Nexo Bar */}
+                {/* 1. Barra Principal Superior */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>1. Barra Principal Superior (Full-Width)</b> — <code>.nexo-bar</code>
+                    <b>1. Barra Principal Superior (Full-Width · Más grande, sin botón de configurar)</b> — <code>.nexo-bar</code>
                   </small>
                   <div className="nexo-bar">
                     <button className="nexo-open-trigger">
@@ -2042,41 +2124,43 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                         <NexoLogo /> Pregúntale a Nexo IA
                       </span>
                     </button>
-                    <button className="nexo-settings-btn">
-                      <Settings size={17} />
-                    </button>
                   </div>
                 </div>
 
                 {/* 2. Consultar estado con Nexo IA */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>2. Botón CTA Acción Nexo (Full-Width · Degradado Gris Metálico Nexo)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
+                    <b>2. Botón Consultar Estado (Degradado Gris Metálico Nexo · Altura 42px)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
                   </small>
-                  <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0 }}>
+                  <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, height: 42 }}>
                     <NexoLogo width={14} height={16} color="#ffffff" />
                     <span>Consultar estado con Nexo IA</span>
                   </button>
                 </div>
 
-                {/* 3. Floating Interior Top Trigger & Suggestion Pill */}
+                {/* 3. Botón Contextual de Bomba / Equipo */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>3. Pill Auto-Width &amp; Sugerencia de Drawer</b> — <code>.bombeo-nexo-top-trigger</code> &amp; <code>.nexo-pill</code>
+                    <b>3. Botón Contextual de Equipo BA-04 (Mismo tamaño · Altura 42px)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
                   </small>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
-                    <button
-                      className="bombeo-nexo-top-trigger"
-                      style={{ position: 'relative', top: 'auto', left: 'auto' }}
-                    >
-                      <NexoLogo width={13} height={15} color="#ffffff" />
-                      <span>Analizar anomalía BA-04</span>
-                    </button>
+                  <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, height: 42 }}>
+                    <NexoLogo width={14} height={16} color="#ffffff" />
+                    <span>Preguntar sobre BA-04</span>
+                  </button>
+                </div>
 
-                    <button className="nexo-pill" style={{ minHeight: 36, padding: '6px 12px', fontSize: 13 }}>
-                      ¿Qué bombas están activas hoy?
-                    </button>
-                  </div>
+                {/* 4. Fill Flotante en Escena / Analizar Anomalía */}
+                <div>
+                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
+                    <b>4. Fill Flotante / Analizar Anomalía (Mismo tamaño · Altura 42px)</b> — <code>.bombeo-nexo-top-trigger</code>
+                  </small>
+                  <button
+                    className="consultar-nexo-btn ia-gradient"
+                    style={{ margin: 0, height: 42 }}
+                  >
+                    <NexoLogo width={14} height={16} color="#ffffff" />
+                    <span>Analizar anomalía</span>
+                  </button>
                 </div>
               </div>
 
@@ -2154,7 +2238,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={labelTagStyle}>
                   <span>6.1 FILAS DE TRACKING, PERSONAL &amp; ZONAS</span>
-                  <span style={codePillStyle}>.zona-row</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.zona-row</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('personal')}
+                        title="Abrir lista de personal en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="personal-list">
@@ -2194,7 +2290,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={labelTagStyle}>
                   <span>6.2 PATRÓN PETICIÓN DE AUXILIO / ALERTAS ACTIVAS</span>
-                  <span style={codePillStyle}>.auxilio-card</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.auxilio-card</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('peticion-auxilio')}
+                        title="Abrir alerta de auxilio en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="auxilio-card">
@@ -2248,7 +2356,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={labelTagStyle}>
                   <span>6.3 SALA DE BOMBEO: GRID 2×2 &amp; CARDS DE BOMBA</span>
-                  <span style={codePillStyle}>.bombeo-pump-card-v2</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.bombeo-pump-card-v2</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('sala-bombeo')}
+                        title="Abrir vista interior de Sala de Bombeo en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="interior-metrics-2grid" style={{ margin: 0 }}>
@@ -2318,7 +2438,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={labelTagStyle}>
                   <span>6.4 CARDS DE RESULTADOS WHAT-IF (ANTES/DESPUÉS)</span>
-                  <span style={codePillStyle}>.whatif-compare-2col-box</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.whatif-compare-2col-box</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('whatif-result')}
+                        title="Abrir resultados What-If en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="whatif-compare-card-block">

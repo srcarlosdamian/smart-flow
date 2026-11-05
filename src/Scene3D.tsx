@@ -21,10 +21,10 @@ const PALETTE = {
   dark: {
     bg: 0x0a1c30,
     floor: 0x0a1c30,
-    fine: 0x0d2842,
-    coarse: 0x071728,
-    fineOp: 0.14,
-    coarseOp: 0.24,
+    fine: 0x224163,
+    coarse: 0x386191,
+    fineOp: 0.36,
+    coarseOp: 0.62,
     neutralMine: 0x94a3b8, // Neutral slate-gray tone
   },
   light: {

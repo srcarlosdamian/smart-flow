@@ -1085,6 +1085,133 @@ export default function App() {
     }
   }
 
+  const handleNavigateFromDesignSystem = (target: string) => {
+    window.location.hash = ''
+    setCurrentRoute('app')
+    setInteriorView(null)
+    setNexoOpen(false)
+    setDdOpen(null)
+
+    setTimeout(() => {
+      switch (target) {
+        case 'auxilio':
+        case 'peticion-auxilio':
+        case 'sos': {
+          const juan = SIM_ENTITIES.find((w) => w.name.includes('Juan')) || SIM_ENTITIES[0]
+          setSelectedWorker({
+            id: juan.id,
+            name: juan.name,
+            tag: juan.tag,
+            role: juan.role,
+            turno: juan.turno,
+            ingreso: juan.ingreso,
+            zona: juan.zona,
+            velocidad: juan.velocidad,
+            bateria: juan.bateria,
+            ultimoPunto: juan.ultimoPunto,
+            pos: [0, 0, 0],
+            rotY: 0,
+          })
+          break
+        }
+
+        case 'worker-telemetria':
+        case 'personal': {
+          const w0 = SIM_ENTITIES[0]
+          setSelectedWorker({
+            id: w0.id,
+            name: w0.name,
+            tag: w0.tag,
+            role: w0.role,
+            turno: w0.turno,
+            ingreso: w0.ingreso,
+            zona: w0.zona,
+            velocidad: w0.velocidad,
+            bateria: w0.bateria,
+            ultimoPunto: w0.ultimoPunto,
+            pos: [0, 0, 0],
+            rotY: 0,
+          })
+          break
+        }
+
+        case 'sala-bombeo':
+        case 'interior-bombeo':
+          navigateToInterior('bombeo')
+          break
+
+        case 'sala-bombeo-card': {
+          const found = INTERIORES_DATA.find((it) => it.id === 'bombeo')
+          if (found) setSidebarView({ type: 'interior', data: found })
+          break
+        }
+
+        case 'refugio':
+          navigateToInterior('refugio')
+          break
+
+        case 'taller':
+          navigateToInterior('taller')
+          break
+
+        case 'chancador': {
+          const found = INTERIORES_DATA.find((it) => it.id === 'chancador')
+          if (found) setSidebarView({ type: 'interior', data: found })
+          break
+        }
+
+        case 'whatif-simular':
+        case 'whatif':
+          setOpenSection('whatif')
+          setSidebarView({ type: 'escenario_condiciones' })
+          break
+
+        case 'whatif-result':
+        case 'resultado-escenario':
+          setSidebarView({ type: 'whatif_result' })
+          break
+
+        case 'evacuacion':
+        case 'declarar-evacuacion':
+          setEvacuacionActiva(true)
+          setSidebarView({ type: 'evacuacion_alertas' })
+          break
+
+        case 'nexo-drawer':
+        case 'nexo-ia':
+          setNexoOpen(true)
+          break
+
+        case 'checklist-personal':
+        case 'buscar-personal':
+          setOpenSection('tracking')
+          setDdOpen('personalSearch')
+          break
+
+        case 'dropdown-3d':
+        case 'proyeccion-3d':
+          setDdOpen('proj')
+          break
+
+        case 'dropdown-zoom':
+          setDdOpen('zoom')
+          break
+
+        case 'simulaciones-menu':
+          setOpenSection('sims')
+          setDdOpen('addSim')
+          break
+
+        case 'recorrido-player':
+          setOpenSection('tracking')
+          break
+
+        default:
+          break
+      }
+    }, 10)
+  }
+
   if (currentRoute === 'design-system') {
     return (
       <DesignSystemView
@@ -1094,6 +1221,7 @@ export default function App() {
           window.location.hash = ''
           setCurrentRoute('app')
         }}
+        onNavigateToLocation={handleNavigateFromDesignSystem}
       />
     )
   }
@@ -1387,18 +1515,6 @@ export default function App() {
                 {...showHelp('Nexo IA', 'Asistente de inteligencia artificial para consultar el estado del turno, ventilación, personal y alertas en tiempo real.')}
               >
                 <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
-              </button>
-
-              <button
-                className={`nexo-settings-btn ${ddOpen === 'nexoSettings' ? 'active' : ''}`}
-                aria-label="Configuración de Nexo IA"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setDdOpen((d) => (d === 'nexoSettings' ? null : 'nexoSettings'))
-                }}
-                {...showHelp('Configuración Nexo IA', 'Activa o desactiva el asistente Nexo IA, las sugerencias automáticas de turno y las respuestas por voz.')}
-              >
-                <Settings size={17} />
               </button>
             </div>
 
@@ -1822,7 +1938,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="whatif-result-container" style={{ padding: '16px 20px' }}>
+              <div className="whatif-result-container" style={{ padding: '4px 0' }}>
                 <h2 className="user-detail-title" style={{ margin: '4px 0 12px 0', fontSize: 20, fontWeight: 700 }}>Resultado del escenario</h2>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
@@ -3880,15 +3996,24 @@ export default function App() {
             ))}
           </div>
 
-          <div className="whatif-player-slider-row">
-            <input
-              type="range"
-              min={0}
-              max={1800}
-              value={whatIfTime}
-              onChange={(e) => setWhatIfTime(Number(e.target.value))}
-              className="whatif-player-slider"
-            />
+          <div
+            className="player-seekbar-wrap"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+              setWhatIfTime(Math.round(pct * 1800))
+            }}
+          >
+            <div className="player-seekbar-bg">
+              <div
+                className="player-seekbar-fill"
+                style={{ width: `${(whatIfTime / 1800) * 100}%` }}
+              />
+              <div
+                className="player-seekbar-thumb"
+                style={{ left: `${(whatIfTime / 1800) * 100}%` }}
+              />
+            </div>
           </div>
 
           <div className="whatif-player-footer">

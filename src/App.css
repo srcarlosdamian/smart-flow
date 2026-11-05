@@ -256,27 +256,44 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 }
 .nexo-bar {
   width: 100%;
-  background: linear-gradient(90deg, rgba(69, 90, 100, 0.85) 0%, rgba(84, 110, 122, 0.85) 50%, rgba(144, 164, 174, 0.85) 100%);
-  border: none;
-  outline: none;
+  height: 48px;
+  min-height: 48px;
+  background: linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
+  border: none !important;
+  outline: none !important;
   -webkit-backdrop-filter: blur(32px) saturate(160%);
   backdrop-filter: blur(32px) saturate(160%);
-  color: #fff; border-radius: 16px;
-  padding: 6px 10px 6px 16px; display: flex; align-items: center; justify-content: space-between;
+  color: #fff;
+  border-radius: 14px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
-  transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+  transition: filter .15s ease, opacity .2s ease;
+  box-sizing: border-box;
 }
 .nexo-bar.disabled {
   opacity: 0.68;
 }
 .nexo-bar:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  filter: brightness(1.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
 }
 .nexo-open-trigger {
-  flex: 1; display: flex; align-items: center; justify-content: flex-start;
-  padding: 4px 0; color: #fff; text-align: left;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  color: #fff;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
-.nexo-title { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; letter-spacing: 0.15px; }
+.nexo-title { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; letter-spacing: 0.15px; }
 .nexo-settings-btn {
   width: 30px; height: 30px; border-radius: 8px;
   background: rgba(255, 255, 255, 0.18);
@@ -1562,8 +1579,8 @@ input[type=range]::-moz-range-thumb {
 .player-seekbar-bg {
   width: 100%;
   height: 6px;
-  border-radius: 100px;
-  background: rgba(8, 47, 73, 0.12);
+  border-radius: 9999px;
+  background: #e2e8f0;
   position: relative;
 }
 .app[data-theme="dark"] .player-seekbar-bg {
@@ -1571,12 +1588,12 @@ input[type=range]::-moz-range-thumb {
 }
 .player-seekbar-fill {
   height: 100%;
-  border-radius: 100px 0 0 100px;
-  background: #082f49;
+  border-radius: 9999px;
+  background: #64748b;
   transition: width .05s linear;
 }
 .app[data-theme="dark"] .player-seekbar-fill {
-  background: #38bdf8;
+  background: #475569;
 }
 .player-seekbar-thumb {
   position: absolute;
@@ -1585,13 +1602,14 @@ input[type=range]::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #082f49;
+  background: #334155;
   border: 2px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   pointer-events: none;
 }
 .app[data-theme="dark"] .player-seekbar-thumb {
-  background: #38bdf8;
+  background: #cbd5e1;
+  border-color: #1e293b;
 }
 
 .player-time-footer {
@@ -4079,25 +4097,33 @@ select:focus,
 }
 .whatif-compare-card-block {
   position: relative;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
-  background: rgba(2, 132, 199, 0.04);
-  border: 1px solid rgba(2, 132, 199, 0.2);
+  background: var(--panel-item-bg, rgba(0, 0, 0, 0.03)) !important;
+  border: 1px solid var(--line) !important;
+}
+.app[data-theme="dark"] .whatif-compare-card-block {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 .whatif-compare-card-title {
   display: block;
   font-size: 13.5px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text, #0f172a);
   margin-bottom: 6px;
 }
 .whatif-compare-2col-box {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-item-bg, rgba(0, 0, 0, 0.02)) !important;
+  border: 1px solid var(--line) !important;
   overflow: hidden;
+}
+.app[data-theme="dark"] .whatif-compare-2col-box {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 .whatif-col {
   padding: 8px 12px;
@@ -4313,30 +4339,36 @@ select:focus,
   border-color: rgba(148, 163, 184, 0.25) !important;
 }
 
-/* Nexo IA within Interior Views */
+/* Nexo IA within Interior Views - Identical size (42px) & gradient as other Nexo buttons */
 .bombeo-nexo-top-trigger {
   position: absolute;
   top: 18px;
   left: 280px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  background: linear-gradient(90deg, rgba(69, 90, 100, 0.9) 0%, rgba(84, 110, 122, 0.9) 50%, rgba(144, 164, 174, 0.9) 100%);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  font-size: 12.5px;
+  height: 42px;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
+  color: #ffffff !important;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   z-index: 10;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
-  transition: all 0.15s ease;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: filter 0.15s ease;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 .bombeo-nexo-top-trigger:hover {
   filter: brightness(1.08);
-  transform: translateY(-1px);
+  transform: none !important;
+  box-shadow: none !important;
 }
 .nexo-sparkle-anim {
   color: #ffffff;
@@ -4808,11 +4840,13 @@ select:focus,
   margin-top: 12px;
   margin-bottom: 6px;
   width: 100%;
+  height: 42px;
+  min-height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 16px;
+  padding: 10px 16px;
   border-radius: 10px;
   background: linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
   color: #ffffff !important;
@@ -4823,6 +4857,8 @@ select:focus,
   box-shadow: none !important;
   transform: none !important;
   transition: filter .15s ease;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 .consultar-nexo-btn:hover {
   filter: brightness(1.08);
@@ -4848,9 +4884,9 @@ select:focus,
   position: sticky !important;
   top: 0 !important;
   z-index: 40 !important;
-  background: rgba(255, 255, 255, 0.85) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   padding: 8px 10px !important;
   margin: 0 0 10px 0 !important;
@@ -4860,9 +4896,9 @@ select:focus,
   box-sizing: border-box !important;
 }
 .app[data-theme="dark"] .user-detail-topbar {
-  background: rgba(15, 23, 42, 0.88) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  background: rgba(15, 23, 42, 0.76) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 .app[data-theme="dark"] .user-top-crumb .crumb-name {
@@ -5214,22 +5250,58 @@ select:focus,
 }
 .app[data-theme="dark"] .section-action-btn svg,
 .app[data-theme="dark"] .accordion-chevron-btn svg,
-.app[data-theme="dark"] .section-head svg {
-  color: #cbd5e1 !important;
+.app[data-theme="dark"] .section-head svg,
+.app[data-theme="dark"] .row-chevron,
+.app[data-theme="dark"] .dd-chevron {
+  color: #94a3b8 !important;
+  opacity: 0.85 !important;
 }
-.app[data-theme="dark"] .section-head:hover svg {
+.app[data-theme="dark"] .section-head:hover svg,
+.app[data-theme="dark"] .section-action-btn:hover svg,
+.app[data-theme="dark"] .accordion-chevron-btn:hover svg {
   color: #ffffff !important;
+  opacity: 1 !important;
 }
 .app[data-theme="dark"] .accordion-chevron-btn:disabled,
 .app[data-theme="dark"] .accordion-chevron-btn.disabled {
-  opacity: 0.25 !important;
-  color: #64748b !important;
+  opacity: 0.65 !important;
+  color: #94a3b8 !important;
   background: transparent !important;
 }
 .app[data-theme="dark"] .accordion-chevron-btn:disabled svg,
 .app[data-theme="dark"] .accordion-chevron-btn.disabled svg {
-  color: #64748b !important;
-  opacity: 0.35 !important;
+  color: #94a3b8 !important;
+  opacity: 0.65 !important;
+}
+
+/* Design System Direct Navigation Buttons */
+.ds-open-app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+.ds-open-app-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #0284c7;
+}
+.app[data-theme="dark"] .ds-open-app-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #f1f5f9;
+}
+.app[data-theme="dark"] .ds-open-app-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #38bdf8;
 }
 
 /* 5. Left Floating Toolbar */
