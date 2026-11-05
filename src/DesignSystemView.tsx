@@ -1903,23 +1903,23 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
-                    <span className="whatif-severity-tag high">Alto</span>
+                    <span className="whatif-severity-tag high">alto</span>
                     <code style={codePillStyle}>.whatif-severity-tag.high (#ffedd5 / #9a3412)</code>
                   </div>
                   <div className="row between">
-                    <span className="whatif-severity-tag medium">Medio</span>
+                    <span className="whatif-severity-tag medium">medio</span>
                     <code style={codePillStyle}>.whatif-severity-tag.medium (#fef9c3 / #854d0e)</code>
                   </div>
                   <div className="row between">
-                    <span className="player-sev-pill aviso">Aviso</span>
-                    <code style={codePillStyle}>.player-sev-pill.aviso</code>
+                    <span className="whatif-severity-tag aviso">aviso</span>
+                    <code style={codePillStyle}>.whatif-severity-tag.aviso</code>
                   </div>
                   <div className="row between">
-                    <span className="ai-insight-badge">Crítico</span>
-                    <code style={codePillStyle}>.ai-insight-badge</code>
+                    <span className="whatif-severity-tag critical">crítico</span>
+                    <code style={codePillStyle}>.whatif-severity-tag.critical</code>
                   </div>
                   <div className="row between">
-                    <span className="ai-nexo-tag">NEXO IA</span>
+                    <span className="ai-nexo-tag">nexo ia</span>
                     <code style={codePillStyle}>.ai-nexo-tag (gradiente metálico)</code>
                   </div>
                 </div>
@@ -1935,7 +1935,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div className="row between">
                     <div className="player-area-chip interior">
                       <SquareArrowOutUpRight size={13} />
-                      <span className="chip-label">Interior</span>
+                      <span className="chip-label">interior</span>
                       <span className="chip-count">4</span>
                     </div>
                     <code style={codePillStyle}>.player-area-chip.interior (#f3e8ff / #6b21a8)</code>
@@ -1943,14 +1943,16 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div className="row between">
                     <div className="player-area-chip superficie">
                       <SquareArrowOutUpRight size={13} />
-                      <span className="chip-label">Superficie</span>
+                      <span className="chip-label">superficie</span>
                       <span className="chip-count">2</span>
                     </div>
                     <code style={codePillStyle}>.player-area-chip.superficie (#dbeafe / #1e40af)</code>
                   </div>
                   <div className="row between">
-                    <span className="surface-region-badge">SECTOR NORTE</span>
-                    <code style={codePillStyle}>.surface-region-badge</code>
+                    <div className="player-area-chip neutral">
+                      <span className="chip-label">sector norte</span>
+                    </div>
+                    <code style={codePillStyle}>.player-area-chip.neutral (homologado, sin icono)</code>
                   </div>
                   <div className="row between">
                     <div className="chips-row" style={{ flex: 1, maxWidth: 200 }}>
@@ -2009,8 +2011,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   alignItems: 'center',
                   padding: '18px 20px',
                   borderRadius: 12,
-                  background: '#0f172a',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  background: theme === 'dark' ? '#0f172a' : '#ffffff',
+                  border: theme === 'dark' ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)',
                 }}
               >
                 {/* Pump 3D Badge: Marcha (Top box with green dot + flow) */}
@@ -2020,9 +2022,9 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 >
                   <div className="bombeo-badge-top-box">
                     <span className="callout-dot green" />
-                    <span>BA-01</span>
+                    <span>B-01</span>
                   </div>
-                  <div className="bombeo-badge-bottom-box">78 L/s</div>
+                  <div className="bombeo-badge-bottom-box">75 L/s</div>
                 </div>
 
                 {/* Pump 3D Badge: Reserva (Top box with yellow dot + reserva) */}
@@ -2032,7 +2034,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 >
                   <div className="bombeo-badge-top-box">
                     <span className="callout-dot yellow" />
-                    <span>BA-03</span>
+                    <span>B-03</span>
                   </div>
                   <div className="bombeo-badge-bottom-box reserva">RESERVA</div>
                 </div>
@@ -2044,7 +2046,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 >
                   <div className="bombeo-badge-top-box">
                     <span className="callout-dot red" />
-                    <span>BA-04</span>
+                    <span>B-04</span>
                   </div>
                   <div className="bombeo-badge-bottom-box falla">FALLA</div>
                 </div>
@@ -2055,7 +2057,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   style={{ position: 'relative', transform: 'none' }}
                 >
                   <span className="callout-dot cyan" />
-                  <span>SUMIDERO 85%</span>
+                  <span>SUMIDERO 64%</span>
                 </div>
 
                 {/* Interior Worker 3D Badge (Manuel Reyes) */}
@@ -2246,54 +2248,42 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                {/* 1. Barra Principal Superior */}
+                {/* 1. Barra Principal Superior (Centrada) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>1. Barra Principal Superior (Full-Width · Más grande, sin botón de configurar)</b> — <code>.nexo-bar</code>
+                    <b>1. Barra Principal Superior (Grande · Full-Width · Centrado)</b> — <code>.nexo-bar</code>
                   </small>
-                  <div className="nexo-bar">
-                    <button className="nexo-open-trigger">
-                      <span className="nexo-title">
+                  <div className="nexo-bar" style={{ justifyContent: 'center' }}>
+                    <button className="nexo-open-trigger" style={{ justifyContent: 'center', textAlign: 'center' }}>
+                      <span className="nexo-title" style={{ justifyContent: 'center', margin: '0 auto' }}>
                         <NexoLogo /> Pregúntale a Nexo IA
                       </span>
                     </button>
                   </div>
                 </div>
 
-                {/* 2. Consultar estado con Nexo IA */}
+                {/* 2. Botón Mediano Full-Width */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>2. Botón Consultar Estado (Degradado Gris Metálico Nexo · Altura 42px)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
+                    <b>2. Botón Mediano Full (Full-Width · Altura 36px)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
                   </small>
-                  <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, height: 42 }}>
+                  <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, width: '100%', height: 36, fontSize: 13 }}>
                     <NexoLogo width={14} height={16} color="#ffffff" />
                     <span>Consultar estado con Nexo IA</span>
                   </button>
                 </div>
 
-                {/* 3. Botón Contextual de Bomba / Equipo */}
+                {/* 3. Botón Mediano Auto-Width (Exactamente igual pero auto) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>3. Botón Contextual de Equipo BA-04 (Mismo tamaño · Altura 42px)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
+                    <b>3. Botón Mediano Auto (Auto-Width · Altura 36px)</b> — <code>.consultar-nexo-btn.ia-gradient (auto)</code>
                   </small>
-                  <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, height: 42 }}>
-                    <NexoLogo width={14} height={16} color="#ffffff" />
-                    <span>Preguntar sobre BA-04</span>
-                  </button>
-                </div>
-
-                {/* 4. Fill Flotante en Escena / Analizar Anomalía */}
-                <div>
-                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>4. Fill Flotante / Analizar Anomalía (Mismo tamaño · Altura 42px)</b> — <code>.bombeo-nexo-top-trigger</code>
-                  </small>
-                  <button
-                    className="consultar-nexo-btn ia-gradient"
-                    style={{ margin: 0, height: 42 }}
-                  >
-                    <NexoLogo width={14} height={16} color="#ffffff" />
-                    <span>Analizar anomalía</span>
-                  </button>
+                  <div style={{ display: 'flex' }}>
+                    <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, width: 'auto', height: 36, padding: '0 16px', fontSize: 13 }}>
+                      <NexoLogo width={14} height={16} color="#ffffff" />
+                      <span>Preguntar a Nexo IA</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 

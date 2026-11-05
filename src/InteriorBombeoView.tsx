@@ -33,10 +33,10 @@ export interface WorkerData {
 }
 
 export const PUMPS: Pump3D[] = [
-  { id: 'BA-01', name: 'BA-01', flow: '78 L/s', pressure: '12.4 bar', temp: '62°C', hours: '3120 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-6, 0, 0] },
-  { id: 'BA-02', name: 'BA-02', flow: '74 L/s', pressure: '11.9 bar', temp: '59°C', hours: '2870 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-2, 0, 0] },
-  { id: 'BA-03', name: 'BA-03', flow: '0 L/s', pressure: '0.0 bar', temp: '24°C', hours: '1490 h', status: 'reserva', color: '#94a3b8', statusText: 'En reserva', pos: [2, 0, 0] },
-  { id: 'BA-04', name: 'BA-04', flow: '0 L/s', pressure: '0.0 bar', temp: '81°C', hours: '4650 h', status: 'falla', color: '#ef4444', statusText: 'Falla', pos: [6, 0, 0] },
+  { id: 'B-01', name: 'B-01', flow: '75 L/s', pressure: '12.4 bar', temp: '62°C', hours: '3120 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-6, 0, 0] },
+  { id: 'B-02', name: 'B-02', flow: '75 L/s', pressure: '11.9 bar', temp: '59°C', hours: '2870 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-2, 0, 0] },
+  { id: 'B-03', name: 'B-03', flow: '0 L/s', pressure: '0.0 bar', temp: '24°C', hours: '1490 h', status: 'reserva', color: '#94a3b8', statusText: 'En reserva', pos: [2, 0, 0] },
+  { id: 'B-04', name: 'B-04', flow: '0 L/s', pressure: '0.0 bar', temp: '81°C', hours: '4650 h', status: 'falla', color: '#ef4444', statusText: 'Falla', pos: [6, 0, 0] },
 ]
 
 export const WORKERS_DATA: WorkerData[] = [
@@ -89,6 +89,11 @@ export interface LightingConfig {
   fillColor: string
   fillIntensity: number
   lampIntensity: number
+  orbEmissiveIntensity: number
+  exposure: number
+  wallRoughness: number
+  pipeRoughness: number
+  pipeMetalness: number
   pipeColor: string
 }
 
@@ -111,6 +116,11 @@ const DEFAULT_LIGHTING_DARK: LightingConfig = {
   fillColor: '#0284c7',
   fillIntensity: 0.9,
   lampIntensity: 1.5,
+  orbEmissiveIntensity: 2.6,
+  exposure: 1.15,
+  wallRoughness: 0.78,
+  pipeRoughness: 0.35,
+  pipeMetalness: 0.45,
   pipeColor: '#cbd5e1',
 }
 
@@ -133,6 +143,11 @@ const DEFAULT_LIGHTING_LIGHT: LightingConfig = {
   fillColor: '#38bdf8',
   fillIntensity: 0.8,
   lampIntensity: 1.2,
+  orbEmissiveIntensity: 2.2,
+  exposure: 1.05,
+  wallRoughness: 0.65,
+  pipeRoughness: 0.3,
+  pipeMetalness: 0.35,
   pipeColor: '#ffffff',
 }
 
@@ -292,6 +307,8 @@ export default function InteriorBombeoView({
   const floorMatRef = useRef<THREE.MeshStandardMaterial | null>(null)
   const clayMatRef = useRef<THREE.MeshStandardMaterial | null>(null)
   const orbLightsRef = useRef<THREE.PointLight[]>([])
+  const orbMaterialsRef = useRef<THREE.MeshStandardMaterial[]>([])
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
 
   useEffect(() => {
     if (selectedPumpId) setActivePump(selectedPumpId)
@@ -325,6 +342,8 @@ export default function InteriorBombeoView({
     // Pipe Clay Material
     if (clayMatRef.current) {
       clayMatRef.current.color = new THREE.Color(cfg.pipeColor)
+      clayMatRef.current.roughness = cfg.pipeRoughness
+      clayMatRef.current.metalness = cfg.pipeMetalness
     }
 
     // Lights
@@ -347,10 +366,16 @@ export default function InteriorBombeoView({
       fillLightRef.current.intensity = cfg.fillIntensity
     }
 
-    // Pump Indicator Lights
+    // Pump Indicator Lights & Emissive Orbs
     orbLightsRef.current.forEach((pl) => {
       pl.intensity = cfg.lampIntensity
     })
+    orbMaterialsRef.current.forEach((mat) => {
+      mat.emissiveIntensity = cfg.orbEmissiveIntensity
+    })
+    if (rendererRef.current) {
+      rendererRef.current.toneMappingExposure = cfg.exposure
+    }
   }, [cfg])
 
   useEffect(() => {
@@ -369,10 +394,13 @@ export default function InteriorBombeoView({
     camera.position.set(0, 3.8, 12.8)
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
+    rendererRef.current = renderer
     renderer.setSize(container.clientWidth, container.clientHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
+    renderer.toneMappingExposure = cfg.exposure
     container.appendChild(renderer.domElement)
 
     const controls = new OrbitControls(camera, renderer.domElement)
@@ -509,15 +537,34 @@ export default function InteriorBombeoView({
       fPipe.castShadow = true
       g.add(fPipe)
 
-      // Glowing Indicator Orb on Pedestal front
-      const orbGeo = new THREE.SphereGeometry(0.14, 16, 16)
-      const orbMat = new THREE.MeshBasicMaterial({ color: pump.color })
+      // Glowing Indicator Orb on Pedestal front (Self-luminous emissive orb)
+      const orbGeo = new THREE.SphereGeometry(0.16, 24, 24)
+      const orbMat = new THREE.MeshStandardMaterial({
+        color: pump.color,
+        emissive: new THREE.Color(pump.color),
+        emissiveIntensity: cfg.orbEmissiveIntensity,
+        roughness: 0.15,
+        metalness: 0.1,
+      })
+      orbMaterialsRef.current.push(orbMat)
       const orb = new THREE.Mesh(orbGeo, orbMat)
       orb.position.set(0, 0.5, 1.0)
       g.add(orb)
 
+      // Translucent luminous bloom halo around the glowing orb
+      const haloGeo = new THREE.SphereGeometry(0.24, 20, 20)
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: pump.color,
+        transparent: true,
+        opacity: 0.45,
+        blending: THREE.AdditiveBlending,
+      })
+      const halo = new THREE.Mesh(haloGeo, haloMat)
+      halo.position.set(0, 0.5, 1.0)
+      g.add(halo)
+
       // Local Point Light from the Orb
-      const orbLight = new THREE.PointLight(pump.color, cfg.lampIntensity, 3.5)
+      const orbLight = new THREE.PointLight(pump.color, cfg.lampIntensity, 4.0)
       orbLight.position.set(0, 0.6, 0.8)
       g.add(orbLight)
       orbLightsRef.current.push(orbLight)
@@ -773,7 +820,7 @@ export default function InteriorBombeoView({
           }}
         >
           <span className="callout-dot cyan" />
-          <span>SUMIDERO 85%</span>
+          <span>SUMIDERO 64%</span>
         </div>
       )}
 
@@ -826,7 +873,7 @@ export default function InteriorBombeoView({
           <Droplets size={16} style={{ color: '#00b0ff' }} />
           <div className="strip-text">
             <span className="strip-lbl">NIVEL SUMIDERO</span>
-            <span className="strip-val" style={{ color: '#ef4444' }}>85%</span>
+            <span className="strip-val" style={{ color: '#0284c7' }}>64%</span>
           </div>
         </div>
         <div className="bombeo-strip-divider" />
@@ -834,7 +881,7 @@ export default function InteriorBombeoView({
           <span className="strip-dot green" />
           <div className="strip-text">
             <span className="strip-lbl">EN MARCHA</span>
-            <span className="strip-val" style={{ color: '#00e676' }}>3 / 4</span>
+            <span className="strip-val" style={{ color: '#00e676' }}>2 / 4</span>
           </div>
         </div>
         <div className="bombeo-strip-divider" />
@@ -842,11 +889,11 @@ export default function InteriorBombeoView({
           <Activity size={16} style={{ color: '#00b0ff' }} />
           <div className="strip-text">
             <span className="strip-lbl">CAUDAL TOTAL</span>
-            <span className="strip-val">157 L/s</span>
+            <span className="strip-val">150 L/s</span>
           </div>
         </div>
         <div className="bombeo-strip-divider" />
-        <div className="bombeo-strip-item clickable" onClick={() => onSelectPump?.('BA-04')}>
+        <div className="bombeo-strip-item clickable" onClick={() => onSelectPump?.('B-04')}>
           <AlertTriangle size={16} style={{ color: '#ef4444' }} />
           <div className="strip-text">
             <span className="strip-lbl">EN FALLA</span>
@@ -1174,6 +1221,67 @@ export default function InteriorBombeoView({
               </div>
             </div>
 
+            {/* Bolitas Luminosas & Realismo Extra */}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 6 }}>
+                Bolitas Luminosas &amp; Exposición
+              </div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Luminosidad Bolitas (Emissive)</span>
+                  <b>{cfg.orbEmissiveIntensity.toFixed(1)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.5}
+                  max={6.0}
+                  step={0.1}
+                  value={cfg.orbEmissiveIntensity}
+                  onChange={(e) => setCfg({ ...cfg, orbEmissiveIntensity: parseFloat(e.target.value) })}
+                  style={{
+                    width: '100%',
+                    ['--range-progress' as any]: `${((cfg.orbEmissiveIntensity - 0.5) / (6.0 - 0.5)) * 100}%`,
+                  }}
+                />
+              </div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Exposición Render</span>
+                  <b>{cfg.exposure.toFixed(2)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.5}
+                  max={2.5}
+                  step={0.05}
+                  value={cfg.exposure}
+                  onChange={(e) => setCfg({ ...cfg, exposure: parseFloat(e.target.value) })}
+                  style={{
+                    width: '100%',
+                    ['--range-progress' as any]: `${((cfg.exposure - 0.5) / (2.5 - 0.5)) * 100}%`,
+                  }}
+                />
+              </div>
+              <div style={{ fontSize: 12 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Metalicidad de Tuberías</span>
+                  <b>{cfg.pipeMetalness.toFixed(2)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.0}
+                  max={1.0}
+                  step={0.05}
+                  value={cfg.pipeMetalness}
+                  onChange={(e) => setCfg({ ...cfg, pipeMetalness: parseFloat(e.target.value) })}
+                  style={{
+                    width: '100%',
+                    ['--range-progress' as any]: `${(cfg.pipeMetalness / 1.0) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+
             {/* Piping Clay Tint */}
             <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
               <div className="row between" style={{ fontSize: 12 }}>
@@ -1185,6 +1293,35 @@ export default function InteriorBombeoView({
                   style={{ width: 28, height: 24, border: 'none', background: 'transparent', cursor: 'pointer' }}
                 />
               </div>
+            </div>
+
+            {/* Copy Configuration Button */}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 12, marginTop: 4 }}>
+              <button
+                className="user-action-btn full"
+                onClick={copyConfig}
+                style={{
+                  height: 36,
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  borderRadius: 8,
+                  background: 'rgba(0,0,0,0.06)',
+                  border: '1px solid var(--line)',
+                  color: 'var(--text)',
+                }}
+              >
+                {copied ? <Check size={16} style={{ color: '#10b981' }} /> : <Copy size={16} />}
+                <span>{copied ? '¡Configuración copiada!' : 'Copiar configuración'}</span>
+              </button>
+              <small style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 6, textAlign: 'center' }}>
+                Copia los parámetros JSON para aplicarlos por defecto.
+              </small>
             </div>
           </div>
         </div>

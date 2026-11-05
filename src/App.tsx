@@ -12,14 +12,13 @@ import {
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, Target, CheckCheck, Upload, Download, Camera, Palette, LogIn,
+  X, Target, CheckCheck, Upload, Download, Camera, Palette, LogIn, Move,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
 import SurfaceView from './SurfaceView'
 import InteriorBombeoView, { type WorkerData } from './InteriorBombeoView'
 import { SIM_ENTITIES } from './simulations3D'
-import BorderBeam from './BorderBeam'
 import DesignSystemView from './DesignSystemView'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
@@ -167,10 +166,10 @@ const zoomPresets: { val: number; label: string; tag?: string }[] = [
 type TrackingType = 'personal' | 'zonas' | 'perimetros' | 'recorrido' | 'escenario' | 'evacuacion'
 
 const PUMPS_SIDEBAR = [
-  { id: 'BA-01', name: 'BA-01', flow: '78 L/s · 12.4 bar', hours: '3120 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '62°C', barPercent: 65 },
-  { id: 'BA-02', name: 'BA-02', flow: '74 L/s · 11.9 bar', hours: '2870 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '59°C', barPercent: 62 },
-  { id: 'BA-03', name: 'BA-03', flow: '0 L/s · 0.0 bar', hours: '1490 h de servicio', status: 'reserva', statusText: 'Reserva', temp: '24°C', barPercent: 0 },
-  { id: 'BA-04', name: 'BA-04', flow: '0 L/s · 0.0 bar', hours: '4650 h de servicio', status: 'falla', statusText: 'Falla', temp: '81°C', barPercent: 100 },
+  { id: 'B-01', name: 'B-01', flow: '75 L/s · 12.4 bar', hours: '3120 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '62°C', barPercent: 75 },
+  { id: 'B-02', name: 'B-02', flow: '75 L/s · 11.9 bar', hours: '2870 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '59°C', barPercent: 75 },
+  { id: 'B-03', name: 'B-03', flow: '0 L/s · 0.0 bar', hours: '1490 h de servicio', status: 'reserva', statusText: 'Reserva', temp: '24°C', barPercent: 0 },
+  { id: 'B-04', name: 'B-04', flow: '0 L/s · 0.0 bar', hours: '4650 h de servicio', status: 'falla', statusText: 'Falla', temp: '81°C', barPercent: 100 },
 ]
 
 const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; color: string; icon: typeof UserRoundSearch }[] = [
@@ -233,7 +232,7 @@ export interface InteriorItem {
 const INTERIORES_DATA: InteriorItem[] = [
   {
     id: 'refugio',
-    title: 'Refugio R-01',
+    title: 'Refugio R1',
     subTitle: 'Refugio',
     category: 'General',
     icon: ShieldCheck,
@@ -265,7 +264,7 @@ const INTERIORES_DATA: InteriorItem[] = [
   },
   {
     id: 'bombeo',
-    title: 'Sala de bombeo SB-01',
+    title: 'Sala de Bombeo SB1',
     subTitle: 'Sala de bombeo',
     category: 'General',
     icon: Droplets,
@@ -273,9 +272,11 @@ const INTERIORES_DATA: InteriorItem[] = [
     locationLabel: 'Sala de bombeo',
     level: 'L5',
     metrics: [
-      { label: 'Nivel del sumidero', value: '85%', valueColor: '#f44336', bar: { current: 85, max: 100 } },
-      { label: 'Bombas en marcha', value: '3 / 4' },
-      { label: 'Caudal total', value: '157 L/s' },
+      { label: 'Nivel del sumidero', value: 'Sumidero 64%', valueColor: '#0284c7', bar: { current: 64, max: 100 } },
+      { label: 'Bombas en marcha', value: '2 de 4' },
+      { label: 'Caudal total', value: '150 L/s' },
+      { label: 'En falla', value: '1', valueColor: '#ef4444' },
+      { label: 'En reserva', value: '1' },
       { label: 'Presión de descarga', value: '12.4 bar' },
     ],
   },
@@ -664,9 +665,15 @@ export default function App() {
   const exitInterior = () => {
     setInteriorView(null)
     setSelectedWorker(null)
+    setSidebarView(null)
+    setSelected3DObjectId(null)
     if (window.location.hash.startsWith('#/interior')) {
       window.history.pushState(null, '', window.location.pathname)
     }
+  }
+
+  const handleBackFromInterior = () => {
+    exitInterior()
   }
 
   const [currentRoute, setCurrentRoute] = useState<'app' | 'design-system'>(() => {
@@ -744,7 +751,7 @@ export default function App() {
   }
 
   const [whatIfPlaying, setWhatIfPlaying] = useState(false)
-  const [whatIfTime, setWhatIfTime] = useState(1800)
+  const [whatIfTime, setWhatIfTime] = useState(900)
 
   useEffect(() => {
     let t: any = null
@@ -779,7 +786,7 @@ export default function App() {
     'Refugio R-01': 0,
   })
   const [escenarioMinuto10, setEscenarioMinuto10] = useState(true)
-  const [escenarioSlider, setEscenarioSlider] = useState(25)
+  const [escenarioSlider, setEscenarioSlider] = useState(30)
 
   // Vehicle auxilio state
   const [auxilioTab, setAuxilioTab] = useState<'sin_resolver' | 'resueltas'>('sin_resolver')
@@ -788,7 +795,7 @@ export default function App() {
 
   // Recorrido Player & Detail state (SMF - V2 - 7, 8, 9)
   const [playerPlaying, setPlayerPlaying] = useState(false)
-  const [playerSeconds, setPlayerSeconds] = useState(4)
+  const [playerSeconds, setPlayerSeconds] = useState(1800)
   const [playerSpeed, setPlayerSpeed] = useState<'0.5x' | '1x' | '2x' | '4x' | '8x'>('1x')
   const [playerSeverityFilter, setPlayerSeverityFilter] = useState<string | null>('Aviso')
   const [playerBookmarked, setPlayerBookmarked] = useState(false)
@@ -1717,20 +1724,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div style={{ position: 'relative', marginTop: 14, borderRadius: 10, overflow: 'hidden' }}>
-                  <BorderBeam size={160} duration={8} />
-                  <button
-                    className="consultar-nexo-btn ia-gradient"
-                    style={{ margin: 0, width: '100%' }}
-                    onClick={() => {
-                      setNexoOpen(true)
-                      sendNexoMessage(`Consultar estado y tareas activas de ${selectedWorker.name}`)
-                    }}
-                  >
-                    <NexoLogo width={14} height={16} color="#ffffff" />
-                    <span>Consultar estado con Nexo IA</span>
-                  </button>
-                </div>
+                {/* Telemetría y acciones */}
               </div>
             </div>
           ) : sidebarView?.type === 'interior' || interiorView ? (() => {
@@ -1742,63 +1736,56 @@ export default function App() {
             if (isBombeo) {
               return (
                 <div className="user-detail-panel interior-detail-panel bombeo-sidebar-panel">
-                  {/* Clean header: Title (NO ICON) and close button */}
-                  <div className="bombeo-panel-header row between" style={{ alignItems: 'center', padding: '2px 2px 10px 2px', borderBottom: '1px solid var(--line)' }}>
-                    <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.2px' }}>
-                      Sala de bombeo SB-01
-                    </h2>
+                  {/* Clean header: Back breadcrumb navigation (NO X) */}
+                  <div className="user-detail-topbar">
                     <button
-                      className="bombeo-panel-x-btn"
-                      onClick={() => {
-                        if (interiorView) {
-                          exitInterior()
-                        } else {
-                          setSidebarView(null)
-                        }
-                      }}
-                      title="Cerrar"
-                      aria-label="Cerrar"
-                      style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: '50%',
-                        display: 'grid',
-                        placeItems: 'center',
-                        color: 'var(--muted)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                      }}
+                      className="user-top-back-btn no-border"
+                      onClick={handleBackFromInterior}
+                      title="Volver"
+                      aria-label="Volver"
                     >
-                      <X size={18} />
+                      <ChevronLeft size={18} />
                     </button>
+                    <div className="user-top-crumb">
+                      <span className="crumb-prefix">Interiores / </span>
+                      <span className="crumb-name"><b>Sala de Bombeo SB1</b></span>
+                    </div>
                   </div>
 
-                  <div className="interior-panel-body" style={{ marginTop: 10 }}>
-                    {/* Location Tag (from image 1) */}
-                    <div className="bombeo-location-tag row gap-2" style={{ alignItems: 'center', marginBottom: 12 }}>
-                      <MapPin size={16} style={{ color: '#00b0ff' }} />
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#00b0ff' }}>Sala de bombeo</span>
-                    </div>
+                  <div className="interior-panel-body" style={{ marginTop: 6 }}>
+                    <h2 style={{ margin: '4px 0 12px 0', fontSize: 16, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.2px' }}>
+                      Sala de bombeo
+                    </h2>
 
-                    {/* Image 1 Metrics Block */}
+                    {/* Telemetry Metrics Block */}
                     <div className="bombeo-metrics-block" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       <div className="row between" style={{ alignItems: 'center' }}>
                         <span style={{ fontSize: 13, color: 'var(--text)' }}>Nivel del sumidero</span>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: '#ef4444' }}>85%</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#0284c7' }}>Sumidero 64</span>
                       </div>
-                      {/* Horizontal progress bar (Neutral Homologated) */}
+                      {/* Horizontal progress bar */}
                       <div className="neutral-progress-track">
-                        <div className="neutral-progress-fill" style={{ width: '85%' }} />
+                        <div className="neutral-progress-fill" style={{ width: '64%' }} />
                       </div>
 
                       <div className="row between" style={{ alignItems: 'center', paddingTop: 4 }}>
-                        <span style={{ fontSize: 13, color: 'var(--text)' }}>Bombas en marcha</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>3 / 4</span>
+                        <span style={{ fontSize: 13, color: 'var(--text)' }}>En marcha</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981' }}>2 de 4</span>
                       </div>
 
                       <div className="row between" style={{ alignItems: 'center' }}>
-                        <span style={{ fontSize: 13, color: 'var(--text)' }}>Caudal total</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>157 L/s</span>
+                        <span style={{ fontSize: 13, color: 'var(--text)' }}>Caudal</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>150 L/s</span>
+                      </div>
+
+                      <div className="row between" style={{ alignItems: 'center' }}>
+                        <span style={{ fontSize: 13, color: 'var(--text)' }}>En falla</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#ef4444' }}>1</span>
+                      </div>
+
+                      <div className="row between" style={{ alignItems: 'center' }}>
+                        <span style={{ fontSize: 13, color: 'var(--text)' }}>En reserva</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--muted)' }}>1</span>
                       </div>
 
                       <div className="row between" style={{ alignItems: 'center' }}>
@@ -1807,7 +1794,26 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* IF NOT INSIDE: Entrar CTA button (blue gradient, NO NEGRO!) */}
+                    {/* Arrastrar para girar guide */}
+                    <div
+                      style={{
+                        marginTop: 14,
+                        padding: '8px 12px',
+                        borderRadius: 8,
+                        background: 'var(--panel-item-bg, rgba(0,0,0,0.04))',
+                        border: '1px solid var(--line)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        fontSize: 12,
+                        color: 'var(--muted)',
+                      }}
+                    >
+                      <Move size={14} style={{ color: 'var(--muted)', flexShrink: 0 }} />
+                      <span>Arrastrar para girar</span>
+                    </div>
+
+                    {/* IF NOT INSIDE: Entrar CTA button */}
                     {!interiorView && (
                       <div style={{ marginTop: 18 }}>
                         <button
@@ -1839,7 +1845,7 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* IF INSIDE: Full pump cards + Sumidero telemetry + Nexo IA */}
+                    {/* IF INSIDE: Pump cards list (without redundant Nexo button) */}
                     {interiorView && (
                       <>
                         <div className="interior-card-divider" style={{ margin: '14px 0 10px 0' }} />
@@ -1878,66 +1884,10 @@ export default function App() {
                                     style={{ width: p.status === 'reserva' ? '0%' : p.status === 'falla' ? '100%' : `${p.barPercent}%` }}
                                   />
                                 </div>
-
-                                {isSel && (
-                                  <button
-                                    className="consultar-nexo-btn ia-gradient"
-                                    style={{ marginTop: 8, padding: '7px 12px', fontSize: 12 }}
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setNexoOpen(true)
-                                      sendNexoMessage(
-                                        selectedPump === 'BA-04'
-                                          ? '¿Por qué está en falla la bomba BA-04?'
-                                          : `Analiza el estado y telemetría de ${selectedPump} en la Sala de bombeo SB-01`
-                                      )
-                                    }}
-                                  >
-                                    <NexoLogo width={12} height={14} color="#ffffff" />
-                                    <span>Preguntar a Nexo sobre {p.id}</span>
-                                  </button>
-                                )}
                               </div>
                             )
                           })}
                         </div>
-
-                        <div className="interior-card-divider" style={{ margin: '14px 0 10px 0' }} />
-
-                        <div className="bombeo-section-title" style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', margin: '4px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Sumidero en marcha & Telemetría
-                        </div>
-
-                        <div className="bombeo-sumidero-detail-card" style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text)', background: 'var(--panel-item-bg, rgba(0,0,0,0.04))', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--line)' }}>
-                          <div className="row between">
-                            <span style={{ color: 'var(--muted)' }}>Capacidad del sumidero:</span>
-                            <b>180 m³</b>
-                          </div>
-                          <div className="row between">
-                            <span style={{ color: 'var(--muted)' }}>Volumen actual:</span>
-                            <b style={{ color: '#ef4444' }}>153 m³ (85%)</b>
-                          </div>
-                          <div className="row between">
-                            <span style={{ color: 'var(--muted)' }}>Bomba de respaldo:</span>
-                            <b style={{ color: '#00e676' }}>BA-03 disponible</b>
-                          </div>
-                          <div className="row between">
-                            <span style={{ color: 'var(--muted)' }}>Presión colector:</span>
-                            <b>12.4 bar (estable)</b>
-                          </div>
-                        </div>
-
-                        <button
-                          className="consultar-nexo-btn ia-gradient"
-                          style={{ marginTop: 12, width: '100%', padding: '10px 14px' }}
-                          onClick={() => {
-                            setNexoOpen(true)
-                            sendNexoMessage('Diagnóstico del estado operativo y sumidero de la Sala de bombeo SB-01')
-                          }}
-                        >
-                          <NexoLogo width={15} height={18} color="#ffffff" />
-                          <span style={{ color: '#ffffff', fontWeight: 600 }}>Consultar estado con Nexo IA</span>
-                        </button>
                       </>
                     )}
                   </div>
@@ -1950,7 +1900,7 @@ export default function App() {
                 <div className="user-detail-topbar">
                   <button
                     className="user-top-back-btn no-border"
-                    onClick={exitInterior}
+                    onClick={handleBackFromInterior}
                     title="Volver"
                     aria-label="Volver"
                   >
@@ -1978,55 +1928,54 @@ export default function App() {
                   </h2>
 
                   <div className="interior-metrics-list">
-                    {currentInterior.metrics?.map((m, idx) => (
-                      <div key={idx} className="interior-metric-block">
-                        <div className="row between interior-metric-row">
-                          <span className="interior-metric-label">{m.label}</span>
-                          {m.value.toLowerCase().includes('enlace activo') ? (
-                            <span className="enlace-activo-badge">{m.value}</span>
-                          ) : (
-                            <span className="interior-metric-val bold" style={{ color: m.valueColor }}>{m.value}</span>
-                          )}
+                    {currentInterior.metrics.map((m, idx) => (
+                      <div key={idx} className="interior-metric-item">
+                        <div className="row between">
+                          <span style={{ color: 'var(--muted)' }}>{m.label}</span>
+                          <b style={{ color: m.valueColor || 'var(--text)' }}>{m.value}</b>
                         </div>
+                        {m.bar && (
+                          <div className="neutral-progress-track">
+                            <div
+                              className="neutral-progress-fill"
+                              style={{ width: `${Math.round((m.bar.current / m.bar.max) * 100)}%` }}
+                            />
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
 
-                  <div className="interior-card-divider" />
-                  <button
-                    className="consultar-nexo-btn ia-gradient"
-                    onClick={() => {
-                      setNexoOpen(true)
-                      sendNexoMessage((currentInterior as any).nexoQuery || `Diagnóstico del estado operativo de ${currentInterior.title}`)
-                    }}
-                  >
-                    <NexoLogo width={15} height={18} color="#ffffff" />
-                    <span style={{ color: '#ffffff' }}>Consultar estado con Nexo IA</span>
-                  </button>
-                  <button
-                    className="cta full no-shadow"
-                    style={{
-                      marginTop: 8,
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '12px 18px',
-                      borderRadius: 12,
-                      background: 'linear-gradient(90deg, #1253dd, #08ddf0)',
-                      color: '#fff',
-                      border: 'none',
-                      fontWeight: 700,
-                      fontSize: 14,
-                      cursor: 'pointer',
-                      boxShadow: 'none',
-                    }}
-                    onClick={() => {
-                      navigateToInterior(currentInterior.id)
-                    }}
-                  >
-                    <span>Entrar</span>
-                  </button>
+                  {!interiorView && (
+                    <div style={{ marginTop: 20 }}>
+                      <button
+                        className="cta full no-shadow"
+                        style={{
+                          width: '100%',
+                          height: 42,
+                          borderRadius: 10,
+                          background: 'linear-gradient(90deg, #1253d6, #08ddf0)',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: 14,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 8,
+                          border: 'none',
+                          cursor: 'pointer',
+                          boxShadow: 'none',
+                        }}
+                        onClick={() => navigateToInterior(currentInterior.id)}
+                      >
+                        <LogIn size={16} />
+                        <span>Entrar</span>
+                      </button>
+                      <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', marginTop: 6 }}>
+                        Vista interior del lugar
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )
@@ -4074,7 +4023,11 @@ export default function App() {
                 step={15}
                 value={whatIfHorizon}
                 onChange={(e) => setWhatIfHorizon(+e.target.value)}
-                style={{ width: '100%', marginTop: 4 }}
+                style={{
+                  width: '100%',
+                  marginTop: 4,
+                  ['--range-progress' as any]: `${((whatIfHorizon - 15) / (120 - 15)) * 100}%`,
+                }}
               />
 
               <button

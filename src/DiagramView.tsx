@@ -413,38 +413,6 @@ export default function DiagramView({ theme, zoom, onZoomChange, onEnterInterior
         </div>
       )}
 
-      {/* Floating Bottom-Left Pill matching media_1793857860730_4c8c3e6a.jpg */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          left: 24,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '6px 14px',
-          borderRadius: 8,
-          background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.88)',
-          border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)',
-          boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          fontSize: 12,
-          fontFamily: 'Titillium Web, sans-serif',
-          color: isDark ? '#94a3b8' : '#64748b',
-          pointerEvents: 'none',
-        }}
-      >
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 14, height: 3, background: blueMain, borderRadius: 2 }} />
-          Lugar
-        </span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 14, height: 2, borderBottom: `2px dashed ${orangeChimney}` }} />
-          Rampa
-        </span>
-        <span style={{ fontWeight: 600 }}>3749 trazos</span>
-      </div>
     </div>
   )
 }
