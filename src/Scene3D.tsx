@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { createSimulations } from './simulations3D'
+import { createSimulations, SIM_ENTITIES, type SimEntity } from './simulations3D'
 
 export type ViewMode = 'perspective' | 'isometric' | 'top'
 export type Theme = 'dark' | 'light'
@@ -14,6 +14,7 @@ interface Props {
   selectedObjectId?: string | null
   onZoomChange?: (newZoom: number) => void
   onSelectObject?: (objectId: string) => void
+  onSelectSimEntity?: (entity: SimEntity) => void
 }
 
 const PALETTE = {
@@ -44,10 +45,11 @@ const INTERACTIVE_FACILITIES = [
   { id: 'chancador', name: 'Chancador', pos: new THREE.Vector3(6, 2.8, -8), size: [3.6, 2.6, 3.2] as const, color: 0xff5722 },
 ]
 
-export default function Scene3D({ mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject }: Props) {
+export default function Scene3D({ mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject, onSelectSimEntity }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const state = useRef({ mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject })
-  state.current = { mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject }
+  const badgesOverlayRef = useRef<HTMLDivElement>(null)
+  const state = useRef({ mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject, onSelectSimEntity })
+  state.current = { mode, zoom, theme, activeSimulations, selectedObjectId, onZoomChange, onSelectObject, onSelectSimEntity }
   const matsRef = useRef<{
     scene: THREE.Scene
     fineMat: THREE.LineBasicMaterial
@@ -269,6 +271,33 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1
         raycaster.setFromCamera(mouse, camera)
+
+        // First check simulated personnel & vehicles if active
+        if (state.current.activeSimulations?.includes('personal')) {
+          const simEntities = simCtrl.getEntities()
+          const simMeshes = simEntities.map((se) => se.mesh)
+          const simHits = raycaster.intersectObjects(simMeshes, true)
+          if (simHits.length > 0) {
+            let obj: THREE.Object3D | null = simHits[0].object
+            while (obj && !obj.userData?.simEntity) {
+              obj = obj.parent
+            }
+            const foundEnt = obj?.userData?.simEntity || simEntities.find((se) => {
+              let cur: THREE.Object3D | null = simHits[0].object
+              while (cur) {
+                if (cur === se.mesh) return true
+                cur = cur.parent
+              }
+              return false
+            })?.entity
+            if (foundEnt) {
+              state.current.onSelectSimEntity?.(foundEnt)
+              dragging = false
+              return
+            }
+          }
+        }
+
         const intersects = raycaster.intersectObjects(interactiveMeshes, false)
         if (intersects.length > 0) {
           const hitId = intersects[0].object.userData?.id
@@ -389,6 +418,34 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
       }
 
       renderer.render(scene, camera)
+
+      // Update projected 2D badges for simulated personnel & vehicles
+      if (badgesOverlayRef.current) {
+        const hasPersonalSim = activeSims.includes('personal')
+        badgesOverlayRef.current.style.display = hasPersonalSim ? 'block' : 'none'
+        if (hasPersonalSim) {
+          const w = el.clientWidth
+          const h = el.clientHeight
+          const entities = simCtrl.getEntities()
+          entities.forEach(({ mesh, entity }) => {
+            const badgeEl = badgesOverlayRef.current?.querySelector(`[data-sim-id="${entity.id}"]`) as HTMLElement | null
+            if (!badgeEl) return
+            const worldPos = mesh.position.clone()
+            worldPos.y += entity.type === 'vehicle' ? 1.15 : 1.1
+            const projected = worldPos.project(camera)
+            if (projected.z > 1) {
+              badgeEl.style.display = 'none'
+            } else {
+              const x = (projected.x * 0.5 + 0.5) * w
+              const y = (-projected.y * 0.5 + 0.5) * h
+              badgeEl.style.display = 'flex'
+              badgeEl.style.left = `${x}px`
+              badgeEl.style.top = `${y}px`
+            }
+          })
+        }
+      }
+
       raf = requestAnimationFrame(tick)
     }
     tick()
@@ -423,5 +480,52 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
     })
   }, [theme])
 
-  return <div ref={ref} className="scene" />
+  return (
+    <div ref={ref} className="scene">
+      <div
+        ref={badgesOverlayRef}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 6,
+          display: activeSimulations?.includes('personal') ? 'block' : 'none',
+        }}
+      >
+        {SIM_ENTITIES.map((ent) => (
+          <button
+            key={ent.id}
+            data-sim-id={ent.id}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onSelectSimEntity?.(ent)
+            }}
+            style={{
+              position: 'absolute',
+              transform: 'translate(-50%, -100%)',
+              pointerEvents: 'auto',
+              display: 'none',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px 10px',
+              borderRadius: 6,
+              background: 'rgba(15, 23, 42, 0.92)',
+              backdropFilter: 'blur(8px)',
+              border: `1.5px solid ${ent.type === 'vehicle' ? '#eab308' : '#00e676'}`,
+              color: '#ffffff',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
+              whiteSpace: 'nowrap',
+              lineHeight: 1.25,
+            }}
+          >
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#f8fafc' }}>{ent.name}</span>
+            <span style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 400 }}>{ent.role}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }

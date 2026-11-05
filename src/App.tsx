@@ -17,6 +17,7 @@ import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
 import SurfaceView from './SurfaceView'
 import InteriorBombeoView, { type WorkerData } from './InteriorBombeoView'
+import { SIM_ENTITIES } from './simulations3D'
 import BorderBeam from './BorderBeam'
 import DesignSystemView from './DesignSystemView'
 import logoUrl from './assets/smartflow-logo.png'
@@ -1146,6 +1147,22 @@ export default function App() {
             if (found) {
               setSidebarView({ type: 'interior', data: found })
             }
+          }}
+          onSelectSimEntity={(ent) => {
+            setSelectedWorker({
+              id: ent.id,
+              name: ent.name,
+              tag: ent.tag,
+              role: ent.role,
+              turno: ent.turno,
+              ingreso: ent.ingreso,
+              zona: ent.zona,
+              velocidad: ent.velocidad,
+              bateria: ent.bateria,
+              ultimoPunto: ent.ultimoPunto,
+              pos: [0, 0, 0],
+              rotY: 0,
+            })
           }}
         />
       )}
@@ -3247,18 +3264,57 @@ export default function App() {
                   if (!sim) return null
                   const Icon = sim.icon
                   return (
-                    <div key={id} className="sim-row-item">
-                      <div className="sim-row-left">
-                        <Icon size={18} style={{ color: sim.color }} />
-                        <span>{sim.label}</span>
+                    <div key={id} className="track-item-block">
+                      <div className="sim-row-item">
+                        <div className="sim-row-left">
+                          <Icon size={18} style={{ color: sim.color }} />
+                          <span>{sim.label}</span>
+                        </div>
+                        <button
+                          className="sim-remove-btn"
+                          title="Quitar simulación"
+                          onClick={() => removeSimulationItem(id)}
+                        >
+                          <CircleMinus size={18} />
+                        </button>
                       </div>
-                      <button
-                        className="sim-remove-btn"
-                        title="Quitar simulación"
-                        onClick={() => removeSimulationItem(id)}
-                      >
-                        <CircleMinus size={18} />
-                      </button>
+                      {id === 'personal' && (
+                        <div className="track-subpanel" style={{ paddingLeft: 4 }}>
+                          <div className="personal-list">
+                            {SIM_ENTITIES.map((ent) => (
+                              <div
+                                key={ent.id}
+                                className="zona-row personal-clickable-row"
+                                onClick={() =>
+                                  setSelectedWorker({
+                                    id: ent.id,
+                                    name: ent.name,
+                                    tag: ent.tag,
+                                    role: ent.role,
+                                    turno: ent.turno,
+                                    ingreso: ent.ingreso,
+                                    zona: ent.zona,
+                                    velocidad: ent.velocidad,
+                                    bateria: ent.bateria,
+                                    ultimoPunto: ent.ultimoPunto,
+                                    pos: [0, 0, 0],
+                                    rotY: 0,
+                                  })
+                                }
+                                title={`Ver detalle de ${ent.name}`}
+                              >
+                                <span className="zona-bar" style={{ background: ent.color }} />
+                                <div className="zona-info">
+                                  <div className="zona-line1"><b>{ent.name}</b></div>
+                                  <div className="zona-line2">{ent.role} &nbsp; {ent.zona}</div>
+                                </div>
+                                <span className="user-signal-badge online" style={{ fontSize: 11 }}>{ent.tag}</span>
+                                <ChevronRight size={16} className="row-chevron" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )
                 })}
