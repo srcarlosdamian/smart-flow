@@ -1270,7 +1270,12 @@ export default function App() {
           }}
         />
       ) : selectedProj === '2D - Diagrama de planta' ? (
-        <DiagramView theme={theme} zoom={zoom} onZoomChange={setZoom} />
+        <DiagramView
+          theme={theme}
+          zoom={zoom}
+          onZoomChange={setZoom}
+          onEnterInterior={(roomId) => navigateToInterior(roomId)}
+        />
       ) : (
         <Scene3D
           mode={selectedProj === '2D - Vista superior' ? 'top' : mode}
@@ -3259,74 +3264,54 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Sección Lugar dividida por línea */}
+              {/* Capas y simbología de diagrama (media_1793857718823_5301fe75.png) */}
               <div className="diagram-context-section" style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14 }}>
                 <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 10 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Lugar</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Elementos de planta
+                  </span>
                 </div>
-                <div className="diagram-data-grid" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div className="row between" style={{ fontSize: 13 }}>
-                    <span style={{ color: 'var(--muted)' }}>Complejo minero</span>
-                    <b style={{ fontWeight: 600 }}>Ciénaga de Ntra. Señora</b>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 16, height: 3, background: '#0066cc', borderRadius: 2 }} />
+                    <span style={{ color: 'var(--text)' }}>Galerías y rampas principales</span>
                   </div>
-                  <div className="row between" style={{ fontSize: 13 }}>
-                    <span style={{ color: 'var(--muted)' }}>Cota de referencia</span>
-                    <b style={{ fontWeight: 600 }}>-340 m s.n.m.</b>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 16, height: 2, borderBottom: '2px dashed #ea580c' }} />
+                    <span style={{ color: 'var(--text)' }}>Trazados auxiliares y chimeneas</span>
                   </div>
-                  <div className="row between" style={{ fontSize: 13 }}>
-                    <span style={{ color: 'var(--muted)' }}>Coordenadas UTM</span>
-                    <b style={{ fontWeight: 600, fontFamily: 'monospace' }}>13N 342100 E, 2761800 N</b>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
+                    <span style={{ color: 'var(--text)' }}>Refugios mineros</span>
                   </div>
                 </div>
               </div>
 
-              {/* Sección Rampa dividida por línea */}
+              {/* Lugar, Rampa, Cantidad de trazos y Total desarrollo activo divididos con línea */}
               <div className="diagram-context-section" style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14 }}>
                 <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 10 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rampa</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Datos del trazado
+                  </span>
                 </div>
                 <div className="diagram-data-grid" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <div className="row between" style={{ fontSize: 13 }}>
-                    <span style={{ color: 'var(--muted)' }}>Rampa principal</span>
-                    <b style={{ fontWeight: 600 }}>RP-01 (Nivel 1 a Nivel 4)</b>
+                    <span style={{ color: 'var(--muted)' }}>Lugar</span>
+                    <b style={{ fontWeight: 600 }}>Mina Ciénaga</b>
                   </div>
                   <div className="row between" style={{ fontSize: 13 }}>
-                    <span style={{ color: 'var(--muted)' }}>Pendiente media</span>
-                    <b style={{ fontWeight: 600 }}>-12.0 %</b>
+                    <span style={{ color: 'var(--muted)' }}>Rampa</span>
+                    <b style={{ fontWeight: 600 }}>Rampa Principal RP-01</b>
                   </div>
                   <div className="row between" style={{ fontSize: 13 }}>
-                    <span style={{ color: 'var(--muted)' }}>Sección de galería</span>
-                    <b style={{ fontWeight: 600 }}>4.5 m × 4.2 m</b>
+                    <span style={{ color: 'var(--muted)' }}>Cantidad de trazos</span>
+                    <b style={{ fontWeight: 600, fontFamily: 'monospace' }}>3,749 trazos</b>
                   </div>
-                  <div className="row between" style={{ fontSize: 13 }}>
-                    <span style={{ color: 'var(--muted)' }}>Longitud total rampa</span>
-                    <b style={{ fontWeight: 600 }}>1,840 m</b>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sección Trazos dividida por línea */}
-              <div className="diagram-context-section" style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14 }}>
-                <div className="section-head no-chevron" style={{ cursor: 'default', marginBottom: 10 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Trazos</span>
-                </div>
-                <div className="diagram-traces-list" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[
-                    { name: 'Rampa N1 → N2', val: '240 m' },
-                    { name: 'Galería Nivel 1 (Norte)', val: '420 m' },
-                    { name: 'Galería Nivel 2 (Taller)', val: '680 m' },
-                    { name: 'Acceso Chancador', val: '180 m' },
-                    { name: 'Nivel 4 (Sur)', val: '320 m' },
-                    { name: 'Chimenea Ch-02', val: '95 m' },
-                  ].map((trace, idx) => (
-                    <div key={idx} className="row between" style={{ fontSize: 13, padding: '4px 0', borderBottom: idx < 5 ? '1px dashed var(--border)' : 'none' }}>
-                      <span style={{ color: 'var(--muted)' }}>{trace.name}</span>
-                      <b style={{ fontWeight: 600, fontFamily: 'monospace' }}>{trace.val}</b>
-                    </div>
-                  ))}
-                  <div className="row between" style={{ fontSize: 13, marginTop: 6, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+                  <div className="row between" style={{ fontSize: 13, paddingTop: 6, borderTop: '1px solid var(--border)' }}>
                     <span style={{ fontWeight: 700 }}>Total desarrollo activo</span>
-                    <b style={{ fontWeight: 700, color: 'var(--accent, #0284c7)', fontFamily: 'monospace' }}>1,935 m</b>
+                    <b style={{ fontWeight: 800, color: theme === 'dark' ? '#ffffff' : '#000000', fontFamily: 'monospace', fontSize: 14 }}>
+                      1,935 m
+                    </b>
                   </div>
                 </div>
               </div>
