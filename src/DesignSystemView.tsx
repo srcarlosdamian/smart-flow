@@ -1607,34 +1607,34 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
         )}
 
         {/* ================================================================== */}
-        {/* 4. COMPLETE INVENTORY OF ALL BADGES, PILLS & 3D MARKERS            */}
+        {/* 4. UNIFIED BADGE SYSTEM (Organizado por Tipo y Paleta Semántica)    */}
         {/* ================================================================== */}
         {(activeTab === 'all' || activeTab === 'badges') && (
           <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Check size={20} style={{ color: '#10b981' }} />
+                <Check size={20} style={{ color: '#166534' }} />
                 <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
-                  4. Inventario Completo de Badges, Status Pills &amp; Etiquetas 3D
+                  4. Sistema Unificado de Badges (Organizado por Tipo: Fondo 100 / Texto 800 / Semibold)
                 </h2>
               </div>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 0 0 0' }}>
-                Todos los badges existentes en la interfaz lateral, modales, reproductores y sobre el lienzo 3D documentados con su clase exacta para homologación.
+                Todos los badges del sistema homologados a la misma geometría: <code>border-radius: 6px</code>, padding uniforme <code>3px 8px</code>, tipografía <code>font-weight: 600</code> (Semibold) y paleta tonal <b>Fondo 100 / Texto 800</b>.
               </p>
             </div>
 
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
                 gap: 20,
               }}
             >
-              {/* 4.1 Personal, Conectividad y Estado General */}
+              {/* 4.1 Badges de Estado Verde */}
               <div className="glass" style={cardSurfaceStyle}>
                 <div style={labelTagStyle}>
-                  <span>4.1 PERSONAL, SEÑAL &amp; CONECTIVIDAD</span>
-                  <span style={codePillStyle}>Arquetipos</span>
+                  <span>4.1 BADGES VERDES (POSITIVO / OPERATIVO / ÉXITO)</span>
+                  <span style={codePillStyle}>Fondo #dcfce7 / Texto #166534</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
@@ -1642,31 +1642,9 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     <code style={codePillStyle}>.user-signal-badge.online</code>
                   </div>
                   <div className="row between">
-                    <span className="enlace-activo-badge">Enlace activo</span>
-                    <code style={codePillStyle}>.enlace-activo-badge</code>
-                  </div>
-                  <div className="row between">
                     <span className="green-badge">Operativo</span>
                     <code style={codePillStyle}>.green-badge</code>
                   </div>
-                  <div className="row between">
-                    <span className="status-badge-unapplied">Sin aplicar</span>
-                    <code style={codePillStyle}>.status-badge-unapplied</code>
-                  </div>
-                  <div className="row between">
-                    <span className="cmd-pill-activo">Activo</span>
-                    <code style={codePillStyle}>.cmd-pill-activo</code>
-                  </div>
-                </div>
-              </div>
-
-              {/* 4.2 Estado de Bombas e Infraestructura Interior */}
-              <div className="glass" style={cardSurfaceStyle}>
-                <div style={labelTagStyle}>
-                  <span>4.2 BOMBAS &amp; EQUIPOS (.pump-badge-v2)</span>
-                  <span style={codePillStyle}>Estados</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
                     <div className="row gap-2">
                       <span className="pump-status-dot-v2 marcha" />
@@ -1675,12 +1653,27 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     <code style={codePillStyle}>.pump-badge-v2.marcha</code>
                   </div>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="pump-status-dot-v2 reserva" />
-                      <span className="pump-badge-v2 reserva">En reserva</span>
-                    </div>
-                    <code style={codePillStyle}>.pump-badge-v2.reserva</code>
+                    <span className="user-ai-status">Óptimo</span>
+                    <code style={codePillStyle}>.user-ai-status</code>
                   </div>
+                  <div className="row between">
+                    <span className="enlace-activo-badge">Enlace activo</span>
+                    <code style={codePillStyle}>.enlace-activo-badge</code>
+                  </div>
+                  <div className="row between">
+                    <span className="cmd-pill-activo">Activo</span>
+                    <code style={codePillStyle}>.cmd-pill-activo</code>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4.2 Badges de Alerta y Falla Roja */}
+              <div className="glass" style={cardSurfaceStyle}>
+                <div style={labelTagStyle}>
+                  <span>4.2 BADGES ROJOS (PELIGRO / CRÍTICO / FALLA)</span>
+                  <span style={codePillStyle}>Fondo #fee2e2 / Texto #991b1b</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
                     <div className="row gap-2">
                       <span className="pump-status-dot-v2 falla" />
@@ -1689,101 +1682,82 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     <code style={codePillStyle}>.pump-badge-v2.falla</code>
                   </div>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="user-ai-status">Óptimo</span>
-                      <span className="ai-insight-badge">Crítico</span>
-                      <span className="ai-nexo-tag">NEXO IA</span>
-                    </div>
-                    <code style={codePillStyle}>.user-ai-status / .ai-nexo-tag</code>
+                    <span className="evac-alert-tag-critical">Crítico</span>
+                    <code style={codePillStyle}>.evac-alert-tag-critical</code>
                   </div>
-                </div>
-              </div>
-
-              {/* 4.3 Alertas, Auxilio, Evacuación & Severidad */}
-              <div className="glass" style={cardSurfaceStyle}>
-                <div style={labelTagStyle}>
-                  <span>4.3 ALERTAS, EVACUACIÓN &amp; SEVERIDAD</span>
-                  <span style={codePillStyle}>Variantes</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div className="row between">
+                    <span className="whatif-severity-tag critical">Crítico</span>
+                    <code style={codePillStyle}>.whatif-severity-tag.critical</code>
+                  </div>
+                  <div className="row between">
+                    <span className="auxilio-status-critical">Crítico</span>
+                    <code style={codePillStyle}>.auxilio-status-critical</code>
+                  </div>
                   <div className="row between">
                     <span className="alert-pill">
                       <b>1</b> <CircleAlert size={12} />
                     </span>
                     <code style={codePillStyle}>.alert-pill</code>
                   </div>
+                </div>
+              </div>
+
+              {/* 4.3 Badges de Advertencia Naranja y Amarillo */}
+              <div className="glass" style={cardSurfaceStyle}>
+                <div style={labelTagStyle}>
+                  <span>4.3 BADGES NARANJA &amp; AMARILLO (ADVERTENCIA / SEVERIDAD)</span>
+                  <span style={codePillStyle}>Fondo 100 / Texto 800</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="evac-alert-tag-critical">Crítico</span>
-                      <span className="evac-alert-status-pill">Sin atender</span>
-                    </div>
-                    <code style={codePillStyle}>.evac-alert-status-pill</code>
+                    <span className="whatif-severity-tag high">Alto</span>
+                    <code style={codePillStyle}>.whatif-severity-tag.high (#ffedd5 / #9a3412)</code>
                   </div>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="auxilio-status-unattended" style={{ fontSize: 12 }}>Sin atender</span>
-                      <span className="auxilio-status-critical" style={{ fontSize: 12 }}>Crítico</span>
-                    </div>
-                    <code style={codePillStyle}>.auxilio-status-*</code>
+                    <span className="whatif-severity-tag medium">Medio</span>
+                    <code style={codePillStyle}>.whatif-severity-tag.medium (#fef9c3 / #854d0e)</code>
                   </div>
                   <div className="row between">
-                    <div className="row gap-3">
-                      <span className="row gap-1">
-                        <span className="whatif-severity-dot critical" style={{ marginTop: 0 }} />
-                        <span className="whatif-severity-tag critical">Crítico</span>
-                      </span>
-                      <span className="row gap-1">
-                        <span className="whatif-severity-dot high" style={{ marginTop: 0 }} />
-                        <span className="whatif-severity-tag high">Alto</span>
-                      </span>
-                      <span className="row gap-1">
-                        <span className="whatif-severity-dot medium" style={{ marginTop: 0 }} />
-                        <span className="whatif-severity-tag medium">Medio</span>
-                      </span>
-                    </div>
-                    <code style={codePillStyle}>.whatif-severity-*</code>
+                    <span className="player-sev-pill aviso">Aviso</span>
+                    <code style={codePillStyle}>.player-sev-pill.aviso</code>
                   </div>
                   <div className="row between">
-                    <span className="whatif-chip">Horizonte 30m</span>
-                    <code style={codePillStyle}>.whatif-chip</code>
+                    <span className="ai-insight-badge">Crítico</span>
+                    <code style={codePillStyle}>.ai-insight-badge</code>
+                  </div>
+                  <div className="row between">
+                    <span className="ai-nexo-tag">NEXO IA</span>
+                    <code style={codePillStyle}>.ai-nexo-tag</code>
                   </div>
                 </div>
               </div>
 
-              {/* 4.4 Reproductor, Buscador Global (Ctrl+K) y Metadatos */}
+              {/* 4.4 Badges con Ícono (Área: Interior & Superficie) */}
               <div className="glass" style={cardSurfaceStyle}>
                 <div style={labelTagStyle}>
-                  <span>4.4 REPRODUCTOR, TECLADO &amp; HARDWARE CHIPS</span>
-                  <span style={codePillStyle}>Componentes</span>
+                  <span>4.4 BADGES CON ÍCONO (ÁREA: INTERIOR &amp; SUPERFICIE)</span>
+                  <span style={codePillStyle}>Fondo 100 / Texto 800 + Ícono</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
                     <div className="player-area-chip interior">
-                      <SquareArrowOutUpRight size={14} />
+                      <SquareArrowOutUpRight size={13} />
                       <span className="chip-label">Interior</span>
                       <span className="chip-count">4</span>
                     </div>
-                    <code style={codePillStyle}>.player-area-chip</code>
+                    <code style={codePillStyle}>.player-area-chip.interior (#f3e8ff / #6b21a8)</code>
                   </div>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="player-sev-pill">Aviso</span>
-                      <span className="player-sev-pill active">Activo</span>
+                    <div className="player-area-chip superficie">
+                      <SquareArrowOutUpRight size={13} />
+                      <span className="chip-label">Superficie</span>
+                      <span className="chip-count">2</span>
                     </div>
-                    <code style={codePillStyle}>.player-sev-pill</code>
+                    <code style={codePillStyle}>.player-area-chip.superficie (#dbeafe / #1e40af)</code>
                   </div>
                   <div className="row between">
-                    <small className="dd-tag">Por defecto</small>
-                    <code style={codePillStyle}>.dd-tag</code>
-                  </div>
-                  <div className="row between">
-                    <div className="row gap-2">
-                      <span className="cmd-esc-badge">ESC</span>
-                      <span className="cmd-key-box">
-                        <ArrowUp size={11} />
-                      </span>
-                    </div>
-                    <code style={codePillStyle}>.cmd-esc-badge / .cmd-key-box</code>
+                    <span className="surface-region-badge">SECTOR NORTE</span>
+                    <code style={codePillStyle}>.surface-region-badge</code>
                   </div>
                   <div className="row between">
                     <div className="chips-row" style={{ flex: 1, maxWidth: 200 }}>
@@ -1793,13 +1767,46 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   </div>
                 </div>
               </div>
+
+              {/* 4.5 Badges Neutrales & En Espera */}
+              <div className="glass" style={cardSurfaceStyle}>
+                <div style={labelTagStyle}>
+                  <span>4.5 BADGES NEUTRALES (EN ESPERA / DESACTIVADO)</span>
+                  <span style={codePillStyle}>Fondo #f1f5f9 / Texto #334155</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div className="row between">
+                    <div className="row gap-2">
+                      <span className="pump-status-dot-v2 reserva" />
+                      <span className="pump-badge-v2 reserva">En reserva</span>
+                    </div>
+                    <code style={codePillStyle}>.pump-badge-v2.reserva</code>
+                  </div>
+                  <div className="row between">
+                    <span className="auxilio-status-unattended">Sin atender</span>
+                    <code style={codePillStyle}>.auxilio-status-unattended</code>
+                  </div>
+                  <div className="row between">
+                    <span className="status-badge-unapplied">Sin aplicar</span>
+                    <code style={codePillStyle}>.status-badge-unapplied</code>
+                  </div>
+                  <div className="row between">
+                    <span className="whatif-chip">Horizonte 30m</span>
+                    <code style={codePillStyle}>.whatif-chip</code>
+                  </div>
+                  <div className="row between">
+                    <small className="dd-tag">Por defecto</small>
+                    <code style={codePillStyle}>.dd-tag</code>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* 4.5 In-Scene 3D Badges (Sala de Bombeo, Personal con Blur Icon, Simulación de Vehículos y Superficie) */}
+            {/* 4.6 In-Scene 3D Badges (Sala de Bombeo, Personal con Blur Icon, Simulación de Vehículos y Superficie) */}
             <div className="glass" style={cardSurfaceStyle}>
               <div style={labelTagStyle}>
                 <span>
-                  4.5 BADGES FLOTANTES EN ESCENA 3D (SALA DE BOMBEO, PERSONAL &amp; VEHÍCULOS)
+                  4.6 BADGES FLOTANTES EN ESCENA 3D (SALA DE BOMBEO, PERSONAL &amp; VEHÍCULOS)
                 </span>
                 <span style={codePillStyle}>In-Scene 3D Overlays</span>
               </div>
@@ -1918,9 +1925,6 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     <small>Camión T-01</small>
                   </div>
                 </div>
-
-                {/* Surface Region Badge */}
-                <span className="surface-region-badge">SECTOR NORTE</span>
               </div>
             </div>
           </section>
