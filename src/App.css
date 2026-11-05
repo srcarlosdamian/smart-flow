@@ -689,6 +689,20 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   outline: none;
   box-shadow: none;
 }
+.accordion-chevron-btn:disabled,
+.accordion-chevron-btn.disabled {
+  opacity: 0.28 !important;
+  cursor: default !important;
+  pointer-events: none !important;
+  background: transparent !important;
+}
+.accordion-chevron-btn:disabled svg,
+.accordion-chevron-btn.disabled svg {
+  opacity: 0.35 !important;
+}
+.section-head.disabled-accordion {
+  cursor: default !important;
+}
 .track-add-menu {
   top: 40px; left: 16px; right: 0; z-index: 120;
 }
@@ -4806,6 +4820,17 @@ select:focus,
 }
 .app[data-theme="dark"] .section-head:hover svg {
   color: #ffffff !important;
+}
+.app[data-theme="dark"] .accordion-chevron-btn:disabled,
+.app[data-theme="dark"] .accordion-chevron-btn.disabled {
+  opacity: 0.25 !important;
+  color: #64748b !important;
+  background: transparent !important;
+}
+.app[data-theme="dark"] .accordion-chevron-btn:disabled svg,
+.app[data-theme="dark"] .accordion-chevron-btn.disabled svg {
+  color: #64748b !important;
+  opacity: 0.35 !important;
 }
 
 /* 5. Left Floating Toolbar */

@@ -868,7 +868,13 @@ export default function App() {
   }
 
   const removeTrackingItem = (id: TrackingType) => {
-    setActiveTrackings((prev) => prev.filter((item) => item !== id))
+    setActiveTrackings((prev) => {
+      const next = prev.filter((item) => item !== id)
+      if (next.length === 0) {
+        setOpenSection((cur) => (cur === 'track' ? null : cur))
+      }
+      return next
+    })
   }
 
   const addSimulationItem = (id: string) => {
@@ -878,7 +884,13 @@ export default function App() {
   }
 
   const removeSimulationItem = (id: string) => {
-    setActiveSimulations((prev) => prev.filter((item) => item !== id))
+    setActiveSimulations((prev) => {
+      const next = prev.filter((item) => item !== id)
+      if (next.length === 0) {
+        setOpenSection((cur) => (cur === 'sim' ? null : cur))
+      }
+      return next
+    })
   }
 
   const sendNexoMessage = (text: string) => {
@@ -2768,7 +2780,13 @@ export default function App() {
             className="section track-section"
             {...showHelp('Tracking', 'Monitoreo y seguimiento en tiempo real de personal, vehículos y activos dentro de la mina.')}
           >
-            <div className="section-head" onClick={() => toggle('track')}>
+            <div
+              className={`section-head ${activeTrackings.length === 0 ? 'disabled-accordion' : ''}`}
+              onClick={() => {
+                if (activeTrackings.length > 0) toggle('track')
+              }}
+              style={{ cursor: activeTrackings.length > 0 ? 'pointer' : 'default' }}
+            >
               <span>Tracking</span>
               <div className="section-head-actions" onClick={(e) => e.stopPropagation()}>
                 {activeTrackings.length > 0 && (
@@ -2780,6 +2798,7 @@ export default function App() {
                       e.stopPropagation()
                       setActiveTrackings([])
                       setExpandedTrack({})
+                      if (openSection === 'track') setOpenSection(null)
                     }}
                   >
                     <Trash size={15} />
@@ -2797,14 +2816,17 @@ export default function App() {
                   <CirclePlus size={16} />
                 </button>
                 <button
-                  className="accordion-chevron-btn"
+                  className={`accordion-chevron-btn ${activeTrackings.length === 0 ? 'disabled' : ''}`}
+                  disabled={activeTrackings.length === 0}
                   onClick={(e) => {
                     e.stopPropagation()
-                    toggle('track')
+                    if (activeTrackings.length > 0) toggle('track')
                   }}
-                  aria-label={openSection === 'track' ? 'Contraer' : 'Expandir'}
+                  aria-label={openSection === 'track' && activeTrackings.length > 0 ? 'Contraer' : 'Expandir'}
+                  aria-disabled={activeTrackings.length === 0}
+                  title={activeTrackings.length === 0 ? 'Sin elementos de tracking' : (openSection === 'track' ? 'Contraer' : 'Expandir')}
                 >
-                  {openSection === 'track' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {openSection === 'track' && activeTrackings.length > 0 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
               </div>
             </div>
@@ -3103,7 +3125,13 @@ export default function App() {
             className="section sim-section"
             {...showHelp('Simulaciones', 'Ejecución de modelos predictivos y escenarios.')}
           >
-            <div className="section-head" onClick={() => toggle('sim')}>
+            <div
+              className={`section-head ${activeSimulations.length === 0 ? 'disabled-accordion' : ''}`}
+              onClick={() => {
+                if (activeSimulations.length > 0) toggle('sim')
+              }}
+              style={{ cursor: activeSimulations.length > 0 ? 'pointer' : 'default' }}
+            >
               <span>Simulaciones</span>
               <div className="section-head-actions" onClick={(e) => e.stopPropagation()}>
                 {activeSimulations.length > 0 && (
@@ -3114,6 +3142,7 @@ export default function App() {
                     onClick={(e) => {
                       e.stopPropagation()
                       setActiveSimulations([])
+                      if (openSection === 'sim') setOpenSection(null)
                     }}
                   >
                     <Trash size={15} />
@@ -3131,14 +3160,17 @@ export default function App() {
                   <CirclePlus size={16} />
                 </button>
                 <button
-                  className="accordion-chevron-btn"
+                  className={`accordion-chevron-btn ${activeSimulations.length === 0 ? 'disabled' : ''}`}
+                  disabled={activeSimulations.length === 0}
                   onClick={(e) => {
                     e.stopPropagation()
-                    toggle('sim')
+                    if (activeSimulations.length > 0) toggle('sim')
                   }}
-                  aria-label={openSection === 'sim' ? 'Contraer' : 'Expandir'}
+                  aria-label={openSection === 'sim' && activeSimulations.length > 0 ? 'Contraer' : 'Expandir'}
+                  aria-disabled={activeSimulations.length === 0}
+                  title={activeSimulations.length === 0 ? 'Sin simulaciones activas' : (openSection === 'sim' ? 'Contraer' : 'Expandir')}
                 >
-                  {openSection === 'sim' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {openSection === 'sim' && activeSimulations.length > 0 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
               </div>
             </div>
