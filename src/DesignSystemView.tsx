@@ -68,9 +68,9 @@ import {
   Target,
   User,
   X,
+  Droplets,
 } from 'lucide-react'
 import { NexoLogo } from './App'
-import { BorderBeam } from './BorderBeam'
 import logoUrl from './assets/smartflow-logo.png'
 import type { Theme } from './Scene3D'
 
@@ -105,6 +105,13 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
     p4: true,
   })
 
+  const [activeDsSims, setActiveDsSims] = useState<string[]>(['Flujo de aire', 'Flujo de energía'])
+  const toggleDsSim = (label: string) => {
+    setActiveDsSims((prev) =>
+      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
+    )
+  }
+
   // Interactive states for controls & players
   const [perfLevel, setPerfLevel] = useState<'Bajo' | 'Medio' | 'Alto'>('Medio')
   const [autoPerf, setAutoPerf] = useState<boolean>(true)
@@ -121,9 +128,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
   const [whatIfPlaying, setWhatIfPlaying] = useState<boolean>(false)
   const [whatIfSlider, setWhatIfSlider] = useState<number>(15)
 
-  // BorderBeam playground state
+  // Slider speed state
   const [beamSpeed, setBeamSpeed] = useState<number>(8)
-  const beamSize = 220
 
   const isLight = theme === 'light'
 
@@ -493,35 +499,22 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 18 }}>
                 <div>
                   <div style={labelTagStyle}>
-                    <span>1.3 SUB-HEADERS STICKY DE DETALLE</span>
+                    <span>1.3 SUB-HEADERS STICKY DE DETALLE (UNIFICADO CON BÚSQUEDA)</span>
                     <span style={codePillStyle}>.user-detail-topbar</span>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {/* Variant A: With Search Button */}
-                    <div className="user-detail-topbar" style={{ position: 'relative', margin: 0 }}>
-                      <button className="user-top-back-btn" title="Volver">
-                        <ChevronLeft size={18} />
-                      </button>
-                      <div className="user-top-crumb">
-                        <span className="crumb-prefix">Inicio / </span>
-                        <span className="crumb-name">Victor Navarro</span>
-                      </div>
-                      <button className="user-top-search-btn" title="Buscar">
-                        <Search size={18} />
-                      </button>
-                    </div>
-
-                    {/* Variant B: Estándar con Breadcrumb */}
+                  <div>
+                    {/* Componente Canónico Unificado: Siempre con Botón de Buscar */}
                     <div className="user-detail-topbar" style={{ position: 'relative', margin: 0 }}>
                       <button className="user-top-back-btn no-border" title="Volver">
                         <ChevronLeft size={18} />
                       </button>
                       <div className="user-top-crumb">
-                        <span className="crumb-prefix">Módulo / </span>
-                        <span className="crumb-name">
-                          <b>Detalle de elemento</b>
-                        </span>
+                        <span className="crumb-prefix">Inicio / </span>
+                        <span className="crumb-name"><b>Victor Navarro</b></span>
                       </div>
+                      <button className="user-top-search-btn" title="Buscar">
+                        <Search size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1188,13 +1181,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                         },
                       ].map((group) => (
                         <div key={group.cat} className="sim-group-block">
-                          <div className="sim-category-title">{group.cat}</div>
+                          <div className="dd-group-title">{group.cat}</div>
                           {group.items.map((it) => {
                             const Icon = it.icon
+                            const isAdded = activeDsSims.includes(it.label)
                             return (
-                              <button key={it.label} className="sim-cat-item">
+                              <button
+                                key={it.label}
+                                className={`dd-item ${isAdded ? 'selected' : ''}`}
+                                onClick={() => toggleDsSim(it.label)}
+                              >
                                 <Icon size={18} style={{ color: it.color }} />
                                 <span>{it.label}</span>
+                                {isAdded && <Check size={16} className="dd-check" />}
                               </button>
                             )
                           })}
@@ -1327,6 +1326,107 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                       )
                     })}
                   </div>
+                </div>
+              </div>
+
+              {/* 2.5 Card Flotante de Previsualización Interior (media_1793855456754_c88862b9.jpg) */}
+              <div className="glass" style={{ ...cardSurfaceStyle, minHeight: 410, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div style={labelTagStyle}>
+                  <span>2.5 CARD FLOTANTE PREVISUALIZACIÓN INTERIOR</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.interior-preview-card</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('interior-sb01')}
+                        title="Abrir sala de bombeo en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="glass interior-preview-card"
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    maxWidth: 320,
+                    margin: '0 auto',
+                    borderRadius: 16,
+                    padding: '14px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                  }}
+                >
+                  <div className="row between" style={{ alignItems: 'center' }}>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>
+                      Sala de bombeo SB-01
+                    </span>
+                    <button
+                      className="no-border"
+                      style={{ background: 'transparent', cursor: 'pointer', color: 'var(--muted)', padding: 2 }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div className="row gap-2" style={{ alignItems: 'center' }}>
+                    <Droplets size={15} style={{ color: '#00b0ff' }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0284c7' }}>Sala de bombeo</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div className="row between" style={{ fontSize: 13 }}>
+                      <span style={{ color: 'var(--text)' }}>Nivel del sumidero</span>
+                      <b style={{ color: '#ef4444', fontWeight: 700 }}>85%</b>
+                    </div>
+                    {/* Neutral progress bar */}
+                    <div className="player-seekbar-bg" style={{ height: 6, margin: '2px 0' }}>
+                      <div className="player-seekbar-fill" style={{ width: '85%' }} />
+                    </div>
+                  </div>
+
+                  <div className="row between" style={{ fontSize: 13, color: 'var(--text)' }}>
+                    <span>Bombas en marcha</span>
+                    <b>3 / 4</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13, color: 'var(--text)' }}>
+                    <span>Caudal total</span>
+                    <b>157 L/s</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13, color: 'var(--text)' }}>
+                    <span>Presión de descarga</span>
+                    <b>12.4 bar</b>
+                  </div>
+
+                  <button
+                    className="cta full no-shadow"
+                    style={{
+                      marginTop: 6,
+                      height: 40,
+                      borderRadius: 10,
+                      fontWeight: 700,
+                      fontSize: 14,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                    }}
+                    onClick={() => {
+                      if (onNavigateToLocation) onNavigateToLocation('interior-sb01')
+                    }}
+                  >
+                    <SquareArrowOutUpRight size={16} />
+                    <span>Entrar</span>
+                  </button>
+
+                  <small style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', margin: '2px 0 0 0' }}>
+                    Vista interior del lugar
+                  </small>
                 </div>
               </div>
             </div>
@@ -1488,18 +1588,33 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     </button>
                   </div>
 
-                  <div className="auxilio-tabs-row" style={{ margin: 0 }}>
+                  {/* Conmutador Segmentado de Peticiones de Auxilio (Reutilizando .surface-bottom-switch) */}
+                  <div
+                    className="surface-bottom-switch"
+                    style={{
+                      position: 'relative',
+                      bottom: 'auto',
+                      left: 'auto',
+                      width: '100%',
+                      display: 'flex',
+                      margin: 0,
+                      boxShadow: 'none',
+                      padding: 3,
+                    }}
+                  >
                     <button
-                      className={`auxilio-tab-btn ${auxilioTab === 'sin_cerrar' ? 'active' : ''}`}
+                      className={`surface-switch-btn ${auxilioTab === 'sin_cerrar' ? 'active' : ''}`}
                       onClick={() => setAuxilioTab('sin_cerrar')}
+                      style={{ flex: 1, textAlign: 'center' }}
                     >
-                      Pestaña activa
+                      3 sin resolver
                     </button>
                     <button
-                      className={`auxilio-tab-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
+                      className={`surface-switch-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
                       onClick={() => setAuxilioTab('resueltas')}
+                      style={{ flex: 1, textAlign: 'center' }}
                     >
-                      Pestaña inactiva
+                      3 resueltas
                     </button>
                   </div>
                 </div>
@@ -1657,6 +1772,34 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                       </span>
                       <span className="whatif-check-label">Estado deseleccionado (Unchecked)</span>
                     </div>
+                  </div>
+                </div>
+
+                {/* Canonical Progress Slider / Horizonte de Tiempo */}
+                <div>
+                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
+                    <b>Control Deslizante de Progreso (Horizonte de tiempo / Velocidad)</b> — <code>input[type=range]</code>
+                  </small>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
+                    <div className="row between" style={{ fontSize: 12.5 }}>
+                      <span style={{ color: 'var(--muted)', fontSize: 12.5 }}>Horizonte de tiempo</span>
+                      <b style={{ color: 'var(--text)', fontWeight: 600, fontSize: 12.5 }}>60 min</b>
+                    </div>
+                    <input
+                      type="range"
+                      min={15}
+                      max={120}
+                      step={15}
+                      defaultValue={60}
+                      style={{
+                        width: '100%',
+                        margin: '4px 0 6px 0',
+                        ['--range-progress' as any]: '42.8%',
+                      }}
+                    />
+                    <small style={{ fontSize: 11, color: 'var(--muted)' }}>
+                      Mismo componente homologado: altura 6px, pista neutral sin línea, progreso gris oscuro y thumb circular sin borde.
+                    </small>
                   </div>
                 </div>
               </div>
@@ -2032,7 +2175,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </div>
 
                 <div
-                  className="user-ai-gradient-card"
+                  className="user-ai-gradient-card animating"
                   style={{
                     position: 'relative',
                     overflow: 'hidden',
@@ -2041,21 +2184,11 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     margin: '0 0 16px 0',
                   }}
                 >
-                  <BorderBeam
-                    duration={beamSpeed}
-                    size={beamSize}
-                    colorFrom="#455a64"
-                    colorMid="#90a4ae"
-                    colorTo="#546e7a"
-                    borderRadius={12}
-                    borderWidth={2}
-                  />
                   <div className="user-ai-card-top">
                     <div className="user-ai-tag">
                       <NexoLogo width={14} height={16} color="#546e7a" />
                       <span>IA Predictiva · Telemetría Activa</span>
                     </div>
-                    <span className="user-ai-status">Óptimo</span>
                   </div>
                   <div className="user-ai-card-body">
                     <div className="user-ai-metric-row">
@@ -2070,14 +2203,18 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                       <span className="user-ai-lbl">Atmósfera en ruta</span>
                       <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
                     </div>
+                    <div className="user-ai-metric-row" style={{ borderBottom: 'none' }}>
+                      <span className="user-ai-lbl">Estado</span>
+                      <span className="status-badge-optimo">Óptimo</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Control Deslizante de Progreso / Velocidad de duración (Único, Homologado & Neutro) */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
                   <div className="row between" style={{ fontSize: 12.5 }}>
-                    <span style={{ color: 'var(--muted)' }}>Velocidad de duración</span>
-                    <b style={{ color: 'var(--text)', fontWeight: 600 }}>{beamSpeed} s</b>
+                    <span style={{ color: 'var(--muted)', fontSize: 12.5 }}>Velocidad de duración</span>
+                    <b style={{ color: 'var(--text)', fontWeight: 600, fontSize: 12.5 }}>{beamSpeed} s</b>
                   </div>
                   <input
                     type="range"
@@ -2085,6 +2222,11 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     max={18}
                     value={beamSpeed}
                     onChange={(e) => setBeamSpeed(Number(e.target.value))}
+                    style={{
+                      width: '100%',
+                      margin: '4px 0 6px 0',
+                      ['--range-progress' as any]: `${((beamSpeed - 2) / (18 - 2)) * 100}%`,
+                    }}
                   />
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                     <small style={{ fontSize: 11, color: 'var(--muted)' }}>
@@ -2305,6 +2447,36 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
+                {/* Conmutador Visual Segmentado de Petición de Auxilio (.surface-bottom-switch) */}
+                <div
+                  className="surface-bottom-switch"
+                  style={{
+                    position: 'relative',
+                    bottom: 'auto',
+                    left: 'auto',
+                    width: '100%',
+                    display: 'flex',
+                    marginBottom: 10,
+                    boxShadow: 'none',
+                    padding: 3,
+                  }}
+                >
+                  <button
+                    className={`surface-switch-btn ${auxilioTab === 'sin_cerrar' ? 'active' : ''}`}
+                    onClick={() => setAuxilioTab('sin_cerrar')}
+                    style={{ flex: 1, textAlign: 'center' }}
+                  >
+                    3 sin resolver
+                  </button>
+                  <button
+                    className={`surface-switch-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
+                    onClick={() => setAuxilioTab('resueltas')}
+                    style={{ flex: 1, textAlign: 'center' }}
+                  >
+                    3 resueltas
+                  </button>
+                </div>
+
                 <div className="auxilio-card">
                   <div className="auxilio-card-row1">
                     <span className="auxilio-type-title">Petición de auxilio</span>
@@ -2453,35 +2625,66 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                <div className="whatif-compare-card-block">
-                  <span className="whatif-compare-card-title">Caudal total de aire</span>
+                <div className="whatif-compare-card-block normal">
+                  <span className="whatif-compare-card-title">Caudal total inyectado</span>
                   <div className="whatif-compare-2col-box">
                     <div className="whatif-col">
                       <span className="whatif-col-lbl">Antes</span>
-                      <span className="whatif-col-val">185 m³/s</span>
+                      <span className="whatif-col-val">925 m³/s</span>
+                    </div>
+                    <div className="whatif-col">
+                      <span className="whatif-col-lbl">Después</span>
+                      <span className="whatif-col-val">925 m³/s</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="whatif-compare-card-block degraded">
+                  <span className="whatif-compare-card-title">Margen mínimo hasta el umbral</span>
+                  <div className="whatif-compare-2col-box">
+                    <div className="whatif-col">
+                      <span className="whatif-col-lbl">Antes</span>
+                      <span className="whatif-col-val">1.9 min</span>
                     </div>
                     <div className="whatif-col">
                       <span className="whatif-col-lbl">Después</span>
                       <span className="whatif-col-val" style={{ color: '#ef4444' }}>
-                        62 m³/s
+                        1.4 min
                       </span>
                     </div>
                   </div>
                 </div>
 
+                {/* Consecuencias proyectadas matching sketch media_1793854997435_ef0863f7.jpg */}
                 <div className="whatif-consequence-card-styled critical">
                   <div className="whatif-card-top-row">
-                    <b className="whatif-card-title">Acumulación crítica de CO en Nivel 3</b>
+                    <b className="whatif-card-title">Nivel 2 - Este pierde 100% de caudal</b>
                     <button className="whatif-target-btn" title="Localizar en 3D">
                       <Target size={15} />
                     </button>
                   </div>
                   <p className="whatif-card-desc">
-                    La pérdida de impulsión reduce la dilución de gases en el frente sur por debajo del umbral seguro.
+                    Caudal de 0 a 0 m³/s (requerido 43 m³/s). 4 persona(s) en zona. Margen hasta umbral: 2 h.
                   </p>
                   <div className="row between whatif-card-bottom-row">
                     <span className="whatif-card-level-label">Crítico</span>
-                    <span className="whatif-card-time-label">a los 18 min</span>
+                    <span className="whatif-card-time-label">a los 2.3 h</span>
+                  </div>
+                </div>
+
+                <div className="whatif-consequence-card-styled critical">
+                  <div className="whatif-card-top-row">
+                    <b className="whatif-card-title">3 persona(s) sin refugio asignado</b>
+                    <button className="whatif-target-btn" title="Localizar en 3D">
+                      <Target size={15} />
+                    </button>
+                  </div>
+                  <p className="whatif-card-desc">
+                    Carlos Martínez, Ricardo Flores, Hugo Romero. Capacidad de refugios agotada o rutas bloqueadas.
+                  </p>
+                  <div className="row between whatif-card-bottom-row">
+                    <span className="whatif-card-level-label">Crítico</span>
+                    <span className="whatif-card-time-label">a los 2.3 h</span>
                   </div>
                 </div>
               </div>

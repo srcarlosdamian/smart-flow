@@ -926,26 +926,38 @@ input[type=range] {
   appearance: none;
   width: 100%;
   height: 6px;
-  background: #e2e8f0;
   border-radius: 9999px;
   outline: none !important;
   border: none !important;
   cursor: pointer;
   margin: 6px 0;
+  background: linear-gradient(
+    to right,
+    #64748b 0%,
+    #64748b var(--range-progress, 0%),
+    #e2e8f0 var(--range-progress, 0%),
+    #e2e8f0 100%
+  );
   accent-color: #475569;
 }
 .app[data-theme="dark"] input[type=range] {
-  background: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(
+    to right,
+    #94a3b8 0%,
+    #94a3b8 var(--range-progress, 0%),
+    rgba(255, 255, 255, 0.14) var(--range-progress, 0%),
+    rgba(255, 255, 255, 0.14) 100%
+  );
   accent-color: #94a3b8;
 }
 input[type=range]::-webkit-slider-runnable-track {
   height: 6px;
-  background: #e2e8f0;
+  background: transparent !important;
   border-radius: 9999px;
   border: none !important;
 }
 .app[data-theme="dark"] input[type=range]::-webkit-slider-runnable-track {
-  background: rgba(255, 255, 255, 0.14);
+  background: transparent !important;
   border: none !important;
 }
 input[type=range]::-webkit-slider-thumb {
@@ -954,16 +966,16 @@ input[type=range]::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #475569;
-  border: 2px solid #ffffff;
+  background: #334155;
+  border: none !important;
   cursor: pointer;
   margin-top: -4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   transition: transform 0.1s ease;
 }
 .app[data-theme="dark"] input[type=range]::-webkit-slider-thumb {
   background: #cbd5e1;
-  border-color: #1e293b;
+  border: none !important;
 }
 input[type=range]::-moz-range-track {
   height: 6px;
@@ -975,18 +987,29 @@ input[type=range]::-moz-range-track {
   background: rgba(255, 255, 255, 0.14);
   border: none !important;
 }
+input[type=range]::-moz-range-progress {
+  height: 6px;
+  background: #64748b;
+  border-radius: 9999px;
+  border: none !important;
+}
+.app[data-theme="dark"] input[type=range]::-moz-range-progress {
+  background: #94a3b8;
+  border-radius: 9999px;
+  border: none !important;
+}
 input[type=range]::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #475569;
-  border: 2px solid #ffffff;
+  background: #334155;
+  border: none !important;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 .app[data-theme="dark"] input[type=range]::-moz-range-thumb {
   background: #cbd5e1;
-  border-color: #1e293b;
+  border: none !important;
 }
 
 /* Neutral Progress Bar (Identical height 6px, radius 9999px, no border) */
@@ -1603,13 +1626,13 @@ input[type=range]::-moz-range-thumb {
   height: 14px;
   border-radius: 50%;
   background: #334155;
-  border: 2px solid #ffffff;
+  border: none !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   pointer-events: none;
 }
 .app[data-theme="dark"] .player-seekbar-thumb {
   background: #cbd5e1;
-  border-color: #1e293b;
+  border: none !important;
 }
 
 .player-time-footer {
@@ -1645,7 +1668,6 @@ input[type=range]::-moz-range-thumb {
 .user-detail-panel {
   display: flex;
   flex-direction: column;
-  animation: fadeIn .18s ease-out;
 }
 
 /* Top bar: Back button, Breadcrumb, Search */
@@ -4097,14 +4119,21 @@ select:focus,
 }
 .whatif-compare-card-block {
   position: relative;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: var(--panel-item-bg, rgba(0, 0, 0, 0.03)) !important;
-  border: 1px solid var(--line) !important;
+  padding: 2px 0 2px 10px !important;
+  background: transparent !important;
+  border: none !important;
+  border-left: 3px solid #64748b !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
-.app[data-theme="dark"] .whatif-compare-card-block {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+.whatif-compare-card-block.degraded {
+  border-left-color: #ef4444 !important;
+}
+.whatif-compare-card-block.normal {
+  border-left-color: #64748b !important;
+}
+.app[data-theme="dark"] .whatif-compare-card-block.normal {
+  border-left-color: #94a3b8 !important;
 }
 .whatif-compare-card-title {
   display: block;
@@ -4116,14 +4145,14 @@ select:focus,
 .whatif-compare-2col-box {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-radius: 6px;
-  background: var(--panel-item-bg, rgba(0, 0, 0, 0.02)) !important;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.02) !important;
   border: 1px solid var(--line) !important;
   overflow: hidden;
 }
 .app[data-theme="dark"] .whatif-compare-2col-box {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 .whatif-col {
   padding: 8px 12px;
@@ -4131,15 +4160,18 @@ select:focus,
   flex-direction: column;
   gap: 2px;
 }
+.whatif-col:last-child {
+  border-left: 1px solid var(--line) !important;
+}
 .whatif-col-lbl {
   font-size: 11px;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 500;
 }
 .whatif-col-val {
-  font-size: 13px;
-  font-family: var(--font-mono, monospace);
-  color: #0f172a;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text, #0f172a);
 }
 .whatif-col-divider {
   width: 1px;
@@ -4148,24 +4180,28 @@ select:focus,
 .whatif-consequences-list-styled {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   margin-top: 10px;
 }
 .whatif-consequence-card-styled {
   position: relative;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid var(--line);
+  padding: 10px 0 14px 10px !important;
+  background: transparent !important;
+  border: none !important;
+  border-left: 3px solid #ef4444 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 .whatif-consequence-card-styled.critical {
-  border-color: rgba(239, 68, 68, 0.35);
-  background: rgba(239, 68, 68, 0.05);
+  border-left-color: #ef4444 !important;
 }
 .whatif-consequence-card-styled.high,
 .whatif-consequence-card-styled.medium {
-  border-color: rgba(245, 158, 11, 0.35);
-  background: rgba(245, 158, 11, 0.05);
+  border-left-color: #f59e0b !important;
+}
+.whatif-consequence-card-styled:last-child {
+  border-bottom: none !important;
 }
 .whatif-card-top-row {
   display: flex;
@@ -4176,14 +4212,14 @@ select:focus,
 .whatif-card-title {
   font-size: 13.5px;
   font-weight: 700;
-  color: #0f172a;
-  line-height: 1.3;
+  color: var(--text, #0f172a);
+  line-height: 1.35;
 }
 .whatif-card-desc {
   font-size: 12.5px;
-  color: #334155;
-  margin: 6px 0;
-  line-height: 1.4;
+  color: var(--muted);
+  margin: 6px 0 8px 0;
+  line-height: 1.45;
 }
 .whatif-card-bottom-row {
   margin-top: 4px;
@@ -4512,6 +4548,20 @@ select:focus,
   border: none !important;
   box-shadow: none !important;
 }
+@keyframes ia-gradient-load {
+  0% {
+    background-position: 0% 50%;
+    filter: brightness(1.3);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: brightness(1.6);
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: brightness(1);
+  }
+}
 .user-ai-gradient-card::before {
   content: '';
   position: absolute;
@@ -4519,18 +4569,22 @@ select:focus,
   border-radius: 12px;
   padding: 1.5px;
   background: linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%);
+  background-size: 200% 200%;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
   z-index: 0;
+  animation: ia-gradient-load 2.4s ease-out 1 forwards;
 }
 .app[data-theme="dark"] .user-ai-gradient-card {
   background: transparent !important;
 }
 .app[data-theme="dark"] .user-ai-gradient-card::before {
   background: linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%);
+  background-size: 200% 200%;
+  animation: ia-gradient-load 2.4s ease-out 1 forwards;
 }
 
 .user-ai-card-top {
@@ -4781,23 +4835,6 @@ select:focus,
 .whatif-legend-dot.blue { background: #0284c7; }
 .whatif-legend-dot.red { background: #ef4444; }
 
-/* Sticky Topbar Breadcrumbs with 10% white and blur (media_1793693164646_6a4f226c.png) */
-.user-detail-topbar {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 30 !important;
-  background: rgba(255, 255, 255, 0.10) !important;
-  backdrop-filter: blur(16px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-  padding: 8px 10px !important;
-  margin: 0 0 10px 0 !important;
-  border-radius: 10px !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-
 /* Detail panel padding normalized to home sidebar */
 .interior-panel-body,
 .user-detail-panel,
@@ -4883,23 +4920,26 @@ select:focus,
 .user-detail-topbar {
   position: sticky !important;
   top: 0 !important;
-  z-index: 40 !important;
-  background: rgba(255, 255, 255, 0.72) !important;
+  z-index: 50 !important;
+  background: rgba(255, 255, 255, 0.84) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.10) !important;
   padding: 8px 10px !important;
   margin: 0 0 10px 0 !important;
   border-radius: 10px !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
 .app[data-theme="dark"] .user-detail-topbar {
-  background: rgba(15, 23, 42, 0.76) !important;
+  background: rgba(15, 23, 42, 0.88) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
 }
 .app[data-theme="dark"] .user-top-crumb .crumb-name {
   color: #f1f5f9 !important;
@@ -5361,8 +5401,10 @@ select:focus,
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 .app[data-theme="dark"] .whatif-consequence-card-styled {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: transparent !important;
+  border: none !important;
+  border-left: 3px solid #ef4444 !important;
+  border-bottom: 1px solid var(--line) !important;
 }
 .app[data-theme="dark"] .whatif-actions-box {
   background: rgba(255, 255, 255, 0.05) !important;

@@ -896,10 +896,19 @@ export default function App() {
     })
   }
 
-  const addSimulationItem = (id: string) => {
-    setActiveSimulations((prev) => (prev.includes(id) ? prev : [...prev, id]))
-    setOpenSection('sim')
-    setDdOpen(null)
+  const toggleSimulationItem = (id: string) => {
+    setActiveSimulations((prev) => {
+      if (prev.includes(id)) {
+        const next = prev.filter((item) => item !== id)
+        if (next.length === 0) {
+          setOpenSection((cur) => (cur === 'sim' ? null : cur))
+        }
+        return next
+      } else {
+        setOpenSection('sim')
+        return [...prev, id]
+      }
+    })
   }
 
   const removeSimulationItem = (id: string) => {
@@ -1567,6 +1576,14 @@ export default function App() {
                   <span className="crumb-prefix">{interiorView ? 'Sala de bombeo / ' : 'Simulaciones / '}</span>
                   <span className="crumb-name"><b>{selectedWorker.name}</b></span>
                 </div>
+                <button
+                  className="user-top-search-btn"
+                  onClick={() => setSearchOpen(true)}
+                  title="Buscar"
+                  aria-label="Buscar"
+                >
+                  <Search size={18} />
+                </button>
               </div>
 
               <div className="interior-panel-body">
@@ -1861,6 +1878,14 @@ export default function App() {
                       <b>{currentInterior.title}</b>
                     </span>
                   </div>
+                  <button
+                    className="user-top-search-btn"
+                    onClick={() => setSearchOpen(true)}
+                    title="Buscar"
+                    aria-label="Buscar"
+                  >
+                    <Search size={18} />
+                  </button>
                 </div>
 
                 <div className="interior-panel-body">
@@ -1936,6 +1961,14 @@ export default function App() {
                   <span className="crumb-prefix">Inicio / Evacuación d... / </span>
                   <span className="crumb-name"><b>Resultados</b></span>
                 </div>
+                <button
+                  className="user-top-search-btn"
+                  onClick={() => setSearchOpen(true)}
+                  title="Buscar"
+                  aria-label="Buscar"
+                >
+                  <Search size={18} />
+                </button>
               </div>
 
               <div className="whatif-result-container" style={{ padding: '4px 0' }}>
@@ -1993,23 +2026,31 @@ export default function App() {
 
                       <div className="whatif-section-title" style={{ marginTop: 16 }}>Antes y después</div>
                       <div className="whatif-compare-grid-cards">
-                        {sc.beforeAfter.map((row, idx) => (
-                          <div key={idx} className="whatif-compare-card-block">
-                            <span className="whatif-compare-card-title">{row.label}</span>
-                            <div className="whatif-compare-2col-box">
-                              <div className="whatif-col">
-                                <span className="whatif-col-lbl">Antes</span>
-                                <span className="whatif-col-val">{row.before} {row.unit}</span>
-                              </div>
-                              <div className="whatif-col">
-                                <span className="whatif-col-lbl">Después</span>
-                                <span className="whatif-col-val" style={{ color: row.trendColor || 'inherit' }}>
-                                  {row.after} {row.unit}
-                                </span>
+                        {sc.beforeAfter.map((row, idx) => {
+                          const isDegraded =
+                            row.trendColor === '#f44336' ||
+                            row.trendColor === '#ef4444' ||
+                            row.trendColor === '#ff9800' ||
+                            (row.label.includes('degradad') && row.after !== '0.0') ||
+                            (row.label.includes('conforme') && row.after !== row.before)
+                          return (
+                            <div key={idx} className={`whatif-compare-card-block ${isDegraded ? 'degraded' : 'normal'}`}>
+                              <span className="whatif-compare-card-title">{row.label}</span>
+                              <div className="whatif-compare-2col-box">
+                                <div className="whatif-col">
+                                  <span className="whatif-col-lbl">Antes</span>
+                                  <span className="whatif-col-val">{row.before} {row.unit}</span>
+                                </div>
+                                <div className="whatif-col">
+                                  <span className="whatif-col-lbl">Después</span>
+                                  <span className="whatif-col-val" style={{ color: row.trendColor || 'inherit' }}>
+                                    {row.after} {row.unit}
+                                  </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
 
                       <div className="whatif-section-title" style={{ marginTop: 16 }}>
@@ -2129,14 +2170,12 @@ export default function App() {
               </div>
 
               {/* AI Metric Card (Nexo IA · Telemetría Activa, neutral colors, divider lines) */}
-              <div className="user-ai-gradient-card">
-                <BorderBeam duration={8} size={180} />
+              <div className="user-ai-gradient-card animating">
                 <div className="user-ai-card-top">
                   <div className="user-ai-tag">
                     <NexoLogo width={14} height={16} color="#546e7a" />
                     <span>IA Predictiva · Telemetría Activa</span>
                   </div>
-                  <span className="user-ai-status">Óptimo</span>
                 </div>
                 <div className="user-ai-card-body">
                   <div className="user-ai-metric-row">
@@ -2150,6 +2189,10 @@ export default function App() {
                   <div className="user-ai-metric-row">
                     <span className="user-ai-lbl">Atmósfera en ruta</span>
                     <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
+                  </div>
+                  <div className="user-ai-metric-row" style={{ borderBottom: 'none' }}>
+                    <span className="user-ai-lbl">Estado</span>
+                    <span className="status-badge-optimo">Óptimo</span>
                   </div>
                 </div>
               </div>
@@ -2177,16 +2220,30 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="auxilio-tabs-row" style={{ marginBottom: 12 }}>
+                <div
+                  className="surface-bottom-switch"
+                  style={{
+                    position: 'relative',
+                    bottom: 'auto',
+                    left: 'auto',
+                    width: '100%',
+                    display: 'flex',
+                    marginBottom: 12,
+                    boxShadow: 'none',
+                    padding: 3,
+                  }}
+                >
                   <button
-                    className={`auxilio-tab-btn ${auxilioTab === 'sin_resolver' ? 'active' : ''}`}
+                    className={`surface-switch-btn ${auxilioTab === 'sin_resolver' ? 'active' : ''}`}
                     onClick={() => setAuxilioTab('sin_resolver')}
+                    style={{ flex: 1, textAlign: 'center' }}
                   >
                     3 sin resolver
                   </button>
                   <button
-                    className={`auxilio-tab-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
+                    className={`surface-switch-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
                     onClick={() => setAuxilioTab('resueltas')}
+                    style={{ flex: 1, textAlign: 'center' }}
                   >
                     3 resueltas
                   </button>
@@ -2366,7 +2423,11 @@ export default function App() {
                   max={60}
                   value={escenarioSlider}
                   onChange={(e) => setEscenarioSlider(+e.target.value)}
-                  style={{ width: '100%', marginTop: 8 }}
+                  style={{
+                    width: '100%',
+                    marginTop: 8,
+                    ['--range-progress' as any]: `${(escenarioSlider / 60) * 100}%`,
+                  }}
                 />
               </div>
 
@@ -2649,17 +2710,31 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Filter Tabs: 3 sin resolver | 3 resueltas */}
-                <div className="auxilio-tabs-row">
+                {/* Filter Tabs: 3 sin resolver | 3 resueltas (Segmented Control matching design system) */}
+                <div
+                  className="surface-bottom-switch"
+                  style={{
+                    position: 'relative',
+                    bottom: 'auto',
+                    left: 'auto',
+                    width: '100%',
+                    display: 'flex',
+                    marginBottom: 12,
+                    boxShadow: 'none',
+                    padding: 3,
+                  }}
+                >
                   <button
-                    className={`auxilio-tab-btn ${auxilioTab === 'sin_resolver' ? 'active' : ''}`}
+                    className={`surface-switch-btn ${auxilioTab === 'sin_resolver' ? 'active' : ''}`}
                     onClick={() => setAuxilioTab('sin_resolver')}
+                    style={{ flex: 1, textAlign: 'center' }}
                   >
                     3 sin resolver
                   </button>
                   <button
-                    className={`auxilio-tab-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
+                    className={`surface-switch-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
                     onClick={() => setAuxilioTab('resueltas')}
+                    style={{ flex: 1, textAlign: 'center' }}
                   >
                     3 resueltas
                   </button>
@@ -3478,17 +3553,19 @@ export default function App() {
                   const items = SIMULATION_CATALOG.filter((s) => s.category === cat)
                   return (
                     <div key={cat} className="sim-group-block">
-                      <div className="sim-category-title">{cat}</div>
+                      <div className="dd-group-title">{cat}</div>
                       {items.map((sim) => {
                         const Icon = sim.icon
+                        const isAdded = activeSimulations.includes(sim.id)
                         return (
                           <button
                             key={sim.id}
-                            className="sim-cat-item"
-                            onClick={() => addSimulationItem(sim.id)}
+                            className={`dd-item ${isAdded ? 'selected' : ''}`}
+                            onClick={() => toggleSimulationItem(sim.id)}
                           >
                             <Icon size={18} style={{ color: sim.color }} />
                             <span>{sim.label}</span>
+                            {isAdded && <Check size={16} className="dd-check" />}
                           </button>
                         )
                       })}
