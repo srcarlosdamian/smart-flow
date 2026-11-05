@@ -17,6 +17,8 @@ export interface BorderBeamProps {
   borderRadius?: number | string
   /** Beam thickness in px */
   borderWidth?: number
+  /** Whether to show a static perimeter track border behind the beam */
+  showTrack?: boolean
   className?: string
   style?: React.CSSProperties
 }
@@ -35,6 +37,7 @@ export const BorderBeam: React.FC<BorderBeamProps> = ({
   colorTo = '#546e7a',
   borderRadius = 'inherit',
   borderWidth = 1.5,
+  showTrack = false,
   className = '',
   style = {},
 }) => {
@@ -67,17 +70,19 @@ export const BorderBeam: React.FC<BorderBeamProps> = ({
           willChange: 'offset-distance',
         }}
       />
-      {/* Static perimeter track border */}
-      <div
-        className="border-beam-track"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius,
-          border: `${borderWidth}px solid rgba(144, 164, 174, 0.22)`,
-          pointerEvents: 'none',
-        }}
-      />
+      {/* Optional static perimeter track border */}
+      {showTrack && (
+        <div
+          className="border-beam-track"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius,
+            border: `${borderWidth}px solid rgba(144, 164, 174, 0.22)`,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
     </div>
   )
 }

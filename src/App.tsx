@@ -1569,9 +1569,9 @@ export default function App() {
                         <span style={{ fontSize: 13, color: 'var(--text)' }}>Nivel del sumidero</span>
                         <span style={{ fontSize: 14, fontWeight: 700, color: '#ef4444' }}>85%</span>
                       </div>
-                      {/* Horizontal progress bar */}
-                      <div style={{ width: '100%', height: 6, borderRadius: 3, background: 'rgba(100, 116, 139, 0.25)', overflow: 'hidden' }}>
-                        <div style={{ width: '85%', height: '100%', borderRadius: 3, background: '#0284c7' }} />
+                      {/* Horizontal progress bar (Neutral Homologated) */}
+                      <div className="neutral-progress-track">
+                        <div className="neutral-progress-fill" style={{ width: '85%' }} />
                       </div>
 
                       <div className="row between" style={{ alignItems: 'center', paddingTop: 4 }}>
@@ -2012,23 +2012,28 @@ export default function App() {
                 </div>
               </div>
 
-              {/* AI Metric Card */}
+              {/* AI Metric Card (Nexo IA · Telemetría Activa, neutral colors, divider lines) */}
               <div className="user-ai-gradient-card">
+                <BorderBeam duration={8} size={180} />
                 <div className="user-ai-card-top">
                   <div className="user-ai-tag">
-                    <NexoLogo width={14} height={16} color="#455a64" />
-                    <span>IA Predictiva · Telemetría</span>
+                    <NexoLogo width={14} height={16} color="#546e7a" />
+                    <span>IA Predictiva · Telemetría Activa</span>
                   </div>
                   <span className="user-ai-status">Óptimo</span>
                 </div>
                 <div className="user-ai-card-body">
                   <div className="user-ai-metric-row">
-                    <span className="user-ai-lbl">Ruta recomendada:</span>
+                    <span className="user-ai-lbl">Ruta recomendada</span>
                     <b className="user-ai-val">Rampa N02 → Refugio R-01</b>
                   </div>
                   <div className="user-ai-metric-row">
-                    <span className="user-ai-lbl">Tiempo estimado:</span>
+                    <span className="user-ai-lbl">Tiempo estimado</span>
                     <b className="user-ai-val">3 min 40 s (Sin riesgo)</b>
+                  </div>
+                  <div className="user-ai-metric-row">
+                    <span className="user-ai-lbl">Atmósfera en ruta</span>
+                    <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
                   </div>
                 </div>
               </div>

@@ -122,7 +122,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
 
   // BorderBeam playground state
   const [beamSpeed, setBeamSpeed] = useState<number>(8)
-  const [beamSize, setBeamSize] = useState<number>(220)
+  const beamSize = 220
 
   const isLight = theme === 'light'
 
@@ -1982,7 +1982,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   />
                   <div className="user-ai-card-top">
                     <div className="user-ai-tag">
-                      <NexoLogo width={14} height={16} color={isLight ? '#455a64' : '#ffffff'} />
+                      <NexoLogo width={14} height={16} color="#546e7a" />
                       <span>IA Predictiva · Telemetría Activa</span>
                     </div>
                     <span className="user-ai-status">Óptimo</span>
@@ -1994,44 +1994,32 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     </div>
                     <div className="user-ai-metric-row">
                       <span className="user-ai-lbl">Tiempo estimado</span>
-                      <b className="user-ai-val">3 min 40 s</b>
+                      <b className="user-ai-val">3 min 40 s (Sin riesgo)</b>
                     </div>
                     <div className="user-ai-metric-row">
                       <span className="user-ai-lbl">Atmósfera en ruta</span>
-                      <b className="user-ai-val" style={{ color: '#10b981' }}>
-                        CO &lt; 5 ppm · O₂ 20.9%
-                      </b>
+                      <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <div>
-                    <div className="row between" style={{ fontSize: 12, marginBottom: 4 }}>
-                      <span style={{ color: 'var(--muted)' }}>Velocidad del haz (duration)</span>
-                      <b>{beamSpeed} s</b>
-                    </div>
-                    <input
-                      type="range"
-                      min={2}
-                      max={18}
-                      value={beamSpeed}
-                      onChange={(e) => setBeamSpeed(Number(e.target.value))}
-                    />
+                {/* Control Deslizante de Progreso / Velocidad de duración (Único, Homologado & Neutro) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
+                  <div className="row between" style={{ fontSize: 12.5 }}>
+                    <span style={{ color: 'var(--muted)' }}>Velocidad de duración</span>
+                    <b style={{ color: 'var(--text)', fontWeight: 600 }}>{beamSpeed} s</b>
                   </div>
-                  <div>
-                    <div className="row between" style={{ fontSize: 12, marginBottom: 4 }}>
-                      <span style={{ color: 'var(--muted)' }}>Longitud del haz (size)</span>
-                      <b>{beamSize} px</b>
-                    </div>
-                    <input
-                      type="range"
-                      min={80}
-                      max={380}
-                      step={10}
-                      value={beamSize}
-                      onChange={(e) => setBeamSize(Number(e.target.value))}
-                    />
+                  <input
+                    type="range"
+                    min={2}
+                    max={18}
+                    value={beamSpeed}
+                    onChange={(e) => setBeamSpeed(Number(e.target.value))}
+                  />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                    <small style={{ fontSize: 11, color: 'var(--muted)' }}>
+                      Mismo componente para progreso y sliders: altura 6px, pista neutral sin línea y progreso gris oscuro.
+                    </small>
                   </div>
                 </div>
               </div>
@@ -2039,7 +2027,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               {/* All Nexo IA Buttons */}
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={labelTagStyle}>
-                  <span>5.2 TODAS LAS VARIANTES DE BOTONES NEXO IA</span>
+                  <span>5.2 BOTONES Y TRIGGERS NEXO IA</span>
                   <span style={codePillStyle}>.ia-gradient</span>
                 </div>
 
@@ -2060,10 +2048,10 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   </div>
                 </div>
 
-                {/* 2. Consultar estado con Nexo IA (Full width, no hover shift, no shadow) */}
+                {/* 2. Consultar estado con Nexo IA */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>2. Botón Consultar Estado (Full-Width · Sin sombra ni salto en hover)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
+                    <b>2. Botón CTA Acción Nexo (Full-Width · Degradado Gris Metálico Nexo)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
                   </small>
                   <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0 }}>
                     <NexoLogo width={14} height={16} color="#ffffff" />
@@ -2071,24 +2059,10 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   </button>
                 </div>
 
-                {/* 3. Compact Pump Nexo Button */}
+                {/* 3. Floating Interior Top Trigger & Suggestion Pill */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>3. Botón Contextual Compacto en Card de Bomba (Full-Width)</b> — <code>fontSize: 12px, padding: 7px 12px</code>
-                  </small>
-                  <button
-                    className="consultar-nexo-btn ia-gradient"
-                    style={{ margin: 0, padding: '7px 12px', fontSize: 12 }}
-                  >
-                    <NexoLogo width={12} height={14} color="#ffffff" />
-                    <span>Preguntar a Nexo sobre BA-04</span>
-                  </button>
-                </div>
-
-                {/* 4. Floating Interior Top Trigger (Auto-Width) & Suggestion Pill */}
-                <div>
-                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>4. Pill Flotante Auto-Width &amp; Sugerencia de Drawer</b> — <code>.bombeo-nexo-top-trigger</code> &amp; <code>.nexo-pill</code>
+                    <b>3. Pill Auto-Width &amp; Sugerencia de Drawer</b> — <code>.bombeo-nexo-top-trigger</code> &amp; <code>.nexo-pill</code>
                   </small>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
                     <button

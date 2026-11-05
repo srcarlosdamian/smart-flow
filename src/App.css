@@ -901,7 +901,99 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 }
 .field option { background: var(--option-bg); color: var(--text); } .field.full { width: 100%; resize: none; }
 .hint { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.4; }
-input[type=range] { width: 100%; accent-color: #1976d2; }
+/* ==========================================================================
+   HOMOLOGATED NEUTRAL RANGE SLIDER & PROGRESS TRACKS (No line, Neutral tokens)
+   ========================================================================== */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  outline: none !important;
+  border: none !important;
+  cursor: pointer;
+  margin: 6px 0;
+  accent-color: #475569;
+}
+.app[data-theme="dark"] input[type=range] {
+  background: rgba(255, 255, 255, 0.14);
+  accent-color: #94a3b8;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  border: none !important;
+}
+.app[data-theme="dark"] input[type=range]::-webkit-slider-runnable-track {
+  background: rgba(255, 255, 255, 0.14);
+  border: none !important;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #475569;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  margin-top: -4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+  transition: transform 0.1s ease;
+}
+.app[data-theme="dark"] input[type=range]::-webkit-slider-thumb {
+  background: #cbd5e1;
+  border-color: #1e293b;
+}
+input[type=range]::-moz-range-track {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  border: none !important;
+}
+.app[data-theme="dark"] input[type=range]::-moz-range-track {
+  background: rgba(255, 255, 255, 0.14);
+  border: none !important;
+}
+input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #475569;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+}
+.app[data-theme="dark"] input[type=range]::-moz-range-thumb {
+  background: #cbd5e1;
+  border-color: #1e293b;
+}
+
+/* Neutral Progress Bar (Identical height 6px, radius 9999px, no border) */
+.neutral-progress-track {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: none !important;
+  margin: 6px 0;
+}
+.app[data-theme="dark"] .neutral-progress-track {
+  background: rgba(255, 255, 255, 0.14);
+}
+.neutral-progress-fill {
+  height: 100%;
+  background: #475569;
+  border-radius: 9999px;
+  border: none !important;
+}
+.app[data-theme="dark"] .neutral-progress-fill {
+  background: #94a3b8;
+}
 .cta {
   padding: 12px 18px;
   border-radius: 12px;
@@ -4373,58 +4465,107 @@ select:focus,
   align-items: center;
 }
 
-/* AI-Generated Metric Card with AI Gradient Border */
+/* ==========================================================================
+   NEXO IA PREDICTIVE TELEMETRY CARD
+   - Transparent background (No background fill)
+   - 1.5px gradient perimeter border matching Nexo IA (#455a64 -> #546e7a -> #90a4ae)
+   - Neutral typography & divider lines between metrics
+   ========================================================================== */
 .user-ai-gradient-card {
-  position: relative;
-  margin: 12px 0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(8px);
-  border: 1.5px solid transparent;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)), linear-gradient(90deg, #1253dd, #08ddf0, #a855f7);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  box-shadow: 0 4px 14px rgba(18, 83, 221, 0.08);
+  position: relative !important;
+  margin: 12px 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
+.user-ai-gradient-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1.5px;
+  background: linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 0;
+}
+.app[data-theme="dark"] .user-ai-gradient-card {
+  background: transparent !important;
+}
+.app[data-theme="dark"] .user-ai-gradient-card::before {
+  background: linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%);
+}
+
 .user-ai-card-top {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
+.app[data-theme="dark"] .user-ai-card-top {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
 .user-ai-tag {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
+  gap: 7px;
+  font-size: 12px;
   font-weight: 700;
-  color: #0284c7;
+  color: var(--text, #334155);
 }
-.user-ai-status {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #16a34a;
-  background: #dcfce7;
-  padding: 1px 7px;
-  border-radius: 12px;
+.app[data-theme="dark"] .user-ai-tag {
+  color: #f1f5f9;
 }
+
 .user-ai-card-body {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
+
 .user-ai-metric-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12.5px;
+  font-size: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
+.user-ai-metric-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.app[data-theme="dark"] .user-ai-metric-row {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
 .user-ai-lbl {
-  color: var(--muted);
+  color: var(--muted, #64748b);
+  font-size: 12px;
+  font-weight: 500;
 }
+.app[data-theme="dark"] .user-ai-lbl {
+  color: #94a3b8;
+}
+
 .user-ai-val {
-  color: #0f172a;
+  color: var(--text, #1e293b);
+  font-size: 12px;
+  font-weight: 600;
+}
+.app[data-theme="dark"] .user-ai-val {
+  color: #f1f5f9;
 }
 
 /* Homologated Section Action Buttons & Chevrons in Sidebar */
@@ -4661,15 +4802,6 @@ select:focus,
 .ia-gradient {
   background: linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
 }
-.user-ai-gradient-card {
-  position: relative !important;
-  margin: 12px 0 !important;
-  padding: 12px 14px !important;
-  border-radius: 12px !important;
-  background: transparent !important;
-  border: 1.5px solid transparent !important;
-  box-shadow: none !important;
-}
 
 /* Consultar estado con Nexo IA Button - Nexo IA Grey Metallic Gradient (No movement, No shadow) */
 .consultar-nexo-btn {
@@ -4751,10 +4883,6 @@ select:focus,
 .app[data-theme="dark"] .evac-action-link-btn:hover {
   background: rgba(255, 255, 255, 0.14) !important;
   color: #ffffff !important;
-}
-.app[data-theme="dark"] .user-ai-gradient-card {
-  background-image: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.6)), linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
-  color: #f1f5f9 !important;
 }
 .app[data-theme="dark"] .user-ai-tag {
   color: #cbd5e1 !important;
