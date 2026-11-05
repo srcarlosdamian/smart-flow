@@ -38,7 +38,6 @@ import {
   Layers,
   Layers2,
   Sparkles,
-  ExternalLink,
   ArrowLeft,
   ArrowUp,
   Palette,
@@ -261,17 +260,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
           <button
             className="cta no-shadow"
             onClick={onBackToApp}
-            style={{
-              padding: '8px 14px',
-              fontSize: 13,
-              borderRadius: 8,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
           >
-            <span>Volver al Gemelo 3D</span>
-            <ExternalLink size={14} />
+            Ir a la Mina
           </button>
         </div>
       </header>
@@ -1362,32 +1352,28 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 {/* Auto width CTA */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Auto-Width (fit-content)</b> — <code>.cta.no-shadow</code> (Botón en barra o formulario)
+                    <b>Auto-Width (fit-content)</b> — <code>.cta.no-shadow</code> (Simular escenario, Ir a la Mina)
                   </small>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                     <button className="cta no-shadow">Simular escenario</button>
-                    <button
-                      className="cta no-shadow"
-                      style={{ padding: '8px 14px', fontSize: 13, borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                    >
-                      <span>Ir a la Mina</span>
-                      <ExternalLink size={14} />
-                    </button>
+                    <button className="cta no-shadow" onClick={onBackToApp}>Ir a la Mina</button>
                   </div>
                 </div>
 
                 {/* Escenario Primary Button */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Sólido (#0288d1)</b> — <code>.esc-primary-btn</code> (Condiciones del escenario)
+                    <b>Full-Width (100%)</b> — <code>.esc-primary-btn</code> (Exacto a <code>.cta.full.no-shadow</code>)
                   </small>
-                  <button className="esc-primary-btn">Aplicar condiciones al escenario</button>
+                  <button className="esc-primary-btn">
+                    <span>Aplicar condiciones al escenario</span>
+                  </button>
                 </div>
 
                 {/* Interior Enter Button */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Recinto Interior (44px)</b> — <code>.interior-enter-btn</code>
+                    <b>Full-Width Recinto Interior</b> — <code>.interior-enter-btn</code> (Degradado CTA unificado)
                   </small>
                   <button className="interior-enter-btn">
                     <span>Ingresar a Sala de Bombeo SB-01</span>
@@ -1404,18 +1390,16 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     style={{
                       background: '#ef4444',
                       color: '#fff',
-                      padding: '10px 14px',
-                      borderRadius: 8,
-                      fontWeight: 600,
-                      fontSize: 13,
+                      padding: '12px 18px',
+                      borderRadius: 12,
+                      fontWeight: 700,
+                      fontSize: 14,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: 8,
                       width: '100%',
                     }}
                   >
-                    <Siren size={16} />
                     <span>Declarar la evacuación</span>
                   </button>
                 </div>

@@ -2943,16 +2943,15 @@ export default function App() {
                             style={{
                               background: '#ef4444',
                               color: '#fff',
-                              padding: '10px 14px',
-                              borderRadius: 8,
-                              fontWeight: 600,
-                              fontSize: 13,
+                              padding: '12px 18px',
+                              borderRadius: 12,
+                              fontWeight: 700,
+                              fontSize: 14,
                               border: 'none',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              gap: 8,
                               boxShadow: 'none',
                               width: '100%',
                             }}
@@ -2961,7 +2960,6 @@ export default function App() {
                               setSidebarView({ type: 'evacuacion_alertas' })
                             }}
                           >
-                            <Siren size={16} />
                             <span>Declarar la evacuación</span>
                           </button>
                         </div>
