@@ -770,21 +770,31 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2px 14px;
+  padding: 0 4px 12px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--caption);
-  letter-spacing: 0.5px;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.checklist-head span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 .checklist-head button {
   font-size: 11px;
   font-weight: 600;
-  color: var(--caption);
-  letter-spacing: 0.5px;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
+  transition: color 0.12s ease;
 }
 .checklist-head button:hover {
   color: var(--text);
@@ -792,7 +802,7 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 .checklist-scroll {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   max-height: 380px;
   overflow-y: auto;
   padding-right: 2px;
@@ -800,10 +810,10 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 .checklist-item {
   width: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  padding: 4px 4px;
-  border-radius: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
   text-align: left;
   background: transparent;
   border: none;
@@ -816,13 +826,12 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 .chk-box {
   width: 18px;
   height: 18px;
-  border-radius: 3.5px;
+  border-radius: 4px;
   border: 1.5px solid #94a3b8;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
   transition: all 0.12s ease;
   background: transparent;
 }
@@ -834,15 +843,15 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 .checklist-names {
   display: flex;
   flex-direction: column;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 .checklist-names b {
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
   color: var(--text);
 }
 .checklist-names small {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--muted);
   font-weight: 400;
 }
@@ -2066,34 +2075,39 @@ input[type=range] { width: 100%; accent-color: #1976d2; }
 .sim-add-menu {
   top: 42px;
   right: 0;
-  width: 230px;
-  max-height: 380px;
-  overflow-y: auto;
-  padding: 8px 0;
+  width: 250px;
+  max-height: none;
+  overflow-y: visible;
+  padding: 10px;
   z-index: 70;
 }
 .sim-group-block {
-  padding: 6px 0;
+  padding: 4px 0;
 }
 .sim-group-block + .sim-group-block {
   border-top: 1px solid var(--line);
+  margin-top: 4px;
+  padding-top: 6px;
 }
 .sim-category-title {
-  padding: 4px 14px;
+  padding: 4px 6px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.6px;
   color: var(--muted);
+  text-transform: uppercase;
 }
 .sim-cat-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 7px 14px;
+  gap: 12px;
+  padding: 8px 8px;
+  border-radius: 8px;
   background: transparent;
   border: 0;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 400;
   color: var(--text);
   font-family: inherit;
   cursor: pointer;
@@ -2966,7 +2980,9 @@ select option {
 .track-add-menu,
 .zoom-menu,
 .nexo-settings-menu,
-.nexo-more-menu {
+.nexo-more-menu,
+.sim-add-menu,
+.personal-checklist-menu {
   background: rgba(255, 255, 255, 0.93) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
@@ -2975,12 +2991,35 @@ select option {
   color: #0f172a !important;
 }
 
-.dd-item {
+.dd-item,
+.sim-cat-item {
+  color: #1e293b !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+.checklist-names b {
+  font-size: 14px !important;
+  font-weight: 400 !important;
   color: #1e293b !important;
 }
 
+.dd-group-title,
+.sim-category-title,
+.checklist-head,
+.checklist-head span,
+.checklist-head button {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.6px !important;
+  color: var(--muted) !important;
+  text-transform: uppercase !important;
+}
+
 .dd-item:hover,
-.dd-item.selected {
+.dd-item.selected,
+.sim-cat-item:hover,
+.checklist-item:hover {
   background: rgba(0, 0, 0, 0.05) !important;
   color: #0f172a !important;
 }
@@ -4805,25 +4844,49 @@ select:focus,
   color: #f1f5f9 !important;
 }
 
-/* 3. Popover Menus (Projection, Zoom, Settings, More) */
+/* 3. Popover Menus (Projection, Zoom, Settings, More, Sims, Checklist) */
 .app[data-theme="dark"] .dd-menu,
 .app[data-theme="dark"] .track-add-menu,
 .app[data-theme="dark"] .zoom-menu,
 .app[data-theme="dark"] .nexo-settings-menu,
-.app[data-theme="dark"] .nexo-more-menu {
+.app[data-theme="dark"] .nexo-more-menu,
+.app[data-theme="dark"] .sim-add-menu,
+.app[data-theme="dark"] .personal-checklist-menu {
   background: rgba(15, 23, 42, 0.95) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.3) !important;
   color: #f1f5f9 !important;
 }
-.app[data-theme="dark"] .dd-group-title {
+.app[data-theme="dark"] .dd-group-title,
+.app[data-theme="dark"] .sim-category-title,
+.app[data-theme="dark"] .checklist-head,
+.app[data-theme="dark"] .checklist-head span,
+.app[data-theme="dark"] .checklist-head button {
   color: #94a3b8 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
 }
-.app[data-theme="dark"] .dd-item {
+.app[data-theme="dark"] .dd-item,
+.app[data-theme="dark"] .sim-cat-item {
   color: #cbd5e1 !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+.app[data-theme="dark"] .checklist-names b {
+  color: #f1f5f9 !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+.app[data-theme="dark"] .checklist-names small {
+  color: #94a3b8 !important;
+  font-size: 12px !important;
 }
 .app[data-theme="dark"] .dd-item:hover,
-.app[data-theme="dark"] .dd-item.selected {
+.app[data-theme="dark"] .dd-item.selected,
+.app[data-theme="dark"] .sim-cat-item:hover,
+.app[data-theme="dark"] .checklist-item:hover {
   background: rgba(255, 255, 255, 0.10) !important;
   color: #ffffff !important;
 }

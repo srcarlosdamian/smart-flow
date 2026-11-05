@@ -1148,7 +1148,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   {(openDd === 'addSim' || openDd === 'proj') && (
                     <div
                       className="dd-menu sim-add-menu"
-                      style={{ position: 'relative', top: 4, right: 'auto', width: '100%', maxHeight: 310 }}
+                      style={{ position: 'relative', top: 4, right: 'auto', width: '100%', maxHeight: 'none', overflowY: 'visible' }}
                     >
                       {[
                         {
@@ -1184,7 +1184,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                             const Icon = it.icon
                             return (
                               <button key={it.label} className="sim-cat-item">
-                                <Icon size={16} style={{ color: it.color }} />
+                                <Icon size={18} style={{ color: it.color }} />
                                 <span>{it.label}</span>
                               </button>
                             )
@@ -1282,7 +1282,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     </span>
                     <button onClick={() => setCheckedPeople({})}>QUITAR TODOS</button>
                   </div>
-                  <div className="checklist-scroll" style={{ maxHeight: 190 }}>
+                  <div className="checklist-scroll" style={{ maxHeight: 'none', overflowY: 'visible' }}>
                     {[
                       { id: 'p1', name: 'Juan García', sub: 'Acarreo · Camión T-01' },
                       { id: 'p2', name: 'María López', sub: 'Perforación · Jumbo J-02' },

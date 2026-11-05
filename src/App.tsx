@@ -3245,7 +3245,7 @@ export default function App() {
                             className="sim-cat-item"
                             onClick={() => addSimulationItem(sim.id)}
                           >
-                            <Icon size={16} style={{ color: sim.color }} />
+                            <Icon size={18} style={{ color: sim.color }} />
                             <span>{sim.label}</span>
                           </button>
                         )
