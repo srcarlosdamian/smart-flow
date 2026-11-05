@@ -67,8 +67,6 @@ import {
   SquareArrowOutUpRight,
   Target,
   User,
-  CornerDownLeft,
-  History,
   X,
 } from 'lucide-react'
 import { NexoLogo } from './App'
@@ -512,28 +510,15 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                       </button>
                     </div>
 
-                    {/* Variant B: Interior Breadcrumb */}
+                    {/* Variant B: Estándar con Breadcrumb */}
                     <div className="user-detail-topbar" style={{ position: 'relative', margin: 0 }}>
                       <button className="user-top-back-btn no-border" title="Volver">
                         <ChevronLeft size={18} />
                       </button>
                       <div className="user-top-crumb">
-                        <span className="crumb-prefix">Interiores / </span>
+                        <span className="crumb-prefix">Módulo / </span>
                         <span className="crumb-name">
-                          <b>Sala de bombeo SB-01</b>
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Variant C: Evacuation / What-If Breadcrumb */}
-                    <div className="user-detail-topbar" style={{ position: 'relative', margin: 0 }}>
-                      <button className="user-top-back-btn no-border" title="Volver">
-                        <ChevronLeft size={18} />
-                      </button>
-                      <div className="user-top-crumb">
-                        <span className="crumb-prefix">Inicio / Evacuación d... / </span>
-                        <span className="crumb-name">
-                          <b>Resultados</b>
+                          <b>Detalle de elemento</b>
                         </span>
                       </div>
                     </div>
@@ -1213,7 +1198,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
 
                 {openDd === 'shiftStart' && (
                   <div className="dd-menu time-picker-menu" style={{ position: 'relative', top: 0, width: '100%' }}>
-                    {['06:00', '08:00', '10:00', '12:00'].map((t) => (
+                    {['06:00', '08:00'].map((t) => (
                       <button
                         key={t}
                         className={`dd-item ${shiftStart === t ? 'selected' : ''}`}
@@ -1234,7 +1219,6 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     <div className="dd-group-title">COMPONENTE O NODO</div>
                     {[
                       'Ventilador principal V-PH-01',
-                      'Ventilador secundario V-SA-01',
                       'Subestación eléctrica CD-MT-01',
                     ].map((item) => (
                       <button
@@ -1268,7 +1252,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 >
                   <div className="checklist-head">
                     <span>
-                      {Object.values(checkedPeople).filter(Boolean).length}/4 SELECCIONADO
+                      {Object.values(checkedPeople).filter(Boolean).length}/2 SELECCIONADO
                     </span>
                     <button onClick={() => setCheckedPeople({})}>QUITAR TODOS</button>
                   </div>
@@ -1276,8 +1260,6 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     {[
                       { id: 'p1', name: 'Juan García', sub: 'Acarreo · Camión T-01' },
                       { id: 'p2', name: 'María López', sub: 'Perforación · Jumbo J-02' },
-                      { id: 'p3', name: 'Pedro Ramírez', sub: 'Seguridad · Nivel N02' },
-                      { id: 'p4', name: 'Victor Navarro', sub: 'Operador · Nivel 3 - Sector B' },
                     ].map((p) => {
                       const checked = !!checkedPeople[p.id]
                       return (
@@ -1339,51 +1321,28 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 {/* Full width CTA */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width (100%)</b> — <code>.cta.full.no-shadow</code> (Entrar a recinto, Editar ajustes)
+                    <b>Full-Width (100%)</b> — <code>.cta.full.no-shadow</code> (Acción primaria full width)
                   </small>
                   <button
                     className="cta full no-shadow"
                     style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    <span>Entrar</span>
+                    <span>Acción Primaria</span>
                   </button>
                 </div>
 
                 {/* Auto width CTA */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Auto-Width (fit-content)</b> — <code>.cta.no-shadow</code> (Simular escenario, Ir a la Mina)
+                    <b>Auto-Width (fit-content)</b> — <code>.cta.no-shadow</code> (Acción primaria auto)
                   </small>
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                    <button className="cta no-shadow">Simular escenario</button>
-                    <button className="cta no-shadow" onClick={onBackToApp}>Ir a la Mina</button>
-                  </div>
-                </div>
-
-                {/* Escenario Primary Button */}
-                <div>
-                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width (100%)</b> — <code>.esc-primary-btn</code> (Exacto a <code>.cta.full.no-shadow</code>)
-                  </small>
-                  <button className="esc-primary-btn">
-                    <span>Aplicar condiciones al escenario</span>
-                  </button>
-                </div>
-
-                {/* Interior Enter Button */}
-                <div>
-                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Recinto Interior</b> — <code>.interior-enter-btn</code> (Degradado CTA unificado)
-                  </small>
-                  <button className="interior-enter-btn">
-                    <span>Ingresar a Sala de Bombeo SB-01</span>
-                  </button>
+                  <button className="cta no-shadow">Acción Primaria</button>
                 </div>
 
                 {/* Emergency Declare Evacuation Button */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Emergencia (#ef4444)</b> — <code>.cta.full.no-shadow</code> (Declarar evacuación)
+                    <b>Full-Width Emergencia / Peligro (#ef4444)</b> — <code>.cta.full.no-shadow</code>
                   </small>
                   <button
                     className="cta full no-shadow"
@@ -1415,15 +1374,12 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 {/* User Action Buttons (Full width) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Acción Neutral (36px)</b> — <code>.user-action-btn</code> (Con ícono y solo texto)
+                    <b>Full-Width Acción Neutral (36px)</b> — <code>.user-action-btn</code> (Estándar y peligro)
                   </small>
                   <div className="user-action-buttons" style={{ marginBottom: 0 }}>
                     <button className="user-action-btn">
                       <Crosshair size={16} />
                       <span>Centrar en el mapa</span>
-                    </button>
-                    <button className="user-action-btn">
-                      <span>Seguir usuario - Superficie</span>
                     </button>
                     <button
                       className="user-action-btn"
@@ -1438,11 +1394,10 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 {/* Permanencia Chips (Full width left-aligned) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Alineado a la Izquierda</b> — <code>.permanencia-chip</code> (Hover neutro sin borde azul)
+                    <b>Full-Width Alineado a la Izquierda</b> — <code>.permanencia-chip</code> (Hover neutro)
                   </small>
                   <div className="permanencia-chip-list">
                     <button className="permanencia-chip">Camión T-03 · Nivel N02 (1h 45m)</button>
-                    <button className="permanencia-chip">Usuario en el interior · Sala de bombeo SB-01</button>
                   </div>
                 </div>
 
@@ -1455,9 +1410,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     <button className="esc-secondary-btn full no-shadow">
                       Descartar escenario (Full-Width)
                     </button>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <div>
                       <button className="esc-secondary-btn">Restablecer (Auto-Width)</button>
-                      <button className="esc-secondary-btn">Cancelar (Auto-Width)</button>
                     </div>
                   </div>
                 </div>
@@ -1465,16 +1419,15 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 {/* Flex 1 Row Buttons (.auxilio-action-btn & .auxilio-tab-btn) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Botones Flex (1/2 Fila)</b> — <code>.auxilio-action-btn</code> (Normal y <code>.active</code>) &amp; <code>.auxilio-tab-btn</code>
+                    <b>Botones Flex (1/2 Fila)</b> — <code>.auxilio-action-btn</code> &amp; <code>.auxilio-tab-btn</code>
                   </small>
                   <div className="auxilio-card-actions" style={{ marginTop: 0, marginBottom: 8 }}>
                     <button
                       className={`auxilio-action-btn ${auxilioAttended ? 'active' : ''}`}
                       onClick={() => setAuxilioAttended((v) => !v)}
                     >
-                      {auxilioAttended ? 'Atendido (Activo)' : 'Atender'}
+                      {auxilioAttended ? 'Atendido (Activo)' : 'Atender (Clic para alternar)'}
                     </button>
-                    <button className="auxilio-action-btn">Resolver</button>
                   </div>
 
                   <div className="auxilio-tabs-row" style={{ margin: 0 }}>
@@ -1482,13 +1435,13 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                       className={`auxilio-tab-btn ${auxilioTab === 'sin_cerrar' ? 'active' : ''}`}
                       onClick={() => setAuxilioTab('sin_cerrar')}
                     >
-                      2 sin cerrar
+                      Pestaña activa
                     </button>
                     <button
                       className={`auxilio-tab-btn ${auxilioTab === 'resueltas' ? 'active' : ''}`}
                       onClick={() => setAuxilioTab('resueltas')}
                     >
-                      1 resueltas
+                      Pestaña inactiva
                     </button>
                   </div>
                 </div>
@@ -1501,11 +1454,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                     <button className="evac-action-link-btn" style={{ padding: '5px 10px' }}>
                       <Check size={14} />
-                      <span>Atender</span>
-                    </button>
-                    <button className="evac-action-link-btn" style={{ padding: '5px 10px' }}>
-                      <CheckCheck size={14} />
-                      <span>Resolver</span>
+                      <span>Acción inline</span>
                     </button>
                     <button className="whatif-reconfig-btn" style={{ width: 'auto', padding: '6px 12px' }}>
                       <RotateCw size={14} />
@@ -1525,48 +1474,39 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 {/* Icon sizing hierarchy */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
-                    <b>Todos los Botones Icon-Only del Sistema</b> (Tamaños exactos: 38px, 32px, 30px, 28px, 24px, 22px)
+                    <b>Jerarquía de Botones Icon-Only (1 por tamaño canónico)</b>: 38px, 32px, 28px, 24px, 22px, 20px
                   </small>
-                  <div style={{ display: ' flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
                     {/* 38px Avatar */}
-                    <button className="avatar" title=".avatar (38x38px)">
+                    <button className="avatar" title=".avatar (38×38px)">
                       DS
                     </button>
                     {/* 32px Back button */}
-                    <button className="user-top-back-btn" title=".user-top-back-btn (32x32px)">
+                    <button className="user-top-back-btn" title=".user-top-back-btn (32×32px)">
                       <ChevronLeft size={18} />
                     </button>
                     {/* 32px Player Control */}
-                    <button className="player-ctrl-btn" title=".player-ctrl-btn (32x32px)">
+                    <button className="player-ctrl-btn" title=".player-ctrl-btn (32×32px)">
                       <Play size={18} />
                     </button>
                     {/* 28px Target Button */}
-                    <button className="whatif-target-btn" title=".whatif-target-btn (28x28px)">
+                    <button className="whatif-target-btn" title=".whatif-target-btn (28×28px)">
                       <Target size={15} />
                     </button>
-                    {/* 28px Nexo Drawer Buttons */}
-                    <button className="nexo-drawer-settings-btn" title=".nexo-drawer-settings-btn (28x28px)">
-                      <Settings size={18} />
-                    </button>
-                    <button className="nexo-more-btn" title=".nexo-more-btn (28x28px)">
-                      <History size={18} />
-                    </button>
-                    <button className="nexo-close-btn" title=".nexo-close-btn (28x28px)">
+                    {/* 28px Nexo Drawer Button */}
+                    <button className="nexo-close-btn" title=".nexo-close-btn (28×28px)">
                       <X size={18} />
                     </button>
                     {/* 24px Auxilio Add */}
-                    <button className="auxilio-add-btn" title=".auxilio-add-btn (24x24px)">
+                    <button className="auxilio-add-btn" title=".auxilio-add-btn (24×24px)">
                       <Plus size={14} />
                     </button>
-                    {/* 22px Section Action Buttons */}
-                    <button className="section-action-btn" title=".section-action-btn (22x22px)">
+                    {/* 22px Section Action Button */}
+                    <button className="section-action-btn" title=".section-action-btn (22×22px)">
                       <CirclePlus size={16} />
                     </button>
-                    <button className="section-action-btn" title=".section-action-btn (22x22px)">
-                      <Trash size={15} />
-                    </button>
-                    {/* Sim Remove */}
-                    <button className="sim-remove-btn" title=".sim-remove-btn">
+                    {/* 20px Sim Remove */}
+                    <button className="sim-remove-btn" title=".sim-remove-btn (20×20px)">
                       <CircleMinus size={18} />
                     </button>
                   </div>
@@ -1575,7 +1515,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 {/* Segmented Row (.seg-row) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
-                    <b>Control Segmentado</b> — <code>.seg-row</code> (Estadísticas de rendimiento)
+                    <b>Control Segmentado</b> — <code>.seg-row</code>
                   </small>
                   <div className="seg-row">
                     {(['Bajo', 'Medio', 'Alto'] as const).map((lvl) => (
@@ -1616,7 +1556,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                       onClick={() => setAutoPerf((v) => !v)}
                       style={{ cursor: 'pointer' }}
                     >
-                      <span style={{ fontSize: 13 }}>{autoPerf ? 'Automático' : 'Manual'}</span>
+                      <span style={{ fontSize: 13 }}>{autoPerf ? 'Activo' : 'Inactivo'}</span>
                       <span className={`mui-switch ${autoPerf ? 'checked' : ''}`}>
                         <span className="mui-switch-track" />
                         <span className="mui-switch-thumb" />
@@ -1628,33 +1568,37 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 {/* Custom Checkboxes (.whatif-check-row) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
-                    <b>Filas de Checkbox Neutrales</b> — <code>.whatif-check-row</code> + <code>.whatif-custom-checkbox</code>
+                    <b>Filas de Checkbox Neutrales (Estados Checked / Unchecked)</b> — <code>.whatif-check-row</code>
                   </small>
                   <div className="whatif-axes-check-list" style={{ marginTop: 0 }}>
-                    {[
-                      ['carga', 'Flujo de carga radial'],
-                      ['vent', 'Red de ventilación'],
-                      ['dilucion', 'Dilución por zona'],
-                    ].map(([key, label]) => {
-                      const isChecked = whatIfChecks[key as keyof typeof whatIfChecks]
-                      return (
-                        <div
-                          key={key}
-                          className="whatif-check-row"
-                          onClick={() =>
-                            setWhatIfChecks((prev) => ({
-                              ...prev,
-                              [key]: !prev[key as keyof typeof whatIfChecks],
-                            }))
-                          }
-                        >
-                          <span className={`whatif-custom-checkbox ${isChecked ? 'checked' : ''}`}>
-                            {isChecked && <Check size={14} />}
-                          </span>
-                          <span className="whatif-check-label">{label}</span>
-                        </div>
-                      )
-                    })}
+                    <div
+                      className="whatif-check-row"
+                      onClick={() =>
+                        setWhatIfChecks((prev) => ({
+                          ...prev,
+                          carga: !prev.carga,
+                        }))
+                      }
+                    >
+                      <span className={`whatif-custom-checkbox ${whatIfChecks.carga ? 'checked' : ''}`}>
+                        {whatIfChecks.carga && <Check size={14} />}
+                      </span>
+                      <span className="whatif-check-label">Estado seleccionado (Checked)</span>
+                    </div>
+                    <div
+                      className="whatif-check-row"
+                      onClick={() =>
+                        setWhatIfChecks((prev) => ({
+                          ...prev,
+                          vent: !prev.vent,
+                        }))
+                      }
+                    >
+                      <span className={`whatif-custom-checkbox ${whatIfChecks.vent ? 'checked' : ''}`}>
+                        {whatIfChecks.vent && <Check size={14} />}
+                      </span>
+                      <span className="whatif-check-label">Estado deseleccionado (Unchecked)</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1690,15 +1634,11 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={cardSurfaceStyle}>
                 <div style={labelTagStyle}>
                   <span>4.1 PERSONAL, SEÑAL &amp; CONECTIVIDAD</span>
-                  <span style={codePillStyle}>5 variantes</span>
+                  <span style={codePillStyle}>Arquetipos</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
                     <span className="user-signal-badge online">En línea</span>
-                    <code style={codePillStyle}>.user-signal-badge.online</code>
-                  </div>
-                  <div className="row between">
-                    <span className="user-signal-badge online">Trabajador</span>
                     <code style={codePillStyle}>.user-signal-badge.online</code>
                   </div>
                   <div className="row between">
@@ -1723,8 +1663,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               {/* 4.2 Estado de Bombas e Infraestructura Interior */}
               <div className="glass" style={cardSurfaceStyle}>
                 <div style={labelTagStyle}>
-                  <span>4.2 BOMBAS &amp; EQUIPOS (.pump-badge-v2 / .pump-status-badge)</span>
-                  <span style={codePillStyle}>6 variantes</span>
+                  <span>4.2 BOMBAS &amp; EQUIPOS (.pump-badge-v2)</span>
+                  <span style={codePillStyle}>Estados</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
@@ -1750,14 +1690,6 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   </div>
                   <div className="row between">
                     <div className="row gap-2">
-                      <span className="pump-status-badge marcha">Marcha (v1)</span>
-                      <span className="pump-status-badge reserva">Reserva (v1)</span>
-                      <span className="pump-status-badge falla">Falla (v1)</span>
-                    </div>
-                    <code style={codePillStyle}>.pump-status-badge</code>
-                  </div>
-                  <div className="row between">
-                    <div className="row gap-2">
                       <span className="user-ai-status">Óptimo</span>
                       <span className="ai-insight-badge">Crítico</span>
                       <span className="ai-nexo-tag">NEXO IA</span>
@@ -1771,25 +1703,19 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={cardSurfaceStyle}>
                 <div style={labelTagStyle}>
                   <span>4.3 ALERTAS, EVACUACIÓN &amp; SEVERIDAD</span>
-                  <span style={codePillStyle}>8 variantes</span>
+                  <span style={codePillStyle}>Variantes</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="alert-pill">
-                        <b>1</b> <CircleAlert size={12} />
-                      </span>
-                      <span className="alert-pill">
-                        <b>2</b> <CircleAlert size={12} />
-                      </span>
-                    </div>
+                    <span className="alert-pill">
+                      <b>1</b> <CircleAlert size={12} />
+                    </span>
                     <code style={codePillStyle}>.alert-pill</code>
                   </div>
                   <div className="row between">
                     <div className="row gap-2">
                       <span className="evac-alert-tag-critical">Crítico</span>
                       <span className="evac-alert-status-pill">Sin atender</span>
-                      <span className="evac-alert-status-pill">Atendido</span>
                     </div>
                     <code style={codePillStyle}>.evac-alert-status-pill</code>
                   </div>
@@ -1818,10 +1744,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     <code style={codePillStyle}>.whatif-severity-*</code>
                   </div>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <span className="whatif-chip">Parada 0% RPM</span>
-                      <span className="whatif-chip">Horizonte 30m</span>
-                    </div>
+                    <span className="whatif-chip">Horizonte 30m</span>
                     <code style={codePillStyle}>.whatif-chip</code>
                   </div>
                 </div>
@@ -1831,37 +1754,26 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
               <div className="glass" style={cardSurfaceStyle}>
                 <div style={labelTagStyle}>
                   <span>4.4 REPRODUCTOR, TECLADO &amp; HARDWARE CHIPS</span>
-                  <span style={codePillStyle}>6 variantes</span>
+                  <span style={codePillStyle}>Componentes</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <div className="player-area-chip interior">
-                        <SquareArrowOutUpRight size={14} />
-                        <span className="chip-label">Interior</span>
-                        <span className="chip-count">4</span>
-                      </div>
-                      <div className="player-area-chip superficie">
-                        <SquareArrowOutUpRight size={14} />
-                        <span className="chip-label">Superficie</span>
-                        <span className="chip-count">2</span>
-                      </div>
+                    <div className="player-area-chip interior">
+                      <SquareArrowOutUpRight size={14} />
+                      <span className="chip-label">Interior</span>
+                      <span className="chip-count">4</span>
                     </div>
                     <code style={codePillStyle}>.player-area-chip</code>
                   </div>
                   <div className="row between">
                     <div className="row gap-2">
                       <span className="player-sev-pill">Aviso</span>
-                      <span className="player-sev-pill active">Crítico</span>
+                      <span className="player-sev-pill active">Activo</span>
                     </div>
                     <code style={codePillStyle}>.player-sev-pill</code>
                   </div>
                   <div className="row between">
-                    <div className="row gap-2">
-                      <small className="dd-tag">Alejado</small>
-                      <small className="dd-tag">Por defecto</small>
-                      <small className="dd-tag">Escala real</small>
-                    </div>
+                    <small className="dd-tag">Por defecto</small>
                     <code style={codePillStyle}>.dd-tag</code>
                   </div>
                   <div className="row between">
@@ -1870,17 +1782,12 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                       <span className="cmd-key-box">
                         <ArrowUp size={11} />
                       </span>
-                      <span className="cmd-key-box">
-                        <CornerDownLeft size={11} />
-                      </span>
                     </div>
                     <code style={codePillStyle}>.cmd-esc-badge / .cmd-key-box</code>
                   </div>
                   <div className="row between">
                     <div className="chips-row" style={{ flex: 1, maxWidth: 200 }}>
-                      <span>8 núcleos</span>
-                      <span>8 GB</span>
-                      <span>DPR 2</span>
+                      <span>8 núcleos · 8 GB</span>
                     </div>
                     <code style={codePillStyle}>.chips-row span</code>
                   </div>
@@ -1892,7 +1799,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
             <div className="glass" style={cardSurfaceStyle}>
               <div style={labelTagStyle}>
                 <span>
-                  4.5 BADGES FLOTANTES EN ESCENA 3D (SALA DE BOMBEO, PERSONAL CON BLUR ICON &amp; SIMULACIÓN DE VEHÍCULOS)
+                  4.5 BADGES FLOTANTES EN ESCENA 3D (SALA DE BOMBEO, PERSONAL &amp; VEHÍCULOS)
                 </span>
                 <span style={codePillStyle}>In-Scene 3D Overlays</span>
               </div>
@@ -1909,13 +1816,13 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   border: '1px solid rgba(255,255,255,0.12)',
                 }}
               >
-                {/* Pump 3D Badge: Marcha */}
+                {/* Pump 3D Badge: Marcha (Two-box sketch design) */}
                 <div
                   className="bombeo-3d-badge marcha"
                   style={{ position: 'relative', transform: 'none' }}
                 >
-                  <span>BA-01</span>
-                  <span className="badge-flow">76 L/s</span>
+                  <div className="bombeo-badge-top-box">BA-01</div>
+                  <div className="bombeo-badge-bottom-box">78 L/s</div>
                 </div>
 
                 {/* Pump 3D Badge: Reserva */}
@@ -1923,8 +1830,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   className="bombeo-3d-badge reserva"
                   style={{ position: 'relative', transform: 'none' }}
                 >
-                  <span>BA-03</span>
-                  <span style={{ fontSize: 10.5, color: '#94a3b8' }}>RESERVA</span>
+                  <div className="bombeo-badge-top-box">BA-03</div>
+                  <div className="bombeo-badge-bottom-box reserva">Reserva</div>
                 </div>
 
                 {/* Pump 3D Badge: Falla */}
@@ -1932,8 +1839,11 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   className="bombeo-3d-badge falla"
                   style={{ position: 'relative', transform: 'none' }}
                 >
-                  <span>BA-04</span>
-                  <span className="badge-alarm">⚠ FALLA</span>
+                  <div className="bombeo-badge-top-box">BA-04</div>
+                  <div className="bombeo-badge-bottom-box falla">
+                    <AlertTriangle size={11} style={{ display: 'inline', marginRight: 3, verticalAlign: -1 }} />
+                    <span>Falla</span>
+                  </div>
                 </div>
 
                 {/* Sump 3D Badge */}
@@ -1941,7 +1851,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                   className="bombeo-3d-sump-badge"
                   style={{ position: 'relative', transform: 'none' }}
                 >
-                  SUMIDERO: 64%
+                  SUMIDERO 85%
                 </div>
 
                 {/* Interior Worker 3D Badge with Semi-Transparent Blurred Touch Icon */}
@@ -1995,24 +1905,6 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                 >
                   <span style={{ fontSize: 12, fontWeight: 600 }}>Jumbo J-01</span>
                   <span style={{ fontSize: 10.5, color: '#94a3b8' }}>Perforación</span>
-                </div>
-
-                {/* Simulated Worker 3D Badge (Victor Navarro) */}
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    padding: '4px 12px',
-                    borderRadius: 6,
-                    background: 'rgba(15, 23, 42, 0.92)',
-                    border: '1.5px solid #00e676',
-                    color: '#f8fafc',
-                    lineHeight: 1.25,
-                  }}
-                >
-                  <span style={{ fontSize: 12, fontWeight: 600 }}>Victor Navarro</span>
-                  <span style={{ fontSize: 10.5, color: '#94a3b8' }}>Operador</span>
                 </div>
 
                 {/* Surface Worker Marker */}
@@ -2314,21 +2206,6 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp }: 
                     </div>
                     <span className="alert-pill">
                       <b>1</b> <CircleAlert size={12} />
-                    </span>
-                    <ChevronRight size={16} className="row-chevron" />
-                  </div>
-
-                  {/* Simulación Personal / Vehículo */}
-                  <div className="zona-row personal-clickable-row" style={{ padding: '4px 6px', borderRadius: 6 }}>
-                    <span className="zona-bar" style={{ background: '#eab308' }} />
-                    <div className="zona-info">
-                      <div className="zona-line1">
-                        <b>Jumbo J-01</b>
-                      </div>
-                      <div className="zona-line2">Perforación &nbsp; Nivel 2 - Rampa Sur</div>
-                    </div>
-                    <span className="user-signal-badge online" style={{ fontSize: 11 }}>
-                      Vehículo
                     </span>
                     <ChevronRight size={16} className="row-chevron" />
                   </div>
