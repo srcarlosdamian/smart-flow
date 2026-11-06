@@ -12,7 +12,7 @@ import {
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, Target, CheckCheck, Upload, Download, Camera, Palette, LogIn, Move,
+  X, Target, Upload, Download, Camera, Palette, LogIn, Move,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -23,16 +23,18 @@ import DesignSystemView from './DesignSystemView'
 import logoUrl from './assets/smartflow-logo.png'
 import './App.css'
 
-export function NexoLogo({ width = 16, height = 20, color = '#ffffff' }: { width?: number; height?: number; color?: string }) {
+export function BitLogo({ width = 16, height = 18, size, color = '#ffffff' }: { width?: number; height?: number; size?: number; color?: string }) {
+  const iconSize = size ?? Math.max(width, height)
   return (
-    <svg width={width} height={height} viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M2.30986 8.23786C1.52047 9.62654 1.94747 11.3897 3.28474 12.2633C3.70779 12.5397 4.18751 12.7021 4.67897 12.7444L3.66391 14.5026C3.16334 14.3689 2.68149 14.1558 2.23782 13.8659C0.0538579 12.4392 -0.643495 9.55972 0.6457 7.29182L4.79077 0H6.99271L2.30986 8.23786Z" fill={color} />
-      <path d="M13.6265 11.7621C14.4159 10.3735 13.9889 8.61031 12.6516 7.7367C12.2286 7.46033 11.7489 7.29793 11.2574 7.25561L12.2725 5.49743C12.773 5.63113 13.2549 5.84422 13.6986 6.13406C15.8825 7.56079 16.5799 10.4403 15.2907 12.7082L11.1456 20L8.94366 20L13.6265 11.7621Z" fill={color} />
-      <path d="M6.50173 9.75989H4.29979L9.89546 0H12.0974L6.50173 9.75989Z" fill={color} />
-      <path d="M6.04194 19.9947H3.84L9.43567 10.2348H11.6376L6.04194 19.9947Z" fill={color} />
-    </svg>
+    <Diamond
+      size={iconSize}
+      color={color}
+      strokeWidth={2.4}
+      style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }}
+    />
   )
 }
+export const NexoLogo = BitLogo
 
 const NEXO_SUGGESTIONS = [
   'Ponme al día con el turno',
@@ -154,13 +156,13 @@ const cameras: { id: string; label: string; view: ViewMode; icon: typeof Box; re
   { id: 'Ajustar todo', label: 'Ajustar todo', view: 'perspective', icon: Fullscreen, reset: true },
 ]
 
-const zoomPresets: { val: number; label: string; tag?: string }[] = [
-  { val: 25, label: '25 %', tag: 'Alejado' },
-  { val: 50, label: '50 %', tag: 'Por defecto' },
+const zoomPresets: { val: number; label: string }[] = [
+  { val: 25, label: '25 %' },
+  { val: 50, label: '50 %' },
   { val: 75, label: '75 %' },
-  { val: 100, label: '100 %', tag: 'Escala real' },
+  { val: 100, label: '100 %' },
   { val: 150, label: '150 %' },
-  { val: 200, label: '200 %', tag: 'Detalle' },
+  { val: 200, label: '200 %' },
 ]
 
 type TrackingType = 'personal' | 'zonas' | 'perimetros' | 'recorrido' | 'escenario' | 'evacuacion'
@@ -178,7 +180,7 @@ const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; co
   { id: 'perimetros', label: 'Perímetros', menuLabel: 'Perímetros', color: '#f44336', icon: CircleGauge },
   { id: 'recorrido', label: 'Recorrido', menuLabel: 'Recorrido', color: '#7c4dff', icon: Waypoints },
   { id: 'escenario', label: 'Escenario alterno', menuLabel: 'Escenario alterno', color: '#00bfa5', icon: AudioWaveform },
-  { id: 'evacuacion', label: 'Declarar evacuación', menuLabel: 'Declarar evacuación', color: '#ff5252', icon: Siren },
+  { id: 'evacuacion', label: 'Iniciar evacuación', menuLabel: 'Iniciar evacuación', color: '#ff5252', icon: Siren },
 ]
 
 const ZONAS_DATA = [
@@ -645,7 +647,7 @@ export default function App() {
   const [surfaceMode, setSurfaceMode] = useState<'satelite' | 'mapa' | 'relieve'>('satelite')
   const [surfaceShowRelief, setSurfaceShowRelief] = useState(true)
   const [surfaceAction, setSurfaceAction] = useState<{ type: string; id: number } | null>(null)
-  const [zoom, setZoom] = useState(50)
+  const [zoom, setZoom] = useState(100)
   const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | 'shiftStart' | 'shiftEnd' | 'whatif_target' | 'whatif_action' | null>(null)
   const [nexoOpen, setNexoOpen] = useState(false)
   const [nexoMoreOpen, setNexoMoreOpen] = useState(false)
@@ -765,11 +767,6 @@ export default function App() {
 
   // Evacuacion state
   const [evacuacionActiva, setEvacuacionActiva] = useState(false)
-  const [evacTab, setEvacTab] = useState<'sin_cerrar' | 'resueltas'>('sin_cerrar')
-  const [evacAlerts, setEvacAlerts] = useState([
-    { id: 'evac1', type: 'Evacuación', level: 'Crítico', status: 'Sin atender', loc: 'Toda la mina', sub: 'Fuera de zona  0:00:00  hace 0 s', icon: Siren },
-    { id: 'evac2', type: 'Hombre caído', level: 'Crítico', status: 'Sin atender', loc: 'Nivel 2 - Taller mecánico', sub: 'Carlos Mendoza  10:00:00  hace 1 min', icon: CircleAlert },
-  ])
 
   // Escenario alterno state
   const [escenarioCierres, setEscenarioCierres] = useState<string[]>(['Nivel 2 - Taller mecanico', 'Frente de voladura'])
@@ -939,31 +936,31 @@ export default function App() {
 
     let reply = ''
     if (lower.includes('ba-04') || (lower.includes('bomba') && (lower.includes('falla') || lower.includes('alarma') || lower.includes('sobretemperatura')))) {
-      reply = 'Diagnóstico Nexo IA para Bomba BA-04:\n• Estado: Disparo térmico por sobretemperatura (81 °C) y presión nula (0.0 bar).\n• Horas acumuladas: 4,650 h de servicio continuo (próxima a ciclo mayor).\n• Causa probable: Restricción en el caudal de refrigeración del sello mecánico y desgaste del rodamiento de empuje.\n• Recomendación inmediata: Conmutar el arranque de la bomba BA-03 (reserva fría) para estabilizar el caudal en 152 L/s y evitar el rebose del sumidero L5 (64%), mientras la brigada aísla y desarma BA-04.'
+      reply = 'Diagnóstico Bit IA para Bomba BA-04:\n• Estado: Disparo térmico por sobretemperatura (81 °C) y presión nula (0.0 bar).\n• Horas acumuladas: 4,650 h de servicio continuo (próxima a ciclo mayor).\n• Causa probable: Restricción en el caudal de refrigeración del sello mecánico y desgaste del rodamiento de empuje.\n• Recomendación inmediata: Conmutar el arranque de la bomba BA-03 (reserva fría) para estabilizar el caudal en 152 L/s y evitar el rebose del sumidero L5 (64%), mientras la brigada aísla y desarma BA-04.'
     } else if (lower.includes('ba-03') || (lower.includes('bomba') && lower.includes('reserva'))) {
-      reply = 'Telemetría Nexo IA - Bomba BA-03:\n• Estado: En reserva (Standby operativo listo).\n• Temperatura: 24 °C (ambiente nominal).\n• Horas de servicio: 1,490 h.\n• Presión proyectada: 12.0 bar a 75 L/s.\n• Nexo puede autorizar la secuencia de cebado y arranque automático si se aprueba la maniobra de relevo.'
+      reply = 'Telemetría Bit IA - Bomba BA-03:\n• Estado: En reserva (Standby operativo listo).\n• Temperatura: 24 °C (ambiente nominal).\n• Horas de servicio: 1,490 h.\n• Presión proyectada: 12.0 bar a 75 L/s.\n• Bit puede autorizar la secuencia de cebado y arranque automático si se aprueba la maniobra de relevo.'
     } else if (lower.includes('ba-01') || lower.includes('ba-02')) {
       const pName = lower.includes('01') ? 'BA-01' : 'BA-02'
       const flow = lower.includes('01') ? '78 L/s' : '74 L/s'
       const temp = lower.includes('01') ? '62 °C' : '59 °C'
-      reply = `Telemetría Nexo IA - Bomba ${pName}:\n• Estado: En marcha continua y estable.\n• Caudal aportado: ${flow} a 12 bar de presión.\n• Temperatura de operación: ${temp} (dentro de rango seguro < 70 °C).\n• Eficiencia hidráulica estimada: 92.4%. No requiere intervención inmediata.`
+      reply = `Telemetría Bit IA - Bomba ${pName}:\n• Estado: En marcha continua y estable.\n• Caudal aportado: ${flow} a 12 bar de presión.\n• Temperatura de operación: ${temp} (dentro de rango seguro < 70 °C).\n• Eficiencia hidráulica estimada: 92.4%. No requiere intervención inmediata.`
     } else if (lower.includes('sumidero') || lower.includes('desborde') || lower.includes('nivel')) {
-      reply = 'Monitoreo de Sumidero L5 (Nexo IA):\n• Nivel actual: 64% (~180 m³).\n• Caudal de afluente: 148 L/s promedio.\n• Caudal de extracción activo: 152 L/s (BA-01 + BA-02).\n• Margen neto: +4 L/s de descenso gradual.\n• Tiempo crítico hasta cota de alarma en caso de parada: 42 minutos. Con BA-01 y BA-02 activas el sistema se mantiene en equilibrio seguro.'
+      reply = 'Monitoreo de Sumidero L5 (Bit IA):\n• Nivel actual: 64% (~180 m³).\n• Caudal de afluente: 148 L/s promedio.\n• Caudal de extracción activo: 152 L/s (BA-01 + BA-02).\n• Margen neto: +4 L/s de descenso gradual.\n• Tiempo crítico hasta cota de alarma en caso de parada: 42 minutos. Con BA-01 y BA-02 activas el sistema se mantiene en equilibrio seguro.'
     } else if (lower.includes('sala de bombeo') || lower.includes('sb-01') || lower.includes('bombeo')) {
-      reply = 'Informe Integral Nexo IA - Sala de Bombeo SB-01 (Nivel 5):\n• Equipos: 2 en marcha (BA-01, BA-02), 1 en reserva (BA-03), 1 en falla (BA-04).\n• Caudal total evacuado: 152 L/s hacia piscina de superficie.\n• Nivel del sumidero: 64% (estable).\n• Estado de tuberías: Presión en colector principal 12.2 bar sin vibraciones anómalas.\n• Acción sugerida: Arrancar BA-03 para aislar BA-04 y realizar mantenimiento preventivo.'
+      reply = 'Informe Integral Bit IA - Sala de Bombeo SB-01 (Nivel 5):\n• Equipos: 2 en marcha (BA-01, BA-02), 1 en reserva (BA-03), 1 en falla (BA-04).\n• Caudal total evacuado: 152 L/s hacia piscina de superficie.\n• Nivel del sumidero: 64% (estable).\n• Estado de tuberías: Presión en colector principal 12.2 bar sin vibraciones anómalas.\n• Acción sugerida: Arrancar BA-03 para aislar BA-04 y realizar mantenimiento preventivo.'
     } else if (lower.includes('refugio') || lower.includes('r-01') || lower.includes('oxígeno')) {
-      reply = 'Diagnóstico Nexo IA - Refugio R-01 (Nivel 5):\n• Ocupación actual: 1 / 12 personas.\n• Autonomía de O₂: 69 horas calculadas según recambio químico y bancos de cilindros.\n• Comunicaciones: Enlace activo por fibra óptica y backup LoRaWAN verificado hace 12 min.\n• Monitoreo de gases interno: CO₂ 350 ppm, O₂ 20.9%, CO 0 ppm.'
+      reply = 'Diagnóstico Bit IA - Refugio R-01 (Nivel 5):\n• Ocupación actual: 1 / 12 personas.\n• Autonomía de O₂: 69 horas calculadas según recambio químico y bancos de cilindros.\n• Comunicaciones: Enlace activo por fibra óptica y backup LoRaWAN verificado hace 12 min.\n• Monitoreo de gases interno: CO₂ 350 ppm, O₂ 20.9%, CO 0 ppm.'
     } else if (lower.includes('taller') || lower.includes('tm-01')) {
-      reply = 'Estado Operativo Nexo IA - Taller Mecánico TM-01 (Nivel 2):\n• Bahías ocupadas: 2 / 2 (LHD-02 en cambio de mangueras hidráulicas y Jumbo J-01 en revisión de martillo).\n• Cuadrilla técnica: 4 técnicos activos.\n• Horas de mantención pendientes: 29 h.\n• Ventilación en taller: 108% sobre norma.'
+      reply = 'Estado Operativo Bit IA - Taller Mecánico TM-01 (Nivel 2):\n• Bahías ocupadas: 2 / 2 (LHD-02 en cambio de mangueras hidráulicas y Jumbo J-01 en revisión de martillo).\n• Cuadrilla técnica: 4 técnicos activos.\n• Horas de mantención pendientes: 29 h.\n• Ventilación en taller: 108% sobre norma.'
     } else {
       const replyMap: Record<string, string> = {
         'Ponme al día con el turno': 'El turno actual opera con normalidad. Hay 28 trabajadores activos en interior mina, 2 alertas preventivas en Nivel 3 (Chancador) y Nivel 5 (Sala de bombeo), y los refugios R-01 y R-04 se encuentran operativos.',
-        '¿Cómo está la ventilación?': 'Nexo calculó la red de ventilación (10 sensores en línea): La mina tiene 14 % más flujo de aire del requerido. El punto más ajustado es el Nivel 3 al 106 % de su mínimo. Si se detuviera V-PH-01 bajaría del mínimo en unos 25 minutos.',
-        '¿Por qué se degrada el rodamiento de V-SA-01?': 'Nexo leyó 10 sensores, revisó 2 años de historial y comparó 42 ventiladores similares:\n• Alerta crítica (91% confianza): Falla probable en 17 días por desgaste de rodamiento SKF 6310. Vibración al alza (+12%/sem) a 3.68 mm/s y 52 °C.\n• Consecuencia si no se actúa: Parada no planificada de ~14 h, evacuación de 38 personas, costo estimado US$48,000 vs US$3,200 planificado.',
+        '¿Cómo está la ventilación?': 'Bit calculó la red de ventilación (10 sensores en línea): La mina tiene 14 % más flujo de aire del requerido. El punto más ajustado es el Nivel 3 al 106 % de su mínimo. Si se detuviera V-PH-01 bajaría del mínimo en unos 25 minutos.',
+        '¿Por qué se degrada el rodamiento de V-SA-01?': 'Bit leyó 10 sensores, revisó 2 años de historial y comparó 42 ventiladores similares:\n• Alerta crítica (91% confianza): Falla probable en 17 días por desgaste de rodamiento SKF 6310. Vibración al alza (+12%/sem) a 3.68 mm/s y 52 °C.\n• Consecuencia si no se actúa: Parada no planificada de ~14 h, evacuación de 38 personas, costo estimado US$48,000 vs US$3,200 planificado.',
         '¿Cuándo es el mejor momento para detenerlo?': 'Revisado el plan de producción, cuadrillas y almacén: se recomienda ventana de mantenimiento este Jueves 14:00–16:00 (menor demanda de ventilación en N3) y reservar 2 × SKF 6310 en almacén central.',
         '¿Qué pasa si no hacemos nada?': 'Proyección a 14 días (Health score 78% → 61%): Parada intempestiva del ventilador, pérdida de caudal normativo en Nivel 3 en 25 min y paro forzado de equipos de acarreo.',
         '¿Dónde está la gente en este momento?': 'Actualmente hay 14 personas en Galería Norte (L1), 8 en Taller Mecánico (L2), 4 en Rampa Principal y 2 en Sala de Bombeo (L5).',
-        '¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?': 'Recomendación Nexo: Arrancar la bomba BA-03 (actualmente en reserva) para estabilizar el caudal en 152 L/s y evitar el rebose del sumidero (64%), mientras la cuadrilla aísla BA-04.',
+        '¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?': 'Recomendación Bit: Arrancar la bomba BA-03 (actualmente en reserva) para estabilizar el caudal en 152 L/s y evitar el rebose del sumidero (64%), mientras la cuadrilla aísla BA-04.',
       }
       reply = replyMap[clean] || `Analizando "${clean}" en tiempo real sobre los sensores y telemetría activa de SmartFlow... Todos los indicadores del sector ${level} están sincronizados.`
     }
@@ -996,7 +993,7 @@ export default function App() {
     { id: 'track-recorrido', title: 'Recorrido', category: 'Tracking', sub: 'Histórico', icon: Waypoints, iconColor: '#7c4dff', action: () => { addTrackingItem('recorrido'); setOpenSection('track') } },
     { id: 'track-escenario', title: 'Escenario alterno', category: 'Tracking', sub: 'Histórico', icon: AudioWaveform, iconColor: '#00bfa5', action: () => { addTrackingItem('escenario'); setOpenSection('track') } },
     { id: 'track-reset', title: 'Restablecer la demostración', category: 'Tracking', sub: 'Emergencia', icon: RotateCcw, iconColor: '#546e7a', action: () => { setActiveTrackings([]) } },
-    { id: 'track-evac', title: 'Declarar evacuación', category: 'Tracking', sub: 'Emergencia', icon: Siren, iconColor: '#ff5252' },
+    { id: 'track-evac', title: 'Iniciar evacuación', category: 'Tracking', sub: 'Emergencia', icon: Siren, iconColor: '#ff5252' },
 
     // Simulaciones
     { id: 'sim-aire', title: 'Flujo de aire', category: 'Simulaciones', sub: 'Ventilación', icon: Wind, iconColor: '#00bcd4', action: () => setOpenSection('sim') },
@@ -1612,19 +1609,19 @@ export default function App() {
                   setDdOpen(null)
                   setNexoOpen(true)
                 }}
-                {...showHelp('Nexo IA', 'Asistente de inteligencia artificial para consultar el estado del turno, ventilación, personal y alertas en tiempo real.')}
+                {...showHelp('Bit IA', 'Asistente de inteligencia artificial para consultar el estado del turno, ventilación, personal y alertas en tiempo real.')}
               >
-                <span className="nexo-title"><NexoLogo /> Pregúntale a Nexo IA</span>
+                <span className="nexo-title"><BitLogo /> Pregúntale a Bit IA</span>
               </button>
             </div>
 
             {ddOpen === 'nexoSettings' && (
               <div className="dd-menu nexo-settings-menu">
-                <div className="dd-group-title">CONFIGURACIÓN NEXO IA</div>
+                <div className="dd-group-title">CONFIGURACIÓN BIT IA</div>
 
                 <div className="row between switch-row nexo-switch-row" onClick={() => setNexoEnabled((v) => !v)}>
                   <div className="nexo-switch-text">
-                    <span>Asistente Nexo IA</span>
+                    <span>Asistente Bit IA</span>
                     <small>{nexoEnabled ? 'Activo en el entorno' : 'Desactivado'}</small>
                   </div>
                   <span className={`mui-switch ${nexoEnabled ? 'checked' : ''}`}>
@@ -1736,10 +1733,10 @@ export default function App() {
             if (isBombeo) {
               return (
                 <div className="user-detail-panel interior-detail-panel bombeo-sidebar-panel">
-                  {/* Clean header: Back breadcrumb navigation (NO X) */}
+                  {/* Clean header: Back breadcrumb navigation + Search (NO X) */}
                   <div className="user-detail-topbar">
                     <button
-                      className="user-top-back-btn no-border"
+                      className="user-top-back-btn"
                       onClick={handleBackFromInterior}
                       title="Volver"
                       aria-label="Volver"
@@ -1750,6 +1747,14 @@ export default function App() {
                       <span className="crumb-prefix">Interiores / </span>
                       <span className="crumb-name"><b>Sala de Bombeo SB1</b></span>
                     </div>
+                    <button
+                      className="user-top-search-btn"
+                      onClick={() => setSearchOpen(true)}
+                      title="Buscar"
+                      aria-label="Buscar"
+                    >
+                      <Search size={18} />
+                    </button>
                   </div>
 
                   <div className="interior-panel-body" style={{ marginTop: 6 }}>
@@ -1813,7 +1818,7 @@ export default function App() {
                       <span>Arrastrar para girar</span>
                     </div>
 
-                    {/* IF NOT INSIDE: Entrar CTA button */}
+                    {/* IF NOT INSIDE: Entrar canonical primary full-width CTA button */}
                     {!interiorView && (
                       <div style={{ marginTop: 18 }}>
                         <button
@@ -1829,19 +1834,14 @@ export default function App() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: 8,
                             border: 'none',
                             cursor: 'pointer',
                             boxShadow: 'none',
                           }}
                           onClick={() => navigateToInterior('bombeo')}
                         >
-                          <LogIn size={16} />
                           <span>Entrar</span>
                         </button>
-                        <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', marginTop: 6 }}>
-                          Vista interior del lugar
-                        </div>
                       </div>
                     )}
 
@@ -2202,11 +2202,11 @@ export default function App() {
                 </div>
               </div>
 
-              {/* AI Metric Card (Nexo IA · Telemetría Activa, neutral colors, divider lines) */}
+              {/* AI Metric Card (Bit IA · Telemetría Activa, neutral colors, divider lines) */}
               <div className="user-ai-gradient-card animating">
                 <div className="user-ai-card-top">
                   <div className="user-ai-tag">
-                    <NexoLogo width={14} height={16} color="#546e7a" />
+                    <BitLogo width={14} height={14} color="#546e7a" />
                     <span>IA Predictiva · Telemetría Activa</span>
                   </div>
                 </div>
@@ -2813,132 +2813,128 @@ export default function App() {
               </div>
             </div>
           ) : sidebarView?.type === 'evacuacion_alertas' ? (
-            /* SMF - V2: Evacuación Alertas View (media_1793688899296_84b083d4.png) */
-            <div className="evacuacion-alertas-panel" style={{ paddingBottom: 24 }}>
+            /* Evacuación View matching media_1793984790645_4b0c3ba0.png (No alertas, exact padding, red button at bottom) */
+            <div className="user-detail-panel evacuacion-alertas-panel">
               <div className="user-detail-topbar">
                 <button
                   className="user-top-back-btn"
                   onClick={() => setSidebarView(null)}
                   title="Volver"
+                  aria-label="Volver"
                 >
                   <ChevronLeft size={18} />
                 </button>
                 <div className="user-top-crumb">
                   <span className="crumb-prefix">Inicio / </span>
-                  <span className="crumb-name">Evacuación</span>
+                  <span className="crumb-name"><b>Evacuación en curso</b></span>
                 </div>
                 <button
-                  className="esc-secondary-btn no-shadow"
-                  style={{
-                    padding: '4px 10px',
-                    fontSize: 12,
-                    borderRadius: 6,
-                    color: '#ef4444',
-                    borderColor: '#fca5a5',
-                    marginLeft: 'auto',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => {
-                    setEvacuacionActiva(false)
-                    setSidebarView(null)
-                  }}
-                  title="Finalizar estado de evacuación"
+                  className="user-top-search-btn"
+                  onClick={() => setSearchOpen(true)}
+                  title="Buscar"
+                  aria-label="Buscar"
                 >
-                  Finalizar
+                  <Search size={18} />
                 </button>
               </div>
 
-              <div style={{ padding: '16px 20px' }}>
-                <div className="row between" style={{ alignItems: 'center', marginBottom: 14 }}>
-                  <h2 className="user-detail-title" style={{ margin: 0, fontSize: 19, fontWeight: 700 }}>Alertas</h2>
-                  <button
-                    className="user-top-back-btn"
-                    style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
-                    onClick={() => setSidebarView(null)}
-                    title="Cerrar"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
+              <div style={{ padding: '0 4px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <h2 className="user-detail-title" style={{ margin: '4px 0 6px 0', fontSize: 18, fontWeight: 700 }}>
+                  Evacuación en curso
+                </h2>
 
-                {/* Tabs: 1 sin cerrar (red badge) | 1 resueltas */}
-                <div className="auxilio-tabs-row" style={{ marginBottom: 14, gap: 8 }}>
-                  <button
-                    className="auxilio-tab-btn"
+                {/* Evacuation Status Box matching media_1793984790645_4b0c3ba0.png */}
+                <div
+                  className="evac-info-card"
+                  style={{
+                    borderRadius: 10,
+                    padding: '12px 14px',
+                    background: 'var(--panel-bg)',
+                    border: '1px solid var(--line)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                  }}
+                >
+                  <div
                     style={{
-                      background: evacTab === 'sin_cerrar' ? '#ef4444' : 'transparent',
-                      color: evacTab === 'sin_cerrar' ? '#fff' : '#475569',
-                      border: evacTab === 'sin_cerrar' ? 'none' : '1px solid var(--line)',
-                      fontWeight: 700,
+                      width: 36,
+                      height: 36,
+                      borderRadius: 8,
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      color: '#ef4444',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
                     }}
-                    onClick={() => setEvacTab('sin_cerrar')}
                   >
-                    {evacAlerts.length} sin cerrar
-                  </button>
-                  <button
-                    className="auxilio-tab-btn"
-                    style={{
-                      background: evacTab === 'resueltas' ? '#334155' : 'transparent',
-                      color: evacTab === 'resueltas' ? '#fff' : '#475569',
-                      border: evacTab === 'resueltas' ? 'none' : '1px solid var(--line)',
-                      fontWeight: 600,
-                    }}
-                    onClick={() => setEvacTab('resueltas')}
-                  >
-                    1 resueltas
-                  </button>
-                </div>
-
-                {/* Alerts List matching media_1793688899296_84b083d4.png */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {evacAlerts.map((al) => {
-                    const Icon = al.icon
-                    return (
-                      <div key={al.id} className="evacuacion-alert-card">
-                        <div className="evac-alert-top-row">
-                          <div className="evac-alert-title-group">
-                            <Icon size={16} style={{ color: '#ef4444' }} />
-                            <b style={{ fontSize: 14, color: 'var(--text)' }}>{al.type}</b>
-                            <span className="evac-alert-tag-critical">{al.level}</span>
-                          </div>
-                          <span className="evac-alert-status-pill">{al.status}</span>
-                        </div>
-
-                        <div className="evac-alert-location">{al.loc}</div>
-                        <div className="evac-alert-meta">{al.sub}</div>
-
-                        <div className="evac-alert-actions">
-                          <button
-                            className="evac-action-link-btn"
-                            onClick={() => {
-                              setEvacAlerts((prev) =>
-                                prev.map((a) => (a.id === al.id ? { ...a, status: 'Atendido' } : a))
-                              )
-                            }}
-                          >
-                            <Check size={14} />
-                            <span>Atender</span>
-                          </button>
-                          <button
-                            className="evac-action-link-btn"
-                            onClick={() => {
-                              setEvacAlerts((prev) => prev.filter((a) => a.id !== al.id))
-                            }}
-                          >
-                            <CheckCheck size={14} />
-                            <span>Resolver</span>
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-
-                  {evacAlerts.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '30px 10px', color: '#64748b' }}>
-                      <CheckCheck size={32} style={{ color: '#10b981', margin: '0 auto 8px' }} />
-                      <p style={{ margin: 0, fontWeight: 600 }}>Todas las alertas han sido resueltas</p>
+                    <Siren size={20} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 2 }}>
+                      EVACUACIÓN EN CURSO
                     </div>
-                  )}
+                    <div style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.35 }}>
+                      Área: Área sin determinar · 33 sin contabilizar
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+                      Declarada por Operador
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
+                      498329:06:27
+                    </span>
+                  </div>
+                </div>
+
+                {/* Operational Details */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 0' }}>
+                  <div className="row between" style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Estado</span>
+                    <span style={{ color: '#ef4444', fontWeight: 600 }}>Activa</span>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Personal sin contabilizar</span>
+                    <b style={{ color: 'var(--text)' }}>33 trabajadores</b>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Puntos de encuentro</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 500 }}>Refugio R-01, Superficie</span>
+                  </div>
+                  <div className="row between" style={{ fontSize: 13, padding: '4px 0' }}>
+                    <span style={{ color: 'var(--muted)' }}>Ruta principal</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 500 }}>Rampa Norte N02</span>
+                  </div>
+                </div>
+
+                {/* Bottom Red Finalize Button */}
+                <div style={{ marginTop: 16 }}>
+                  <button
+                    className="cta full no-shadow"
+                    style={{
+                      width: '100%',
+                      height: 40,
+                      borderRadius: 8,
+                      background: '#dc2626',
+                      color: '#ffffff',
+                      fontSize: 13.5,
+                      fontWeight: 600,
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: 'none',
+                    }}
+                    onClick={() => {
+                      setEvacuacionActiva(false)
+                      setSidebarView(null)
+                    }}
+                  >
+                    <span>Finalizar evacuación</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -3358,18 +3354,19 @@ export default function App() {
                 {ddOpen === 'zoom' && (
                   <div className="dd-menu zoom-menu">
                     <div className="dd-group-title">ESCALA DE VISTA</div>
-                    {zoomPresets.map(({ val, label, tag }) => {
+                    {zoomPresets.map(({ val, label }) => {
+                      const isSel = zoom === val
                       return (
                         <button
                           key={val}
-                          className="dd-item"
+                          className={`dd-item ${isSel ? 'active' : ''}`}
                           onClick={() => {
                             setZoom(val)
                             setDdOpen(null)
                           }}
                         >
                           <span>{label}</span>
-                          {tag && <small className="dd-tag">{tag}</small>}
+                          {isSel && <Check size={16} className="dd-check" />}
                         </button>
                       )
                     })}
@@ -4306,7 +4303,7 @@ export default function App() {
 
       {/* What-If Simulation Player (media_1793688483305_37ea198b.png) */}
       {sidebarView?.type === 'whatif_result' && (
-        <div className="whatif-simulation-player">
+        <div className="glass whatif-simulation-player">
           <div className="whatif-player-top">
             <div className="whatif-player-controls">
               <button
@@ -4385,15 +4382,15 @@ export default function App() {
         </div>
       )}
 
-      {/* SMF - V2 - 20 Nexo IA Right Drawer (340px wide, full height) */}
+      {/* SMF - V2 - 20 Bit IA Right Drawer (340px wide, full height) */}
       {nexoOpen && (
-        <aside className="glass nexo-drawer" aria-label="Nexo IA">
+        <aside className="glass nexo-drawer" aria-label="Bit IA">
           <div className="nexo-drawer-top" ref={nexoMoreRef}>
             {/* Left: Configuration gear icon (no background, matching size, weight and color) */}
             <button
               className={`nexo-drawer-settings-btn ${ddOpen === 'nexoSettings' ? 'active' : ''}`}
-              title="Configuración de Nexo IA"
-              aria-label="Configuración de Nexo IA"
+              title="Configuración de Bit IA"
+              aria-label="Configuración de Bit IA"
               onClick={(e) => {
                 e.stopPropagation()
                 setDdOpen((d) => (d === 'nexoSettings' ? null : 'nexoSettings'))
@@ -4406,8 +4403,8 @@ export default function App() {
             <div className="nexo-top-actions">
               <button
                 className={`nexo-more-btn ${nexoMoreOpen ? 'active' : ''}`}
-                title="Historial y más opciones"
-                aria-label="Historial y más opciones"
+                title="Historial de Bit y más opciones"
+                aria-label="Historial de Bit y más opciones"
                 onClick={() => {
                   setNexoMoreOpen((v) => !v)
                   setNexoMoreView('main')
@@ -4418,8 +4415,8 @@ export default function App() {
 
               <button
                 className="nexo-close-btn"
-                title="Cerrar Nexo IA"
-                aria-label="Cerrar Nexo IA"
+                title="Cerrar Bit IA"
+                aria-label="Cerrar Bit IA"
                 onClick={() => {
                   setNexoMoreOpen(false)
                   setNexoOpen(false)
@@ -4431,11 +4428,11 @@ export default function App() {
 
             {ddOpen === 'nexoSettings' && (
               <div className="dd-menu nexo-settings-menu" style={{ top: 'calc(100% + 6px)', left: 0, right: 'auto', width: 280 }}>
-                <div className="dd-group-title">CONFIGURACIÓN NEXO IA</div>
+                <div className="dd-group-title">CONFIGURACIÓN BIT IA</div>
 
                 <div className="row between switch-row nexo-switch-row" onClick={() => setNexoEnabled((v) => !v)}>
                   <div className="nexo-switch-text">
-                    <span>Asistente Nexo IA</span>
+                    <span>Asistente Bit IA</span>
                     <small>{nexoEnabled ? 'Activo en el entorno' : 'Desactivado'}</small>
                   </div>
                   <span className={`mui-switch ${nexoEnabled ? 'checked' : ''}`}>
@@ -4534,7 +4531,7 @@ export default function App() {
 
             <div className="nexo-welcome">
               <div className="nexo-avatar-circle">
-                <NexoLogo width={24} height={30} color="#ffffff" />
+                <BitLogo width={26} height={26} color="#ffffff" />
               </div>
 
               <h2 className="nexo-greeting">¿Cómo puedo ayudarte hoy?</h2>
@@ -4554,7 +4551,7 @@ export default function App() {
                     marginBottom: 10,
                   }}
                 >
-                  <NexoLogo width={12} height={15} color="#0284c7" />
+                  <BitLogo width={12} height={12} color="#0284c7" />
                   <span>
                     Contexto activo: {interiorView === 'bombeo' ? 'Sala de bombeo SB-01 (L5)' : sidebarView?.type === 'interior' ? sidebarView.data.title : ''}
                   </span>
@@ -4584,7 +4581,7 @@ export default function App() {
           >
             <textarea
               className="nexo-textarea"
-              placeholder="Pregúntale a Nexo IA"
+              placeholder="Pregúntale a Bit IA"
               value={nexoPrompt}
               onChange={(e) => setNexoPrompt(e.target.value)}
               onKeyDown={(e) => {
@@ -4602,7 +4599,7 @@ export default function App() {
                 type="submit"
                 className={`nexo-send-btn ${!nexoPrompt.trim() ? 'disabled' : ''}`}
                 disabled={!nexoPrompt.trim()}
-                title="Enviar a Nexo IA"
+                title="Enviar a Bit IA"
               >
                 <ArrowUp size={18} />
               </button>

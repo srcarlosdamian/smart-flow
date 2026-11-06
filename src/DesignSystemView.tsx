@@ -67,7 +67,7 @@ import {
   X,
   Droplets,
 } from 'lucide-react'
-import { NexoLogo } from './App'
+import { BitLogo, NexoLogo } from './App'
 import logoUrl from './assets/smartflow-logo.png'
 import type { Theme } from './Scene3D'
 
@@ -220,7 +220,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
               <span style={codePillStyle}>{isLight ? 'Modo Claro (#dfe7ef)' : 'Modo Oscuro (#0a1c30)'}</span>
             </div>
             <p style={{ fontSize: 12, color: 'var(--muted)', margin: '2px 0 0 0' }}>
-              Componentes reales vinculados en vivo a <code>App.css</code> y <code>App.tsx</code> — Toolbars, Dropdowns interactivos, Botones (Full / Auto), Badges y Nexo IA
+              Componentes reales vinculados en vivo a <code>App.css</code> y <code>App.tsx</code> — Toolbars, Dropdowns interactivos, Botones (Full / Auto), Badges y Bit IA
             </p>
           </div>
         </div>
@@ -235,7 +235,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 ['dropdowns', 'Dropdowns (Live)'],
                 ['buttons', 'Botones (Full / Auto)'],
                 ['badges', 'Badges & 3D'],
-                ['ia', 'Nexo IA'],
+                ['ia', 'Bit IA'],
                 ['cards', 'Cards & Listas'],
               ] as const
             ).map(([id, label]) => (
@@ -500,9 +500,9 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     <span style={codePillStyle}>.user-detail-topbar</span>
                   </div>
                   <div>
-                    {/* Componente Canónico Unificado: Siempre con Botón de Buscar */}
-                    <div className="user-detail-topbar" style={{ position: 'relative', margin: 0 }}>
-                      <button className="user-top-back-btn no-border" title="Volver">
+                    {/* Componente Canónico Unificado: Siempre con Botón de Buscar y Back con fondo */}
+                    <div className="user-detail-topbar" style={{ position: 'relative', margin: 0, width: '100%', top: 0, borderRadius: 10 }}>
+                      <button className="user-top-back-btn" title="Volver">
                         <ChevronLeft size={18} />
                       </button>
                       <div className="user-top-crumb">
@@ -1014,7 +1014,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 18, minHeight: 410 }}>
                 <div>
                   <div style={labelTagStyle}>
-                    <span>2.2 CONFIGURACIÓN NEXO IA &amp; AGREGAR TRACKING</span>
+                    <span>2.2 CONFIGURACIÓN BIT IA &amp; AGREGAR TRACKING</span>
                     <span style={codePillStyle}>.nexo-settings-menu</span>
                   </div>
 
@@ -1023,13 +1023,13 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     <div className={`nexo-bar ${!nexoEnabled ? 'disabled' : ''}`}>
                       <button className="nexo-open-trigger">
                         <span className="nexo-title">
-                          <NexoLogo /> Pregúntale a Nexo IA
+                          <BitLogo /> Pregúntale a Bit IA
                         </span>
                       </button>
                       <button
                         className={`nexo-settings-btn ${openDd === 'nexoSettings' ? 'active' : ''}`}
                         onClick={() => setOpenDd(openDd === 'nexoSettings' ? null : 'nexoSettings')}
-                        title="Abrir dropdown de Configuración Nexo IA"
+                        title="Abrir dropdown de Configuración Bit IA"
                       >
                         <Settings size={17} />
                       </button>
@@ -1037,13 +1037,13 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
 
                     {openDd === 'nexoSettings' && (
                       <div className="dd-menu nexo-settings-menu" style={{ position: 'relative', top: 8 }}>
-                        <div className="dd-group-title">CONFIGURACIÓN NEXO IA</div>
+                        <div className="dd-group-title">CONFIGURACIÓN BIT IA</div>
                         <div
                           className="row between switch-row nexo-switch-row"
                           onClick={() => setNexoEnabled((v) => !v)}
                         >
                           <div className="nexo-switch-text">
-                            <span>Asistente Nexo IA</span>
+                            <span>Asistente Bit IA</span>
                             <small>{nexoEnabled ? 'Activo en el entorno' : 'Desactivado'}</small>
                           </div>
                           <span className={`mui-switch ${nexoEnabled ? 'checked' : ''}`}>
@@ -1494,27 +1494,51 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <button className="cta no-shadow">Acción Primaria</button>
                 </div>
 
-                {/* Emergency Declare Evacuation Button */}
+                {/* Full-Width Entrar a Interior (Canónico sin íconos) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>Full-Width Emergencia / Peligro (#ef4444)</b> — <code>.cta.full.no-shadow</code>
+                    <b>Full-Width Entrar a Interior (Canónico)</b> — <code>.cta.full.no-shadow</code>
+                  </small>
+                  <button
+                    className="cta full no-shadow"
+                    style={{
+                      width: '100%',
+                      height: 42,
+                      borderRadius: 10,
+                      background: 'linear-gradient(90deg, #1253d6, #08ddf0)',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      fontSize: 14,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span>Entrar</span>
+                  </button>
+                </div>
+
+                {/* Emergency Iniciar Evacuacion Button */}
+                <div>
+                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
+                    <b>Full-Width Emergencia / Iniciar Evacuación (#ef4444)</b> — <code>.cta.full.no-shadow</code>
                   </small>
                   <button
                     className="cta full no-shadow"
                     style={{
                       background: '#ef4444',
                       color: '#fff',
-                      padding: '12px 18px',
-                      borderRadius: 12,
-                      fontWeight: 700,
-                      fontSize: 14,
+                      height: 40,
+                      borderRadius: 8,
+                      fontWeight: 600,
+                      fontSize: 13.5,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       width: '100%',
                     }}
                   >
-                    <span>Declarar la evacuación</span>
+                    <span>Iniciar evacuación</span>
                   </button>
                 </div>
               </div>
@@ -1919,7 +1943,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     <code style={codePillStyle}>.whatif-severity-tag.critical</code>
                   </div>
                   <div className="row between">
-                    <span className="ai-nexo-tag">nexo ia</span>
+                    <span className="ai-nexo-tag">bit ia</span>
                     <code style={codePillStyle}>.ai-nexo-tag (gradiente metálico)</code>
                   </div>
                 </div>
@@ -2125,7 +2149,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
         )}
 
         {/* ================================================================== */}
-        {/* 5. NEXO IA · ANIMATIONS (BorderBeam), BUTTONS & DRAWER ELEMENTS    */}
+        {/* 5. BIT IA · ANIMATIONS (BorderBeam), BUTTONS & DRAWER ELEMENTS     */}
         {/* ================================================================== */}
         {(activeTab === 'all' || activeTab === 'ia') && (
           <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -2133,11 +2157,11 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Sparkles size={20} style={{ color: '#546e7a' }} />
                 <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
-                  5. Nexo IA · Animación Perimetral (BorderBeam), Botones &amp; Drawer
+                  5. Bit IA · Animación Perimetral (BorderBeam), Botones &amp; Drawer
                 </h2>
               </div>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 0 0 0' }}>
-                Animación inspirada en <code>https://libraries.dev/beam</code> con los colores metálicos del gradiente Nexo IA (<code>#455a64</code>, <code>#546e7a</code>, <code>#90a4ae</code>) y todos los componentes del asistente.
+                Animación con los colores metálicos del gradiente Bit IA (<code>#455a64</code>, <code>#546e7a</code>, <code>#90a4ae</code>) con ícono de rombo (<code>Diamond</code>) y todos los componentes del asistente.
               </p>
             </div>
 
@@ -2175,11 +2199,12 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     padding: '16px 18px',
                     borderRadius: 12,
                     margin: '0 0 16px 0',
+                    background: 'transparent',
                   }}
                 >
                   <div className="user-ai-card-top">
                     <div className="user-ai-tag">
-                      <NexoLogo width={14} height={16} color="#546e7a" />
+                      <BitLogo width={14} height={14} color="#546e7a" />
                       <span>IA Predictiva · Telemetría Activa</span>
                     </div>
                   </div>
@@ -2229,17 +2254,17 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </div>
               </div>
 
-              {/* All Nexo IA Buttons */}
+              {/* All Bit IA Buttons */}
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={labelTagStyle}>
-                  <span>5.2 BOTONES Y TRIGGERS NEXO IA</span>
+                  <span>5.2 BOTONES Y TRIGGERS BIT IA</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={codePillStyle}>.ia-gradient</span>
                     {onNavigateToLocation && (
                       <button
                         className="ds-open-app-btn"
                         onClick={() => onNavigateToLocation('nexo-drawer')}
-                        title="Abrir Nexo IA en SmartFlow"
+                        title="Abrir Bit IA en SmartFlow"
                       >
                         <SquareArrowOutUpRight size={12} />
                         <span>Abrir en app</span>
@@ -2256,7 +2281,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div className="nexo-bar" style={{ justifyContent: 'center' }}>
                     <button className="nexo-open-trigger" style={{ justifyContent: 'center', textAlign: 'center' }}>
                       <span className="nexo-title" style={{ justifyContent: 'center', margin: '0 auto' }}>
-                        <NexoLogo /> Pregúntale a Nexo IA
+                        <BitLogo /> Pregúntale a Bit IA
                       </span>
                     </button>
                   </div>
@@ -2268,40 +2293,40 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     <b>2. Botón Mediano Full (Full-Width · Altura 36px)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
                   </small>
                   <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, width: '100%', height: 36, fontSize: 13 }}>
-                    <NexoLogo width={14} height={16} color="#ffffff" />
-                    <span>Consultar estado con Nexo IA</span>
+                    <BitLogo width={14} height={14} color="#ffffff" />
+                    <span>Consultar estado con Bit IA</span>
                   </button>
                 </div>
 
-                {/* 3. Botón Mediano Auto-Width (Exactamente igual pero auto) */}
+                {/* 3. Botón Mediano Auto-Width */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
                     <b>3. Botón Mediano Auto (Auto-Width · Altura 36px)</b> — <code>.consultar-nexo-btn.ia-gradient (auto)</code>
                   </small>
                   <div style={{ display: 'flex' }}>
                     <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, width: 'auto', height: 36, padding: '0 16px', fontSize: 13 }}>
-                      <NexoLogo width={14} height={16} color="#ffffff" />
-                      <span>Preguntar a Nexo IA</span>
+                      <BitLogo width={14} height={14} color="#ffffff" />
+                      <span>Preguntar a Bit IA</span>
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Nexo Drawer Components (Avatar, Chat Bubbles & Prompt Box) */}
+              {/* Bit Drawer Components (Avatar, Chat Bubbles & Prompt Box) */}
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={labelTagStyle}>
-                  <span>5.3 COMPONENTES DEL DRAWER NEXO IA</span>
+                  <span>5.3 COMPONENTES DEL DRAWER BIT IA</span>
                   <span style={codePillStyle}>.nexo-drawer</span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div className="nexo-avatar-circle">
-                    <NexoLogo width={20} height={24} color="#ffffff" />
+                    <BitLogo width={22} height={22} color="#ffffff" />
                   </div>
                   <div>
-                    <b style={{ fontSize: 15 }}>¿En qué puedo ayudarte?</b>
+                    <b style={{ fontSize: 15 }}>¿En qué puedo ayudarte hoy?</b>
                     <small style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>
-                      <code>.nexo-avatar-circle</code> (52×52px) + <code>.nexo-greeting</code>
+                      <code>.nexo-avatar-circle</code> (52×52px con rombo) + <code>.nexo-greeting</code>
                     </small>
                   </div>
                 </div>
@@ -2316,7 +2341,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 <div className="nexo-input-box" style={{ height: 96, padding: '10px 14px' }}>
                   <textarea
                     className="nexo-textarea"
-                    placeholder="Pregúntale a Nexo IA sobre la mina..."
+                    placeholder="Pregúntale a Bit IA sobre la mina..."
                     readOnly
                   />
                   <div className="nexo-input-actions">
@@ -2409,23 +2434,92 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </div>
               </div>
 
-              {/* 6.2 Petición de Auxilio (.auxilio-card) & Evacuación (.evacuacion-alert-card) */}
+              {/* 6.2 Petición de Auxilio & Evacuación en Curso */}
               <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={labelTagStyle}>
-                  <span>6.2 PATRÓN PETICIÓN DE AUXILIO / ALERTAS ACTIVAS</span>
+                  <span>6.2 PATRÓN DE EVACUACIÓN EN CURSO &amp; AUXILIO</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={codePillStyle}>.auxilio-card</span>
+                    <span style={codePillStyle}>.evac-info-card</span>
                     {onNavigateToLocation && (
                       <button
                         className="ds-open-app-btn"
-                        onClick={() => onNavigateToLocation('peticion-auxilio')}
-                        title="Abrir alerta de auxilio en SmartFlow"
+                        onClick={() => onNavigateToLocation('evacuacion')}
+                        title="Abrir evacuación en SmartFlow"
                       >
                         <SquareArrowOutUpRight size={12} />
                         <span>Abrir en app</span>
                       </button>
                     )}
                   </div>
+                </div>
+
+                {/* Evacuación en Curso Box matching media_1793984790645_4b0c3ba0.png */}
+                <div
+                  className="evac-info-card"
+                  style={{
+                    borderRadius: 10,
+                    padding: '12px 14px',
+                    background: 'var(--panel-bg)',
+                    border: '1px solid var(--line)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 8,
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      color: '#ef4444',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Siren size={20} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 2 }}>
+                      EVACUACIÓN EN CURSO
+                    </div>
+                    <div style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.35 }}>
+                      Área: Área sin determinar · 33 sin contabilizar
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+                      Declarada por Operador
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
+                      498329:06:27
+                    </span>
+                  </div>
+                </div>
+
+                {/* Botón inferior rojo de Finalizar Evacuación */}
+                <div>
+                  <button
+                    className="cta full no-shadow"
+                    style={{
+                      width: '100%',
+                      height: 40,
+                      borderRadius: 8,
+                      background: '#dc2626',
+                      color: '#ffffff',
+                      fontSize: 13.5,
+                      fontWeight: 600,
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span>Finalizar evacuación</span>
+                  </button>
                 </div>
 
                 {/* Conmutador Visual Segmentado de Petición de Auxilio (.surface-bottom-switch) */}

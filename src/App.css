@@ -4047,10 +4047,34 @@ select option {
 /* -------------------------------------------------------------------------- */
 .user-top-back-btn,
 .user-top-back-btn.no-border {
-  border: none !important;
-  background: rgba(255, 255, 255, 0.15) !important;
-  box-shadow: none !important;
+  width: 32px;
+  height: 32px;
   border-radius: 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all .15s ease;
+  background: rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+.user-top-back-btn:hover,
+.user-top-back-btn.no-border:hover {
+  background: rgba(0, 0, 0, 0.14) !important;
+}
+.app[data-theme="dark"] .user-top-back-btn,
+.app[data-theme="dark"] .user-top-back-btn.no-border {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+.app[data-theme="dark"] .user-top-back-btn:hover,
+.app[data-theme="dark"] .user-top-back-btn.no-border:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
 }
 
 .cta,
@@ -4669,15 +4693,14 @@ select:focus,
   margin: 12px 0 !important;
   padding: 12px 14px !important;
   border-radius: 8px !important;
-  background: linear-gradient(var(--panel-bg, #ffffff), var(--panel-bg, #ffffff)) padding-box,
-              linear-gradient(135deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) border-box !important;
-  border: 1px solid transparent !important;
+  background: transparent !important;
+  border: 1.5px solid rgba(84, 110, 122, 0.45) !important;
   box-shadow: none !important;
 }
 .app[data-theme="dark"] .user-ai-gradient-card {
-  background: linear-gradient(var(--panel-bg, #101c2a), var(--panel-bg, #101c2a)) padding-box,
-              linear-gradient(135deg, #546e7a 0%, #78909c 50%, #b0bec5 100%) border-box !important;
-  border: 1px solid transparent !important;
+  background: transparent !important;
+  border: 1.5px solid rgba(144, 164, 174, 0.45) !important;
+  box-shadow: none !important;
 }
 .user-ai-gradient-card::before {
   display: none !important;
@@ -5015,27 +5038,27 @@ select:focus,
 /* Sticky Breadcrumb Topbar with solid blur to prevent bleed-through while scrolling */
 .user-detail-topbar {
   position: sticky !important;
-  top: 0 !important;
+  top: -8px !important;
   z-index: 50 !important;
-  background: rgba(255, 255, 255, 0.84) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.10) !important;
-  padding: 8px 10px !important;
-  margin: 0 0 10px 0 !important;
-  border-radius: 10px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
-  width: 100% !important;
+  background: rgba(248, 250, 252, 0.96) !important;
+  backdrop-filter: blur(50px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(50px) saturate(180%) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  padding: 8px 12px !important;
+  margin: -8px -12px 10px -12px !important;
+  border-radius: 16px 16px 0 0 !important;
+  box-shadow: none !important;
+  width: calc(100% + 24px) !important;
   box-sizing: border-box !important;
 }
 .app[data-theme="dark"] .user-detail-topbar {
-  background: rgba(15, 23, 42, 0.88) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  background: rgba(15, 23, 42, 0.96) !important;
+  backdrop-filter: blur(50px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(50px) saturate(180%) !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
 }
 .app[data-theme="dark"] .user-top-crumb .crumb-name {
   color: #f1f5f9 !important;
@@ -5519,11 +5542,11 @@ select:focus,
   color: #cbd5e1 !important;
 }
 .app[data-theme="dark"] .whatif-simulation-player {
-  background: rgba(15, 23, 42, 0.88) !important;
-  backdrop-filter: blur(24px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.45) !important;
+  background: var(--glass-bg-ligera) !important;
+  backdrop-filter: blur(50px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(50px) saturate(160%) !important;
+  border: 1.5px solid var(--glass-border-suave) !important;
+  box-shadow: var(--glass-shadow) !important;
   color: #f1f5f9 !important;
 }
 .app[data-theme="dark"] .whatif-player-title,
