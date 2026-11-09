@@ -4362,8 +4362,30 @@ select:focus,
 }
 
 /* ==========================================================================
-   SMARTFLOW UNIFIED BADGE SYSTEM (Tokens: 100 Background / 800 Text / Semibold)
+   SMARTFLOW UNIFIED BADGE SYSTEM (.smart-badge)
+   Mismo peso de fondo (100 / 16% dark), misma línea (1px), mismo texto (600 / 11.5px),
+   mismo padding (3px 8px), mismo radio (6px), mayúscula inicial.
    ========================================================================== */
+.smart-badge,
+.status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  white-space: nowrap !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Verde: En marcha / Operativo */
+.smart-badge.green,
+.smart-badge.marcha,
+.smart-badge.operativo,
 .green-badge,
 .enlace-activo-badge,
 .user-ai-status,
@@ -4382,15 +4404,23 @@ select:focus,
   line-height: 1.25 !important;
   white-space: nowrap !important;
 }
+.app[data-theme="dark"] .smart-badge.green,
+.app[data-theme="dark"] .smart-badge.marcha,
+.app[data-theme="dark"] .smart-badge.operativo,
 .app[data-theme="dark"] .green-badge,
 .app[data-theme="dark"] .enlace-activo-badge,
 .app[data-theme="dark"] .user-ai-status,
 .app[data-theme="dark"] .cmd-pill-activo {
   background: rgba(34, 197, 94, 0.16) !important;
   color: #4ade80 !important;
-  border-color: rgba(34, 197, 94, 0.3) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
 }
 
+/* Rojo: En falla / Crítico */
+.smart-badge.red,
+.smart-badge.falla,
+.smart-badge.critical,
+.smart-badge.critico,
 .evac-alert-tag-critical,
 .auxilio-status-critical,
 .whatif-severity-tag.critical {
@@ -4408,14 +4438,22 @@ select:focus,
   line-height: 1.25 !important;
   white-space: nowrap !important;
 }
+.app[data-theme="dark"] .smart-badge.red,
+.app[data-theme="dark"] .smart-badge.falla,
+.app[data-theme="dark"] .smart-badge.critical,
+.app[data-theme="dark"] .smart-badge.critico,
 .app[data-theme="dark"] .evac-alert-tag-critical,
 .app[data-theme="dark"] .auxilio-status-critical,
 .app[data-theme="dark"] .whatif-severity-tag.critical {
   background: rgba(239, 68, 68, 0.18) !important;
   color: #f87171 !important;
-  border-color: rgba(239, 68, 68, 0.32) !important;
+  border: 1px solid rgba(239, 68, 68, 0.32) !important;
 }
 
+/* Naranja: Alto */
+.smart-badge.orange,
+.smart-badge.alto,
+.smart-badge.high,
 .whatif-severity-tag.high {
   background: #ffedd5 !important;
   color: #9a3412 !important;
@@ -4431,33 +4469,21 @@ select:focus,
   line-height: 1.25 !important;
   white-space: nowrap !important;
 }
+.app[data-theme="dark"] .smart-badge.orange,
+.app[data-theme="dark"] .smart-badge.alto,
+.app[data-theme="dark"] .smart-badge.high,
 .app[data-theme="dark"] .whatif-severity-tag.high {
   background: rgba(249, 115, 22, 0.18) !important;
   color: #fb923c !important;
-  border-color: rgba(249, 115, 22, 0.32) !important;
+  border: 1px solid rgba(249, 115, 22, 0.32) !important;
 }
 
-.whatif-severity-tag.medium {
-  background: #fef9c3 !important;
-  color: #854d0e !important;
-  border: 1px solid #fef08a !important;
-  border-radius: 6px !important;
-  padding: 3px 8px !important;
-  font-size: 11.5px !important;
-  font-weight: 600 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 5px !important;
-  line-height: 1.25 !important;
-  white-space: nowrap !important;
-}
-.app[data-theme="dark"] .whatif-severity-tag.medium {
-  background: rgba(234, 179, 8, 0.18) !important;
-  color: #facc15 !important;
-  border-color: rgba(234, 179, 8, 0.32) !important;
-}
-
+/* Amarillo: Medio / Aviso */
+.smart-badge.yellow,
+.smart-badge.medio,
+.smart-badge.medium,
+.smart-badge.aviso,
+.whatif-severity-tag.medium,
 .whatif-severity-tag.aviso {
   background: #fef9c3 !important;
   color: #854d0e !important;
@@ -4473,12 +4499,20 @@ select:focus,
   line-height: 1.25 !important;
   white-space: nowrap !important;
 }
+.app[data-theme="dark"] .smart-badge.yellow,
+.app[data-theme="dark"] .smart-badge.medio,
+.app[data-theme="dark"] .smart-badge.medium,
+.app[data-theme="dark"] .smart-badge.aviso,
+.app[data-theme="dark"] .whatif-severity-tag.medium,
 .app[data-theme="dark"] .whatif-severity-tag.aviso {
   background: rgba(234, 179, 8, 0.18) !important;
   color: #facc15 !important;
-  border-color: rgba(234, 179, 8, 0.32) !important;
+  border: 1px solid rgba(234, 179, 8, 0.32) !important;
 }
 
+/* Neutral: En reserva / Sin atender / Sin aplicar */
+.smart-badge.neutral,
+.smart-badge.reserva,
 .auxilio-status-unattended,
 .evac-alert-status-pill,
 .status-badge-unapplied {
@@ -4496,12 +4530,14 @@ select:focus,
   line-height: 1.25 !important;
   white-space: nowrap !important;
 }
+.app[data-theme="dark"] .smart-badge.neutral,
+.app[data-theme="dark"] .smart-badge.reserva,
 .app[data-theme="dark"] .auxilio-status-unattended,
 .app[data-theme="dark"] .evac-alert-status-pill,
 .app[data-theme="dark"] .status-badge-unapplied {
-  background: rgba(148, 163, 184, 0.14) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
   color: #cbd5e1 !important;
-  border-color: rgba(148, 163, 184, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
 }
 
 /* Nexo IA within Interior Views - Identical size (42px) & gradient as other Nexo buttons */

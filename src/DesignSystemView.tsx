@@ -1837,7 +1837,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
         )}
 
         {/* ================================================================== */}
-        {/* 4. UNIFIED BADGE SYSTEM (Organizado por Tipo y Paleta Semántica)    */}
+        {/* 4. UNIFIED BADGE SYSTEM (Componente Canónico Unificado .smart-badge) */}
         {/* ================================================================== */}
         {(activeTab === 'all' || activeTab === 'badges') && (
           <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -1845,191 +1845,155 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Check size={20} style={{ color: '#166534' }} />
                 <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
-                  4. Sistema Unificado de Badges (Organizado por Tipo: Fondo 100 / Texto 800 / Semibold)
+                  4. Sistema Unificado de Badges (.smart-badge)
                 </h2>
               </div>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 0 0 0' }}>
-                Todos los badges del sistema homologados a la misma geometría: <code>border-radius: 6px</code>, padding uniforme <code>3px 8px</code>, tipografía <code>font-weight: 600</code> (Semibold) y paleta tonal <b>Fondo 100 / Texto 800</b>.
+                Un solo componente homologado para todos los estados del sistema: mismo peso de fondo (100 / 16% dark), misma línea (1px solid), mismo peso de texto (600 Semibold, 11.5px), idéntico radio (6px), idéntico padding (3px 8px) y todos con mayúscula inicial.
               </p>
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                gap: 20,
-              }}
-            >
-              {/* 4.1 Badges de Estado Verde */}
-              <div className="glass" style={cardSurfaceStyle}>
-                <div style={labelTagStyle}>
-                  <span>4.1 BADGES VERDES (POSITIVO / OPERATIVO / ÉXITO)</span>
-                  <span style={codePillStyle}>Fondo #dcfce7 / Texto #166534</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div className="row between">
-                    <span className="user-signal-badge online">En línea</span>
-                    <code style={codePillStyle}>.user-signal-badge.online</code>
+            {/* 4.1 Componente Canónico Unificado en un solo lugar */}
+            <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div style={labelTagStyle}>
+                <span>4.1 COMPONENTE CANÓNICO DE BADGES DE ESTADO (MISMO PESO, LÍNEA Y FONDO)</span>
+                <span style={codePillStyle}>.smart-badge (green | red | orange | yellow | neutral)</span>
+              </div>
+
+              {/* Fila Canónica Principal */}
+              <div>
+                <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 8 }}>
+                  <b>Variantes Canónicas Principales</b> (Crítico a la izquierda, Alto, Medio / Aviso, En falla, En marcha y En reserva):
+                </small>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', padding: '14px 16px', borderRadius: 10, background: 'var(--panel-item-bg, rgba(0,0,0,0.03))', border: '1px solid var(--line)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <span className="smart-badge red">Crítico</span>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Rojo</span>
                   </div>
-                  <div className="row between">
-                    <span className="green-badge">Operativo</span>
-                    <code style={codePillStyle}>.green-badge</code>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <span className="smart-badge red">En falla</span>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Rojo</span>
                   </div>
-                  <div className="row between">
-                    <span className="green-badge">En marcha</span>
-                    <code style={codePillStyle}>.green-badge (homologado sin punto)</code>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <span className="smart-badge orange">Alto</span>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Naranja</span>
                   </div>
-                  <div className="row between">
-                    <span className="user-ai-status">Óptimo</span>
-                    <code style={codePillStyle}>.user-ai-status</code>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <span className="smart-badge yellow">Medio</span>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Amarillo</span>
                   </div>
-                  <div className="row between">
-                    <span className="enlace-activo-badge">Enlace activo</span>
-                    <code style={codePillStyle}>.enlace-activo-badge</code>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <span className="smart-badge yellow">Aviso</span>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Amarillo</span>
                   </div>
-                  <div className="row between">
-                    <span className="cmd-pill-activo">Activo</span>
-                    <code style={codePillStyle}>.cmd-pill-activo</code>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <span className="smart-badge green">En marcha</span>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Verde</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <span className="smart-badge green">Operativo</span>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Verde</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                    <span className="smart-badge neutral">En reserva</span>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Neutral</span>
                   </div>
                 </div>
               </div>
 
-              {/* 4.2 Badges de Alerta y Falla Roja */}
-              <div className="glass" style={cardSurfaceStyle}>
-                <div style={labelTagStyle}>
-                  <span>4.2 BADGES ROJOS (PELIGRO / CRÍTICO / FALLA)</span>
-                  <span style={codePillStyle}>Fondo #fee2e2 / Texto #991b1b</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div className="row between">
-                    <span className="evac-alert-tag-critical">En falla</span>
-                    <code style={codePillStyle}>.evac-alert-tag-critical (sin punto)</code>
+              {/* Mapeo de Homologación por Categoría Semántica */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+                {/* Verde */}
+                <div style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="row between" style={{ fontSize: 12, fontWeight: 700, color: '#166534' }}>
+                    <span>Verde (Positivo / Marcha)</span>
+                    <code style={codePillStyle}>.smart-badge.green</code>
                   </div>
                   <div className="row between">
-                    <span className="evac-alert-tag-critical">Crítico</span>
-                    <code style={codePillStyle}>.evac-alert-tag-critical</code>
+                    <span className="smart-badge green">En marcha</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Bombas y equipos</span>
                   </div>
                   <div className="row between">
-                    <span className="whatif-severity-tag critical">Crítico</span>
-                    <code style={codePillStyle}>.whatif-severity-tag.critical</code>
+                    <span className="smart-badge green">Operativo</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Sistemas de ventilación</span>
                   </div>
                   <div className="row between">
-                    <span className="auxilio-status-critical">Crítico</span>
-                    <code style={codePillStyle}>.auxilio-status-critical</code>
+                    <span className="smart-badge green">En línea</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Nodos de telemetría</span>
                   </div>
                   <div className="row between">
-                    <span className="alert-pill">
-                      <b>1</b> <CircleAlert size={12} />
-                    </span>
-                    <code style={codePillStyle}>.alert-pill</code>
+                    <span className="smart-badge green">Activo</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Servicios en ejecución</span>
                   </div>
                 </div>
-              </div>
 
-              {/* 4.3 Badges de Advertencia Naranja y Amarillo */}
-              <div className="glass" style={cardSurfaceStyle}>
-                <div style={labelTagStyle}>
-                  <span>4.3 BADGES NARANJA &amp; AMARILLO (ADVERTENCIA / SEVERIDAD)</span>
-                  <span style={codePillStyle}>Fondo 100 / Texto 800</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div className="row between">
-                    <span className="whatif-severity-tag high">alto</span>
-                    <code style={codePillStyle}>.whatif-severity-tag.high (#ffedd5 / #9a3412)</code>
+                {/* Rojo */}
+                <div style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="row between" style={{ fontSize: 12, fontWeight: 700, color: '#991b1b' }}>
+                    <span>Rojo (Crítico / Falla)</span>
+                    <code style={codePillStyle}>.smart-badge.red</code>
                   </div>
                   <div className="row between">
-                    <span className="whatif-severity-tag medium">medio</span>
-                    <code style={codePillStyle}>.whatif-severity-tag.medium (#fef9c3 / #854d0e)</code>
+                    <span className="smart-badge red">Crítico</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Severidad máxima</span>
                   </div>
                   <div className="row between">
-                    <span className="whatif-severity-tag aviso">aviso</span>
-                    <code style={codePillStyle}>.whatif-severity-tag.aviso</code>
+                    <span className="smart-badge red">En falla</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Bombas fuera de servicio</span>
                   </div>
                   <div className="row between">
-                    <span className="whatif-severity-tag critical">crítico</span>
-                    <code style={codePillStyle}>.whatif-severity-tag.critical</code>
-                  </div>
-                  <div className="row between">
-                    <span className="ai-nexo-tag">bit ia</span>
-                    <code style={codePillStyle}>.ai-nexo-tag (gradiente metálico)</code>
+                    <span className="smart-badge red">Alerta</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Evacuación y auxilio</span>
                   </div>
                 </div>
-              </div>
 
-              {/* 4.4 Badges con Ícono (Área: Interior & Superficie) */}
-              <div className="glass" style={cardSurfaceStyle}>
-                <div style={labelTagStyle}>
-                  <span>4.4 BADGES CON ÍCONO (ÁREA: INTERIOR &amp; SUPERFICIE)</span>
-                  <span style={codePillStyle}>Fondo 100 / Texto 800 + Ícono</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div className="row between">
-                    <div className="player-area-chip interior">
-                      <SquareArrowOutUpRight size={13} />
-                      <span className="chip-label">interior</span>
-                      <span className="chip-count">4</span>
-                    </div>
-                    <code style={codePillStyle}>.player-area-chip.interior (#f3e8ff / #6b21a8)</code>
+                {/* Naranja & Amarillo */}
+                <div style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="row between" style={{ fontSize: 12, fontWeight: 700, color: '#9a3412' }}>
+                    <span>Naranja &amp; Amarillo (Advertencia)</span>
+                    <code style={codePillStyle}>.orange / .yellow</code>
                   </div>
                   <div className="row between">
-                    <div className="player-area-chip superficie">
-                      <SquareArrowOutUpRight size={13} />
-                      <span className="chip-label">superficie</span>
-                      <span className="chip-count">2</span>
-                    </div>
-                    <code style={codePillStyle}>.player-area-chip.superficie (#dbeafe / #1e40af)</code>
+                    <span className="smart-badge orange">Alto</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Severidad alta</span>
                   </div>
                   <div className="row between">
-                    <div className="player-area-chip neutral">
-                      <span className="chip-label">sector norte</span>
-                    </div>
-                    <code style={codePillStyle}>.player-area-chip.neutral (homologado, sin icono)</code>
+                    <span className="smart-badge yellow">Medio</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Severidad media</span>
                   </div>
                   <div className="row between">
-                    <div className="chips-row" style={{ flex: 1, maxWidth: 200 }}>
-                      <span>8 núcleos · 8 GB</span>
-                    </div>
-                    <code style={codePillStyle}>.chips-row span</code>
+                    <span className="smart-badge yellow">Aviso</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Notificación preventiva</span>
                   </div>
                 </div>
-              </div>
 
-              {/* 4.5 Badges Neutrales & En Espera */}
-              <div className="glass" style={cardSurfaceStyle}>
-                <div style={labelTagStyle}>
-                  <span>4.5 BADGES NEUTRALES (EN ESPERA / DESACTIVADO)</span>
-                  <span style={codePillStyle}>Fondo #f1f5f9 / Texto #334155</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div className="row between">
-                    <span className="auxilio-status-unattended">En reserva</span>
-                    <code style={codePillStyle}>.auxilio-status-unattended (sin punto)</code>
+                {/* Neutral */}
+                <div style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="row between" style={{ fontSize: 12, fontWeight: 700, color: '#334155' }}>
+                    <span>Neutral (En reserva / Espera)</span>
+                    <code style={codePillStyle}>.smart-badge.neutral</code>
                   </div>
                   <div className="row between">
-                    <span className="auxilio-status-unattended">Sin atender</span>
-                    <code style={codePillStyle}>.auxilio-status-unattended</code>
+                    <span className="smart-badge neutral">En reserva</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Bomba en standby</span>
                   </div>
                   <div className="row between">
-                    <span className="status-badge-unapplied">Sin aplicar</span>
-                    <code style={codePillStyle}>.status-badge-unapplied</code>
+                    <span className="smart-badge neutral">Sin atender</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Auxilio pendiente</span>
                   </div>
                   <div className="row between">
-                    <span className="auxilio-status-unattended">Horizonte 30m</span>
-                    <code style={codePillStyle}>.auxilio-status-unattended (homologado)</code>
-                  </div>
-                  <div className="row between">
-                    <span className="auxilio-status-unattended">Por defecto</span>
-                    <code style={codePillStyle}>.auxilio-status-unattended (homologado)</code>
+                    <span className="smart-badge neutral">Sin aplicar</span>
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Escenario simulado</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* 4.6 In-Scene 3D Badges (Sala de Bombeo, Personal con Blur Icon, Simulación de Vehículos y Superficie) */}
+            {/* 4.2 In-Scene 3D Badges (Sala de Bombeo, Personal con Blur Icon, Simulación de Vehículos y Superficie) */}
             <div className="glass" style={cardSurfaceStyle}>
               <div style={labelTagStyle}>
                 <span>
-                  4.6 BADGES FLOTANTES EN ESCENA 3D (TRANSPARENTE CON BLUR, TEXTO BLANCO &amp; BOLITA)
+                  4.2 BADGES FLOTANTES EN ESCENA 3D (TRANSPARENTE CON BLUR, TEXTO BLANCO &amp; BOLITA)
                 </span>
                 <span style={codePillStyle}>In-Scene 3D Overlays Homologados</span>
               </div>
