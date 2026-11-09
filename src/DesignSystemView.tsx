@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   ChevronLeft,
   ChevronRight,
@@ -80,8 +80,31 @@ interface Props {
 
 type SectionTab = 'all' | 'toolbars' | 'dropdowns' | 'buttons' | 'badges' | 'ia' | 'cards'
 
+const SECTIONS: { id: SectionTab; label: string }[] = [
+  { id: 'all', label: 'Todo' },
+  { id: 'toolbars', label: 'Toolbars & Players' },
+  { id: 'dropdowns', label: 'Dropdowns' },
+  { id: 'buttons', label: 'Botones' },
+  { id: 'badges', label: 'Badges & 3D' },
+  { id: 'ia', label: 'Bit IA' },
+  { id: 'cards', label: 'Cards & Listas' },
+]
+
 export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, onNavigateToLocation }: Props) {
   const [activeTab, setActiveTab] = useState<SectionTab>('all')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const filterRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!filterOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setFilterOpen(false)
+      }
+    }
+    window.addEventListener('mousedown', handleClickOutside)
+    return () => window.removeEventListener('mousedown', handleClickOutside)
+  }, [filterOpen])
 
   // Interactive states for live toolbars & dropdowns
   const [activeSidebarTool, setActiveSidebarTool] = useState<string>('box')
@@ -199,58 +222,91 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '10px 20px',
-          flexWrap: 'wrap',
-          gap: 12,
+          padding: '8px 18px',
+          minHeight: 52,
+          boxSizing: 'border-box',
+          gap: 16,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        {/* Left: Back button + clean title "Sistema de Diseño" */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
+            type="button"
             className="user-top-back-btn no-border"
             onClick={onBackToApp}
             title="Volver a SmartFlow"
             aria-label="Volver a SmartFlow"
+            style={{ width: 36, height: 36 }}
           >
             <ChevronLeft size={18} />
           </button>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>SmartFlow · Sistema de Diseño</h1>
-              <span className="pump-badge-v2 marcha">v2.5 Homologado</span>
-              <span style={codePillStyle}>{isLight ? 'Modo Claro (#dfe7ef)' : 'Modo Oscuro (#0a1c30)'}</span>
-            </div>
-            <p style={{ fontSize: 12, color: 'var(--muted)', margin: '2px 0 0 0' }}>
-              Componentes reales vinculados en vivo a <code>App.css</code> y <code>App.tsx</code> — Toolbars, Dropdowns interactivos, Botones (Full / Auto), Badges y Bit IA
-            </p>
-          </div>
+          <h1 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text)', whiteSpace: 'nowrap' }}>
+            Sistema de Diseño
+          </h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          {/* Category Filter */}
-          <div className="seg-row" style={{ padding: 3 }}>
-            {(
-              [
-                ['all', 'Todo'],
-                ['toolbars', 'Toolbars & Players'],
-                ['dropdowns', 'Dropdowns (Live)'],
-                ['buttons', 'Botones (Full / Auto)'],
-                ['badges', 'Badges & 3D'],
-                ['ia', 'Bit IA'],
-                ['cards', 'Cards & Listas'],
-              ] as const
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                className={activeTab === id ? 'on' : ''}
-                onClick={() => setActiveTab(id)}
-                style={{ padding: '4px 10px', fontSize: 12, whiteSpace: 'nowrap' }}
+        {/* Right: Section Filter Dropdown + Dark/Light toggle + Ir a la Mina CTA */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Section Dropdown */}
+          <div ref={filterRef} style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className={`dd-trigger ${filterOpen ? 'active' : ''}`}
+              onClick={() => setFilterOpen((prev) => !prev)}
+              style={{ minWidth: 160, height: 36, padding: '0 12px' }}
+            >
+              <span style={{ fontSize: 13, fontWeight: 600 }}>
+                {SECTIONS.find((s) => s.id === activeTab)?.label || 'Todo'}
+              </span>
+              <ChevronDown
+                size={14}
+                style={{
+                  transform: filterOpen ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.18s ease',
+                }}
+              />
+            </button>
+
+            {filterOpen && (
+              <div
+                className="dd-menu glass"
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 6px)',
+                  right: 0,
+                  minWidth: 200,
+                  zIndex: 300,
+                }}
               >
-                {label}
-              </button>
-            ))}
+                <div className="dd-group-title">Sección</div>
+                {SECTIONS.map((sec) => {
+                  const isSel = activeTab === sec.id
+                  return (
+                    <button
+                      key={sec.id}
+                      type="button"
+                      className="dd-item"
+                      onClick={() => {
+                        setActiveTab(sec.id)
+                        setFilterOpen(false)
+                      }}
+                      style={{
+                        fontWeight: isSel ? 600 : 400,
+                        background: isSel ? 'var(--hover-bg)' : 'transparent',
+                      }}
+                    >
+                      <span>{sec.label}</span>
+                      {isSel && <Check size={14} className="dd-check" />}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
+          {/* Theme Toggle Button next to Dropdown */}
           <button
+            type="button"
             className="user-top-back-btn no-border"
             onClick={onToggleTheme}
             title={`Cambiar a modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
@@ -259,9 +315,12 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
+          {/* Return to Mine */}
           <button
+            type="button"
             className="cta no-shadow"
             onClick={onBackToApp}
+            style={{ height: 36, padding: '0 14px', fontSize: 13 }}
           >
             Ir a la Mina
           </button>
