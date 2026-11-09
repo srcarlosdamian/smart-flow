@@ -1844,7 +1844,7 @@ export default function App() {
                           Bombas (4)
                         </div>
 
-                        <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                           {PUMPS_SIDEBAR.map((p) => {
                             const isSel = selectedPump === p.id
                             return (
@@ -1857,14 +1857,14 @@ export default function App() {
                                 <div className="bombeo-pump-v2-header">
                                   <div className="row gap-2" style={{ alignItems: 'center' }}>
                                     <span className={`pump-status-dot-v2 ${p.status}`} />
-                                    <b style={{ fontSize: 14, color: 'var(--text)' }}>{p.id}</b>
+                                    <b style={{ fontSize: 13.5, color: 'var(--text)' }}>{p.id}</b>
                                   </div>
                                   <div className="row gap-2" style={{ alignItems: 'center' }}>
                                     <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
                                     <span style={{ fontSize: 12, fontWeight: 600, color: p.status === 'falla' ? '#ef4444' : '#64748b' }}>{p.temp}</span>
                                   </div>
                                 </div>
-                                <div className="row between" style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                                <div className="row between" style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
                                   <span>{p.flow}</span>
                                   <span>{p.hours}</span>
                                 </div>
@@ -1874,6 +1874,21 @@ export default function App() {
                                     style={{ width: p.status === 'reserva' ? '0%' : p.status === 'falla' ? '100%' : `${p.barPercent}%` }}
                                   />
                                 </div>
+                                {(isSel || p.status === 'falla') && (
+                                  <button
+                                    className="consultar-nexo-btn ia-secondary"
+                                    style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setNexoOpen(true)
+                                      sendNexoMessage('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')
+                                    }}
+                                    title="Preguntar a Bit IA sobre la mitigación de falla"
+                                  >
+                                    <BitLogo width={12} height={14} color="#ffffff" />
+                                    <span>Preguntar a Bit IA sobre {p.id}</span>
+                                  </button>
+                                )}
                               </div>
                             )
                           })}

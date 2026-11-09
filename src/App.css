@@ -5060,7 +5060,7 @@ select:focus,
   font-size: 13.5px;
   box-shadow: none !important;
   transform: none !important;
-  transition: filter .15s ease;
+  transition: filter .15s ease, opacity .15s ease;
   font-family: inherit;
   box-sizing: border-box;
 }
@@ -5081,6 +5081,37 @@ select:focus,
   color: #ffffff !important;
   transform: none !important;
   box-shadow: none !important;
+}
+
+/* Secondary Lineal Bit IA Button (Linear metallic gradient border, black inside, rombo & text) */
+.consultar-nexo-btn.ia-secondary,
+.consultar-nexo-btn.ia-lineal {
+  position: relative;
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1.5px solid transparent !important;
+  background-image: linear-gradient(#000000, #000000), linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  box-shadow: none !important;
+}
+.consultar-nexo-btn.ia-secondary:hover,
+.consultar-nexo-btn.ia-lineal:hover {
+  filter: brightness(1.22);
+  background-image: linear-gradient(#0b0f19, #0b0f19), linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .consultar-nexo-btn.ia-secondary,
+.app[data-theme="dark"] .consultar-nexo-btn.ia-lineal {
+  background: #000000 !important;
+  background-image: linear-gradient(#000000, #000000), linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
+  color: #ffffff !important;
+}
+.app[data-theme="dark"] .consultar-nexo-btn.ia-secondary:hover,
+.app[data-theme="dark"] .consultar-nexo-btn.ia-lineal:hover {
+  filter: brightness(1.22);
+  background-image: linear-gradient(#0b0f19, #0b0f19), linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%) !important;
+  color: #ffffff !important;
 }
 
 /* Sticky Breadcrumb Topbar with solid blur to prevent bleed-through while scrolling */
@@ -5196,6 +5227,12 @@ select:focus,
   background: transparent !important;
   border: 1px solid rgba(0, 0, 0, 0.28) !important;
   box-shadow: none !important;
+}
+.app[data-theme="dark"] .bombeo-pump-card-v2:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+.app[data-theme="dark"] .bombeo-pump-card-v2.selected {
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
 }
 .bombeo-pump-v2-header {
   display: flex;

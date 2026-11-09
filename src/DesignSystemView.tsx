@@ -67,7 +67,7 @@ import {
   X,
   Droplets,
 } from 'lucide-react'
-import { BitLogo, NexoLogo } from './App'
+import { BitLogo } from './App'
 import logoUrl from './assets/smartflow-logo.png'
 import type { Theme } from './Scene3D'
 
@@ -2312,27 +2312,61 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                {/* 2. Botón Mediano Full-Width */}
+                {/* 2. Botones Primarios Bit IA (Sólidos con degradado metálico) */}
                 <div>
-                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>2. Botón Mediano Full (Full-Width · Altura 36px)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
+                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
+                    <b>2. Botones Primarios (Sólidos con degradado metálico)</b> — <code>.consultar-nexo-btn.ia-gradient</code>
                   </small>
-                  <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, width: '100%', height: 36, fontSize: 13 }}>
-                    <BitLogo width={14} height={14} color="#ffffff" />
-                    <span>Consultar estado con Bit IA</span>
-                  </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div>
+                      <small style={{ fontSize: 10.5, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
+                        2.1 Primario Full-Width (Altura 36px)
+                      </small>
+                      <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, width: '100%', height: 36, fontSize: 13 }}>
+                        <BitLogo width={14} height={14} color="#ffffff" />
+                        <span>Consultar estado con Bit IA</span>
+                      </button>
+                    </div>
+                    <div>
+                      <small style={{ fontSize: 10.5, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
+                        2.2 Primario Auto-Width (Altura 36px)
+                      </small>
+                      <div style={{ display: 'flex' }}>
+                        <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, width: 'auto', height: 36, padding: '0 16px', fontSize: 13 }}>
+                          <BitLogo width={14} height={14} color="#ffffff" />
+                          <span>Preguntar a Bit IA</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* 3. Botón Mediano Auto-Width */}
+                {/* 3. Botones Secundarios Bit IA (Lineal / Outline degradado, interior negro y rombo blanco) */}
                 <div>
-                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>
-                    <b>3. Botón Mediano Auto (Auto-Width · Altura 36px)</b> — <code>.consultar-nexo-btn.ia-gradient (auto)</code>
+                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
+                    <b>3. Botones Secundarios (Lineal con degradado de contorno, fondo negro y rombo)</b> — <code>.consultar-nexo-btn.ia-secondary</code>
                   </small>
-                  <div style={{ display: 'flex' }}>
-                    <button className="consultar-nexo-btn ia-gradient" style={{ margin: 0, width: 'auto', height: 36, padding: '0 16px', fontSize: 13 }}>
-                      <BitLogo width={14} height={14} color="#ffffff" />
-                      <span>Preguntar a Bit IA</span>
-                    </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div>
+                      <small style={{ fontSize: 10.5, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
+                        3.1 Secundario Lineal Full-Width (Altura 36px)
+                      </small>
+                      <button className="consultar-nexo-btn ia-secondary" style={{ margin: 0, width: '100%', height: 36, fontSize: 13 }}>
+                        <BitLogo width={14} height={14} color="#ffffff" />
+                        <span>Consultar estado con Bit IA</span>
+                      </button>
+                    </div>
+                    <div>
+                      <small style={{ fontSize: 10.5, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
+                        3.2 Secundario Lineal Auto-Width (Altura 36px)
+                      </small>
+                      <div style={{ display: 'flex' }}>
+                        <button className="consultar-nexo-btn ia-secondary" style={{ margin: 0, width: 'auto', height: 36, padding: '0 16px', fontSize: 13 }}>
+                          <BitLogo width={14} height={14} color="#ffffff" />
+                          <span>Preguntar a Bit IA</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2666,48 +2700,55 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                {[
-                  { id: 'BA-01', status: 'marcha' as const, statusText: 'En marcha', temp: '48 °C', flow: '78 L/s · 4.2 bar', hours: '1,240 h', pct: 78 },
-                  { id: 'BA-04', status: 'falla' as const, statusText: 'En falla', temp: '78 °C', flow: '0 L/s · 0.0 bar', hours: '2,150 h', pct: 100 },
-                ].map((p) => {
-                  const isSel = selectedPump === p.id
-                  return (
-                    <div
-                      key={p.id}
-                      className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
-                      onClick={() => setSelectedPump(p.id)}
-                    >
-                      <div className="bombeo-pump-v2-header">
-                        <div className="row gap-2">
-                          <span className={`pump-status-dot-v2 ${p.status}`} />
-                          <b style={{ fontSize: 14, color: 'var(--text)' }}>{p.id}</b>
+                <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {[
+                    { id: 'BA-01', status: 'marcha' as const, statusText: 'En marcha', temp: '48 °C', flow: '78 L/s · 4.2 bar', hours: '1,240 h', pct: 78 },
+                    { id: 'BA-04', status: 'falla' as const, statusText: 'En falla', temp: '78 °C', flow: '0 L/s · 0.0 bar', hours: '2,150 h', pct: 100 },
+                  ].map((p) => {
+                    const isSel = selectedPump === p.id || p.id === 'BA-04'
+                    return (
+                      <div
+                        key={p.id}
+                        className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
+                        onClick={() => setSelectedPump(p.id)}
+                      >
+                        <div className="bombeo-pump-v2-header">
+                          <div className="row gap-2" style={{ alignItems: 'center' }}>
+                            <span className={`pump-status-dot-v2 ${p.status}`} />
+                            <b style={{ fontSize: 13.5, color: 'var(--text)' }}>{p.id}</b>
+                          </div>
+                          <div className="row gap-2" style={{ alignItems: 'center' }}>
+                            <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: p.status === 'falla' ? '#ef4444' : '#64748b' }}>
+                              {p.temp}
+                            </span>
+                          </div>
                         </div>
-                        <div className="row gap-2">
-                          <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
-                          <span style={{ fontSize: 12, fontWeight: 600, color: p.status === 'falla' ? '#ef4444' : '#64748b' }}>
-                            {p.temp}
-                          </span>
+                        <div className="row between" style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+                          <span>{p.flow}</span>
+                          <span>{p.hours}</span>
                         </div>
+                        <div className="pump-bar-v2-track">
+                          <div className={`pump-bar-v2-fill ${p.status}`} style={{ width: `${p.pct}%` }} />
+                        </div>
+                        {p.status === 'falla' && (
+                          <button
+                            className="consultar-nexo-btn ia-secondary"
+                            style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (onNavigateToLocation) onNavigateToLocation('nexo-drawer')
+                            }}
+                            title="Preguntar a Bit IA sobre la mitigación de falla"
+                          >
+                            <BitLogo width={12} height={14} color="#ffffff" />
+                            <span>Preguntar a Bit IA sobre {p.id}</span>
+                          </button>
+                        )}
                       </div>
-                      <div className="row between" style={{ fontSize: 12, color: '#64748b' }}>
-                        <span>{p.flow}</span>
-                        <span>{p.hours}</span>
-                      </div>
-                      <div className="pump-bar-v2-track">
-                        <div className={`pump-bar-v2-fill ${p.status}`} style={{ width: `${p.pct}%` }} />
-                      </div>
-                      {isSel && (
-                        <button
-                          className="consultar-nexo-btn ia-gradient"
-                          style={{ marginTop: 6, marginBottom: 0, padding: '7px 12px', fontSize: 12 }}
-                        >
-                          <NexoLogo width={12} height={14} color="#ffffff" />
-                          <span>Preguntar a Nexo sobre {p.id}</span>
-                        </button>
-                      )}
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
 
               {/* 6.4 What-If Comparison 2-Col Box & Consequence Cards */}
@@ -2729,32 +2770,35 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                <div className="whatif-compare-card-block normal">
-                  <span className="whatif-compare-card-title">Caudal total inyectado</span>
-                  <div className="whatif-compare-2col-box">
-                    <div className="whatif-col">
-                      <span className="whatif-col-lbl">Antes</span>
-                      <span className="whatif-col-val">925 m³/s</span>
-                    </div>
-                    <div className="whatif-col">
-                      <span className="whatif-col-lbl">Después</span>
-                      <span className="whatif-col-val">925 m³/s</span>
+                {/* Grid con separación limpia de 12px y tipografía homologada */}
+                <div className="whatif-compare-grid-cards" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div className="whatif-compare-card-block normal">
+                    <span className="whatif-compare-card-title">Caudal total inyectado</span>
+                    <div className="whatif-compare-2col-box">
+                      <div className="whatif-col">
+                        <span className="whatif-col-lbl">Antes</span>
+                        <span className="whatif-col-val">925 m³/s</span>
+                      </div>
+                      <div className="whatif-col">
+                        <span className="whatif-col-lbl">Después</span>
+                        <span className="whatif-col-val">925 m³/s</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="whatif-compare-card-block degraded">
-                  <span className="whatif-compare-card-title">Margen mínimo hasta el umbral</span>
-                  <div className="whatif-compare-2col-box">
-                    <div className="whatif-col">
-                      <span className="whatif-col-lbl">Antes</span>
-                      <span className="whatif-col-val">1.9 min</span>
-                    </div>
-                    <div className="whatif-col">
-                      <span className="whatif-col-lbl">Después</span>
-                      <span className="whatif-col-val" style={{ color: '#ef4444' }}>
-                        1.4 min
-                      </span>
+                  <div className="whatif-compare-card-block degraded">
+                    <span className="whatif-compare-card-title">Margen mínimo hasta el umbral</span>
+                    <div className="whatif-compare-2col-box">
+                      <div className="whatif-col">
+                        <span className="whatif-col-lbl">Antes</span>
+                        <span className="whatif-col-val">1.9 min</span>
+                      </div>
+                      <div className="whatif-col">
+                        <span className="whatif-col-lbl">Después</span>
+                        <span className="whatif-col-val" style={{ color: '#ef4444' }}>
+                          1.4 min
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
