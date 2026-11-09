@@ -3328,30 +3328,7 @@ select option {
   color: #0284c7;
 }
 
-.bombeo-close-btn {
-  position: absolute;
-  top: 18px;
-  right: 380px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  color: #334155;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.15s ease;
-}
 
-.bombeo-close-btn:hover {
-  background: #ffffff;
-  color: #0f172a;
-  transform: scale(1.06);
-}
 
 .bombeo-3d-badge {
   position: absolute;
@@ -5639,15 +5616,7 @@ select:focus,
 .app[data-theme="dark"] .bombeo-badge-sub {
   color: #94a3b8 !important;
 }
-.app[data-theme="dark"] .bombeo-close-btn {
-  background: rgba(15, 23, 42, 0.85) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  color: #cbd5e1 !important;
-}
-.app[data-theme="dark"] .bombeo-close-btn:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: #ffffff !important;
-}
+
 .app[data-theme="dark"] .bombeo-bottom-kpi-strip {
   background: rgba(15, 23, 42, 0.88) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
