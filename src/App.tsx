@@ -167,6 +167,25 @@ const zoomPresets: { val: number; label: string }[] = [
 
 type TrackingType = 'personal' | 'zonas' | 'perimetros' | 'recorrido' | 'escenario' | 'evacuacion'
 
+interface NexoChatMessage {
+  role: 'user' | 'assistant'
+  text: string
+  isScenarioResult?: boolean
+}
+
+const DRILL_WINDOW_OPTIONS = [
+  'Mantener plan actual',
+  'Fuera de horas punta',
+  'Noche 22:00–06:00',
+  'Tarifa base 00:00–06:00',
+  'Ventana personalizada',
+]
+
+const TARIFF_SEASON_OPTIONS = [
+  'Nov–Mar · punta 18–22 h',
+  'Abr–Oct · punta 20–22 h',
+]
+
 const PUMPS_SIDEBAR = [
   { id: 'B-01', name: 'B-01', flow: '75 L/s · 12.4 bar', hours: '3120 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '62°C', barPercent: 75 },
   { id: 'B-02', name: 'B-02', flow: '75 L/s · 11.9 bar', hours: '2870 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '59°C', barPercent: 75 },
@@ -327,7 +346,7 @@ export interface WhatIfScenarioData {
   mitigations: { id: string; text: string }[]
 }
 
-const WHAT_IF_TARGETS = [
+export const WHAT_IF_TARGETS = [
   { id: 'CD-MT-01', label: 'CD-MT-01 (Subestación Principal MT)' },
   { id: 'V-PH-01', label: 'V-PH-01 (Ventilador Principal L1)' },
   { id: 'CD-MT-T-01', label: 'CD-MT-T-01 (Transformador de Potencia)' },
@@ -335,7 +354,7 @@ const WHAT_IF_TARGETS = [
   { id: 'V-PV-01', label: 'V-PV-01 (Ventilador Primario)' },
 ]
 
-const WHAT_IF_ACTIONS = [
+export const WHAT_IF_ACTIONS = [
   { id: 'desconexion', label: 'Desconexión / Corte de kVA radial' },
   { id: 'ventilador', label: 'Parada no programada de ventilador' },
   { id: 'galeria', label: 'Cierre de galería / Falla de compuerta' },
@@ -648,14 +667,67 @@ export default function App() {
   const [surfaceShowRelief, setSurfaceShowRelief] = useState(true)
   const [surfaceAction, setSurfaceAction] = useState<{ type: string; id: number } | null>(null)
   const [zoom, setZoom] = useState(100)
-  const [ddOpen, setDdOpen] = useState<'proj' | 'zoom' | 'addTrack' | 'addSim' | 'personalSearch' | 'nexoSettings' | 'shiftStart' | 'shiftEnd' | 'whatif_target' | 'whatif_action' | null>(null)
+  const [ddOpen, setDdOpen] = useState<string | null>(null)
   const [nexoOpen, setNexoOpen] = useState(false)
   const [nexoMoreOpen, setNexoMoreOpen] = useState(false)
   const [nexoMoreView, setNexoMoreView] = useState<'main' | 'more'>('main')
   const [nexoEnabled, setNexoEnabled] = useState(true)
   const [nexoAutoAlerts, setNexoAutoAlerts] = useState(true)
   const [nexoPrompt, setNexoPrompt] = useState('')
-  const [nexoMessages, setNexoMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([])
+  const [nexoMessages, setNexoMessages] = useState<NexoChatMessage[]>([])
+  
+  // Bit IA Scenario Inputs (CFE + Plan de Turnos)
+  const [drillWindow, setDrillWindow] = useState('Fuera de horas punta')
+  const [tariffSeason, setTariffSeason] = useState('Abr–Oct · punta 20–22 h')
+  const [haulagePeak, setHaulagePeak] = useState(40)
+  const [recoverOffPeak, setRecoverOffPeak] = useState(true)
+  const [noBlastingPeak, setNoBlastingPeak] = useState(true)
+  const [vodMargin, setVodMargin] = useState(10)
+  const [fleetDetailsOpen, setFleetDetailsOpen] = useState(false)
+  const [scenarioJsonCopied, setScenarioJsonCopied] = useState(false)
+
+  const handleRunScenarioWithBit = () => {
+    setNexoOpen(true)
+    setSidebarView({ type: 'whatif_result' })
+    const promptText = `Ejecutar con: ${drillWindow} · ${tariffSeason.includes('Abr') ? 'tarifa de verano' : 'tarifa de invierno'} · acarreo en punta ${haulagePeak} %, ${recoverOffPeak ? 'recuperar en valle' : ''} · ${noBlastingPeak ? 'sin voladura en punta' : ''} · margen ${vodMargin} %`
+
+    setNexoMessages((prev) => [
+      ...prev,
+      { role: 'user', text: promptText },
+      {
+        role: 'assistant',
+        text: 'Bit calculó la red de ventilación y los costos de demanda CFE.',
+        isScenarioResult: true,
+      },
+    ])
+  }
+
+  const handleCopyScenarioJson = () => {
+    const payload = {
+      scenario: 'heavy_drilling_outside_peak_hours',
+      drilling_window: drillWindow,
+      tariff_season: tariffSeason,
+      haulage_at_peak_pct: haulagePeak,
+      recover_tonnes_off_peak: recoverOffPeak,
+      no_blasting_clearance_during_peak: noBlastingPeak,
+      vod_safety_margin_pct: vodMargin,
+      fleet: {
+        jumbos: 4,
+        jumbo_model: 'Sandvik DD422i',
+        trucks: 6,
+        truck_model: 'TH551i',
+        scoops: 3,
+        scoop_model: 'LH517i',
+      },
+      cfe_contract: {
+        tariff_type: 'GDMTH Media Tensión Horaria',
+        peak_demand_charge_mxn_kw: 312.4,
+      },
+    }
+    navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
+    setScenarioJsonCopied(true)
+    setTimeout(() => setScenarioJsonCopied(false), 2400)
+  }
   const [openSection, setOpenSection] = useState<string | null>(null)
   const [interiorView, setInteriorView] = useState<string | null>(null)
 
@@ -719,10 +791,8 @@ export default function App() {
   }, [])
   const [selectedPump, setSelectedPump] = useState<string>('BA-01')
   const [selectedWorker, setSelectedWorker] = useState<WorkerData | null>(null)
-  const [whatIfTarget, setWhatIfTarget] = useState('V-PH-01')
-  const [whatIfAction, setWhatIfAction] = useState('Parada no programada de ventilador')
-  const [whatIfHorizon, setWhatIfHorizon] = useState(60)
-  const [whatIfAxes, setWhatIfAxes] = useState({ carga: true, vent: true, dilucion: true })
+  const [whatIfTarget] = useState('V-PH-01')
+  const [whatIfHorizon] = useState(60)
   const [perfLevel, setPerfLevel] = useState<'Bajo' | 'Medio' | 'Alto'>('Bajo')
   const [autoPerf, setAutoPerf] = useState(false)
   const [level, setLevel] = useState('L1')
@@ -952,6 +1022,19 @@ export default function App() {
       reply = 'Diagnóstico Bit IA - Refugio R-01 (Nivel 5):\n• Ocupación actual: 1 / 12 personas.\n• Autonomía de O₂: 69 horas calculadas según recambio químico y bancos de cilindros.\n• Comunicaciones: Enlace activo por fibra óptica y backup LoRaWAN verificado hace 12 min.\n• Monitoreo de gases interno: CO₂ 350 ppm, O₂ 20.9%, CO 0 ppm.'
     } else if (lower.includes('taller') || lower.includes('tm-01')) {
       reply = 'Estado Operativo Bit IA - Taller Mecánico TM-01 (Nivel 2):\n• Bahías ocupadas: 2 / 2 (LHD-02 en cambio de mangueras hidráulicas y Jumbo J-01 en revisión de martillo).\n• Cuadrilla técnica: 4 técnicos activos.\n• Horas de mantención pendientes: 29 h.\n• Ventilación en taller: 108% sobre norma.'
+    } else if (lower.includes('escenario') || lower.includes('outside peak') || lower.includes('horas punta') || lower.includes('perforación') || lower.includes('tarifa')) {
+      setSidebarView({ type: 'whatif_result' })
+      setNexoMessages((prev) => [
+        ...prev,
+        { role: 'user', text: clean },
+        {
+          role: 'assistant',
+          text: 'Bit calculó la red de ventilación y los costos de demanda CFE.',
+          isScenarioResult: true,
+        },
+      ])
+      setNexoPrompt('')
+      return
     } else {
       const replyMap: Record<string, string> = {
         'Ponme al día con el turno': 'El turno actual opera con normalidad. Hay 28 trabajadores activos en interior mina, 2 alertas preventivas en Nivel 3 (Chancador) y Nivel 5 (Sala de bombeo), y los refugios R-01 y R-04 se encuentran operativos.',
@@ -3910,129 +3993,226 @@ export default function App() {
             )}
           </div>
 
-          {/* 5. WHAT IF: What-If Simulation Engine */}
+          {/* 5. SIMULAR ESCENARIO (CFE + Plan de Turnos + Bit IA) */}
           <Section
-            title="What If"
-            open={openSection === 'ana'}
+            title="Simular escenario"
+            open={openSection === 'ana' || openSection === 'simulaciones'}
             onToggle={() => toggle('ana')}
-            onHover={showHelp('What If', 'Simulador predictivo ¿Qué pasa si...?: modela fallas de subestaciones, paradas de ventilación y dilución ambiental.')}
+            onHover={showHelp('Simular escenario', 'Entradas del escenario precargadas desde el plan de turnos y contrato CFE con ejecución en Bit IA.')}
           >
             <div className="whatif-config-box">
-              <label className="field-label">Componente o nodo a alterar</label>
+              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.45 }}>
+                Entradas del escenario: precargadas desde el plan de turnos y contrato CFE.
+              </div>
+
+              {/* 1. ¿Dónde debe ocurrir la perforación pesada? */}
+              <label className="field-label">¿Dónde debe ocurrir la perforación pesada?</label>
               <div style={{ position: 'relative' }}>
                 <button
                   type="button"
-                  className={`dd-trigger full ${ddOpen === 'whatif_target' ? 'active' : ''}`}
-                  onClick={() => setDdOpen((d) => (d === 'whatif_target' ? null : 'whatif_target'))}
+                  className={`dd-trigger full ${ddOpen === 'drill_window' ? 'active' : ''}`}
+                  onClick={() => setDdOpen((d) => (d === 'drill_window' ? null : 'drill_window'))}
                 >
-                  <span>{WHAT_IF_TARGETS.find((t) => t.id === whatIfTarget)?.label || whatIfTarget}</span>
+                  <span>{drillWindow}</span>
                   <ChevronDown size={16} />
                 </button>
-                {ddOpen === 'whatif_target' && (
-                  <div className="dd-menu" style={{ width: '100%', top: 'calc(100% + 4px)', left: 0 }}>
-                    <div className="dd-group-title">COMPONENTE O NODO</div>
-                    {WHAT_IF_TARGETS.map((t) => (
+                {ddOpen === 'drill_window' && (
+                  <div className="dd-menu" style={{ width: '100%', top: 'calc(100% + 4px)', left: 0, zIndex: 120 }}>
+                    <div className="dd-group-title">VENTANA DE PERFORACIÓN</div>
+                    {DRILL_WINDOW_OPTIONS.map((opt) => (
                       <button
-                        key={t.id}
+                        key={opt}
                         type="button"
-                        className={`dd-item ${whatIfTarget === t.id ? 'selected' : ''}`}
+                        className={`dd-item ${drillWindow === opt ? 'selected' : ''}`}
                         onClick={() => {
-                          setWhatIfTarget(t.id)
+                          setDrillWindow(opt)
                           setDdOpen(null)
                         }}
                       >
-                        <span>{t.label}</span>
+                        <span>{opt}</span>
+                        {drillWindow === opt && <Check size={14} className="dd-check" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <small style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 4, lineHeight: 1.35 }}>
+                Plan actual: 4 jumbos perforan 4 h en cada turno de 8 h (los turnos comienzan a las 06:00, 14:00, 22:00).
+              </small>
+
+              {/* 2. Temporada de tarifas */}
+              <label className="field-label" style={{ marginTop: 12 }}>Temporada de tarifas</label>
+              <div style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className={`dd-trigger full ${ddOpen === 'tariff_season' ? 'active' : ''}`}
+                  onClick={() => setDdOpen((d) => (d === 'tariff_season' ? null : 'tariff_season'))}
+                >
+                  <span>{tariffSeason}</span>
+                  <ChevronDown size={16} />
+                </button>
+                {ddOpen === 'tariff_season' && (
+                  <div className="dd-menu" style={{ width: '100%', top: 'calc(100% + 4px)', left: 0, zIndex: 120 }}>
+                    <div className="dd-group-title">TEMPORADA CFE</div>
+                    {TARIFF_SEASON_OPTIONS.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`dd-item ${tariffSeason === opt ? 'selected' : ''}`}
+                        onClick={() => {
+                          setTariffSeason(opt)
+                          setDdOpen(null)
+                        }}
+                      >
+                        <span>{opt}</span>
+                        {tariffSeason === opt && <Check size={14} className="dd-check" />}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              <label className="field-label" style={{ marginTop: 10 }}>Tipo de evento simulado</label>
-              <div style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  className={`dd-trigger full ${ddOpen === 'whatif_action' ? 'active' : ''}`}
-                  onClick={() => setDdOpen((d) => (d === 'whatif_action' ? null : 'whatif_action'))}
-                >
-                  <span>{WHAT_IF_ACTIONS.find((a) => a.id === whatIfAction || a.label === whatIfAction)?.label || whatIfAction}</span>
-                  <ChevronDown size={16} />
-                </button>
-                {ddOpen === 'whatif_action' && (
-                  <div className="dd-menu" style={{ width: '100%', top: 'calc(100% + 4px)', left: 0 }}>
-                    <div className="dd-group-title">TIPO DE EVENTO</div>
-                    {WHAT_IF_ACTIONS.map((a) => (
-                      <button
-                        key={a.id}
-                        type="button"
-                        className={`dd-item ${whatIfAction === a.id || whatIfAction === a.label ? 'selected' : ''}`}
-                        onClick={() => {
-                          setWhatIfAction(a.id)
-                          setDdOpen(null)
-                        }}
-                      >
-                        <span>{a.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <label className="field-label" style={{ marginTop: 8 }}>Ejes de simulación activos</label>
-              <div className="whatif-axes-check-list">
-                <div
-                  className="whatif-check-row"
-                  onClick={() => setWhatIfAxes((a) => ({ ...a, carga: !a.carga }))}
-                >
-                  <span className={`whatif-custom-checkbox ${whatIfAxes.carga ? 'checked' : ''}`}>
-                    {whatIfAxes.carga && <Check size={14} />}
-                  </span>
-                  <span className="whatif-check-label">Flujo de carga radial</span>
-                </div>
-                <div
-                  className="whatif-check-row"
-                  onClick={() => setWhatIfAxes((a) => ({ ...a, vent: !a.vent }))}
-                >
-                  <span className={`whatif-custom-checkbox ${whatIfAxes.vent ? 'checked' : ''}`}>
-                    {whatIfAxes.vent && <Check size={14} />}
-                  </span>
-                  <span className="whatif-check-label">Red de ventilación</span>
-                </div>
-                <div
-                  className="whatif-check-row"
-                  onClick={() => setWhatIfAxes((a) => ({ ...a, dilucion: !a.dilucion }))}
-                >
-                  <span className={`whatif-custom-checkbox ${whatIfAxes.dilucion ? 'checked' : ''}`}>
-                    {whatIfAxes.dilucion && <Check size={14} />}
-                  </span>
-                  <span className="whatif-check-label">Dilución por zona</span>
-                </div>
-              </div>
-
+              {/* 3. Acarreo mantenido durante horas punta */}
               <div className="row between" style={{ marginTop: 12, fontSize: 13 }}>
-                <span className="field-label">Horizonte de tiempo</span>
-                <b className="mono">{whatIfHorizon} min</b>
+                <span className="field-label" style={{ margin: 0 }}>Acarreo mantenido durante horas punta</span>
+                <b className="mono">{haulagePeak} %</b>
               </div>
               <input
                 type="range"
-                min={15}
-                max={120}
-                step={15}
-                value={whatIfHorizon}
-                onChange={(e) => setWhatIfHorizon(+e.target.value)}
+                min={0}
+                max={100}
+                step={5}
+                value={haulagePeak}
+                onChange={(e) => setHaulagePeak(+e.target.value)}
                 style={{
                   width: '100%',
                   marginTop: 4,
-                  ['--range-progress' as any]: `${((whatIfHorizon - 15) / (120 - 15)) * 100}%`,
+                  ['--range-progress' as any]: `${haulagePeak}%`,
+                }}
+              />
+              <small style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 2, lineHeight: 1.35 }}>
+                Las horas punta se utilizan para merienda (crib), inspecciones y cambio de turno en lugar de acarreo.
+              </small>
+
+              {/* 4. Checkboxes */}
+              <div className="whatif-axes-check-list" style={{ marginTop: 10 }}>
+                <div
+                  className="whatif-check-row"
+                  onClick={() => setRecoverOffPeak((prev) => !prev)}
+                >
+                  <span className={`whatif-custom-checkbox ${recoverOffPeak ? 'checked' : ''}`}>
+                    {recoverOffPeak && <Check size={14} />}
+                  </span>
+                  <span className="whatif-check-label">
+                    Recuperar toneladas perdidas en valle (utilización de camiones hasta 92 %)
+                  </span>
+                </div>
+                <div
+                  className="whatif-check-row"
+                  onClick={() => setNoBlastingPeak((prev) => !prev)}
+                >
+                  <span className={`whatif-custom-checkbox ${noBlastingPeak ? 'checked' : ''}`}>
+                    {noBlastingPeak && <Check size={14} />}
+                  </span>
+                  <span className="whatif-check-label">
+                    Sin autorización de voladura (clearance) durante horas punta
+                  </span>
+                </div>
+              </div>
+
+              {/* 5. Margen de seguridad VOD sobre requerimiento */}
+              <div className="row between" style={{ marginTop: 12, fontSize: 13 }}>
+                <span className="field-label" style={{ margin: 0 }}>Margen de seguridad VOD sobre requerimiento</span>
+                <b className="mono">{vodMargin} %</b>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={30}
+                step={1}
+                value={vodMargin}
+                onChange={(e) => setVodMargin(+e.target.value)}
+                style={{
+                  width: '100%',
+                  marginTop: 4,
+                  ['--range-progress' as any]: `${(vodMargin / 30) * 100}%`,
                 }}
               />
 
+              {/* 6. Acordeón: Valores de flota, personal y tarifas */}
+              <div style={{ marginTop: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setFleetDetailsOpen((prev) => !prev)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    background: 'transparent',
+                    border: 'none',
+                    padding: '4px 0',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: 'var(--muted)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {fleetDetailsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  <span>Valores de flota, personal y tarifas</span>
+                </button>
+                {fleetDetailsOpen && (
+                  <div
+                    style={{
+                      marginTop: 6,
+                      padding: '8px 10px',
+                      borderRadius: 6,
+                      background: 'rgba(0,0,0,0.03)',
+                      border: '1px solid var(--line)',
+                      fontSize: 11.5,
+                      lineHeight: 1.5,
+                      color: 'var(--text)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 4,
+                    }}
+                  >
+                    <div>• <b>Flota activa:</b> 4 Jumbos DD422i, 6 Camiones TH551i, 3 Scoops LH517i.</div>
+                    <div>• <b>Personal:</b> 28 trabajadores en interior mina (Turno A).</div>
+                    <div>• <b>Contrato CFE:</b> Tarifa GDMTH Media Tensión horaria ($312.40 MXN/kW-mes demanda punta).</div>
+                  </div>
+                )}
+              </div>
+
+              {/* 7. Action buttons: Secondary Bit IA button + Copiar JSON */}
               <button
-                className="cta whatif-submit-btn no-shadow"
-                style={{ marginTop: 14, boxShadow: 'none' }}
-                onClick={() => setSidebarView({ type: 'whatif_result' })}
+                type="button"
+                className="consultar-nexo-btn ia-secondary"
+                style={{ width: '100%', height: 40, marginTop: 14 }}
+                onClick={handleRunScenarioWithBit}
+                title="Simular escenario con Bit IA"
               >
-                Simular escenario
+                <BitLogo width={14} height={14} color="#ffffff" />
+                <span>Simular escenario con Bit IA</span>
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  width: '100%',
+                  height: 32,
+                  marginTop: 6,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  background: 'transparent',
+                  border: '1px solid var(--line)',
+                  borderRadius: 6,
+                  color: 'var(--muted)',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s ease',
+                }}
+                onClick={handleCopyScenarioJson}
+              >
+                {scenarioJsonCopied ? '✔ JSON copiado al portapapeles' : 'Copiar JSON del escenario'}
               </button>
             </div>
           </Section>
@@ -4521,55 +4701,170 @@ export default function App() {
           <div className="nexo-drawer-body">
             {nexoMessages.length > 0 && (
               <div className="nexo-chat-log">
-                {nexoMessages.map((m, i) => (
-                  <div key={i} className={`nexo-msg ${m.role}`}>
-                    {m.text}
-                  </div>
-                ))}
+                {nexoMessages.map((m, i) => {
+                  if (m.isScenarioResult) {
+                    return (
+                      <div key={i} className="nexo-msg assistant" style={{ width: '100%', maxWidth: '100%', padding: '12px 14px' }}>
+                        {/* Status Pill matching image: ⚙ Bit calculó la red de ventilación   7 ms */}
+                        <div className="nexo-status-pill">
+                          <div className="row gap-2" style={{ alignItems: 'center' }}>
+                            <Settings size={14} style={{ color: 'var(--muted)' }} />
+                            <span>Bit calculó la red de ventilación</span>
+                          </div>
+                          <span className="mono" style={{ fontSize: 11, color: 'var(--muted)' }}>7 ms</span>
+                        </div>
+
+                        {/* 4 Scenario Result Cards */}
+                        <div className="nexo-scenario-cards-container">
+                          {/* Card 1: Oportunidad · Energía y costo */}
+                          <div className="nexo-scenario-card opportunity">
+                            <div className="nexo-card-header">
+                              <div className="nexo-card-cat-label opportunity">
+                                <b>Oportunidad</b>
+                                <span style={{ color: 'var(--muted)' }}>· Energía y costo</span>
+                              </div>
+                              <div className="nexo-confidence-badge">
+                                <div className="nexo-confidence-circle green">82%</div>
+                                <span className="nexo-confidence-sub">confianza</span>
+                              </div>
+                            </div>
+                            <h3 className="nexo-card-title">Ahorro de MXN 2.18 M por mes (35 %)</h3>
+                            <p className="nexo-card-body">
+                              El costo cae de MXN 6.23 M a MXN 4.04 M. VOD por sí solo aporta MXN 1.23 M; la nueva programación añade MXN 957 k, principalmente al reducir la demanda en horario punta de 3,649 kW a 692 kW.
+                            </p>
+                            <div className="nexo-card-actions">
+                              <button className="nexo-card-btn" onClick={() => setSelectedProj('3D - Perspectiva')}>Mostrar hora punta</button>
+                              <button className="nexo-card-btn" onClick={() => setSidebarView({ type: 'whatif_result' })}>Comparar casos</button>
+                            </div>
+                          </div>
+
+                          {/* Card 2: Contexto · Seguridad */}
+                          <div className="nexo-scenario-card context">
+                            <div className="nexo-card-header">
+                              <div className="nexo-card-cat-label context">
+                                <b>Contexto</b>
+                                <span style={{ color: 'var(--muted)' }}>· Seguridad</span>
+                              </div>
+                              <div className="nexo-confidence-badge">
+                                <div className="nexo-confidence-circle blue">88%</div>
+                                <span className="nexo-confidence-sub">confianza</span>
+                              </div>
+                            </div>
+                            <h3 className="nexo-card-title">El aire se mantiene sobre el requerimiento en toda la mina</h3>
+                            <p className="nexo-card-body">
+                              Punto más ajustado: N1 al 110 % de su mínimo a las 00:00 (piso). 0 eventos de nivel de acción de gas. La ventilación post-voladura siempre opera al 100 % de velocidad de ventilador.
+                            </p>
+                            <div className="nexo-card-actions">
+                              <button className="nexo-card-btn" onClick={() => setLevel('L1')}>Mostrar punto más ajustado</button>
+                            </div>
+                          </div>
+
+                          {/* Card 3: Oportunidad · Producción */}
+                          <div className="nexo-scenario-card opportunity">
+                            <div className="nexo-card-header">
+                              <div className="nexo-card-cat-label opportunity">
+                                <b>Oportunidad</b>
+                                <span style={{ color: 'var(--muted)' }}>· Producción</span>
+                              </div>
+                              <div className="nexo-confidence-badge">
+                                <div className="nexo-confidence-circle green">86%</div>
+                                <span className="nexo-confidence-sub">confianza</span>
+                              </div>
+                            </div>
+                            <h3 className="nexo-card-title">El plan de perforación cabe en la ventana</h3>
+                            <p className="nexo-card-body">
+                              Las 48 horas-jumbo de perforación caben. Las voladuras inician a las 04:00, 12:00, 22:00.
+                            </p>
+                            <div className="nexo-card-actions">
+                              <button className="nexo-card-btn">Mostrar primera voladura</button>
+                            </div>
+                          </div>
+
+                          {/* Card 4: Contexto · Acarreo */}
+                          <div className="nexo-scenario-card context">
+                            <div className="nexo-card-header">
+                              <div className="nexo-card-cat-label context">
+                                <b>Contexto</b>
+                                <span style={{ color: 'var(--muted)' }}>· Acarreo</span>
+                              </div>
+                              <div className="nexo-confidence-badge">
+                                <div className="nexo-confidence-circle blue">74%</div>
+                                <span className="nexo-confidence-sub">confianza</span>
+                              </div>
+                            </div>
+                            <h3 className="nexo-card-title">18,214 t/día acarreadas (+1 % vs hoy)</h3>
+                            <p className="nexo-card-body">
+                              Menos despejes por voladura y la recuperación fuera de punta mantienen las toneladas en plan. El acarreo en punta es 40 % del normal.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Closing Note from Bit */}
+                        <div className="nexo-closing-note">
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', marginBottom: 4 }}>Bit</div>
+                          <p style={{ fontSize: 13, lineHeight: 1.45, margin: '0 0 6px 0', color: 'var(--text)' }}>
+                            Cada hallazgo viene con acciones recomendadas. Tú las ejecutas: yo no cambio consignas de ventiladores ni roles de turno por mi cuenta.
+                          </p>
+                          <p style={{ fontSize: 12, lineHeight: 1.45, margin: 0, color: 'var(--muted)' }}>
+                            El panel derecho ahora muestra la simulación junto a la operación real medida a la izquierda. Desplaza el reloj o haz clic en un ventilador para comparar cada componente. Modifica cualquier entrada arriba y ejecuta de nuevo.
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <div key={i} className={`nexo-msg ${m.role}`}>
+                      {m.text}
+                    </div>
+                  )
+                })}
               </div>
             )}
 
-            <div className="nexo-welcome">
-              <div className="nexo-avatar-circle">
-                <BitLogo width={26} height={26} color="#ffffff" />
-              </div>
-
-              <h2 className="nexo-greeting">¿Cómo puedo ayudarte hoy?</h2>
-
-              {(interiorView === 'bombeo' || sidebarView?.type === 'interior') && (
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '4px 10px',
-                    borderRadius: 20,
-                    background: 'rgba(2, 132, 199, 0.1)',
-                    color: '#0284c7',
-                    fontSize: 11.5,
-                    fontWeight: 600,
-                    marginBottom: 10,
-                  }}
-                >
-                  <BitLogo width={12} height={12} color="#0284c7" />
-                  <span>
-                    Contexto activo: {interiorView === 'bombeo' ? 'Sala de bombeo SB-01 (L5)' : sidebarView?.type === 'interior' ? sidebarView.data.title : ''}
-                  </span>
+            {nexoMessages.length === 0 && (
+              <div className="nexo-welcome">
+                <div className="nexo-avatar-circle">
+                  <BitLogo width={26} height={26} color="#ffffff" />
                 </div>
-              )}
 
-              <div className="nexo-suggestions">
-                {currentNexoSuggestions.map((s) => (
-                  <button
-                    key={s}
-                    className="nexo-pill"
-                    onClick={() => sendNexoMessage(s)}
+                <h2 className="nexo-greeting">¿Cómo puedo ayudarte hoy?</h2>
+
+                {(interiorView === 'bombeo' || sidebarView?.type === 'interior') && (
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '4px 10px',
+                      borderRadius: 20,
+                      background: 'rgba(2, 132, 199, 0.1)',
+                      color: '#0284c7',
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                      marginBottom: 10,
+                    }}
                   >
-                    {s}
-                  </button>
-                ))}
+                    <BitLogo width={12} height={12} color="#0284c7" />
+                    <span>
+                      Contexto activo: {interiorView === 'bombeo' ? 'Sala de bombeo SB-01 (L5)' : sidebarView?.type === 'interior' ? sidebarView.data.title : ''}
+                    </span>
+                  </div>
+                )}
+
+                <div className="nexo-suggestions">
+                  {currentNexoSuggestions.map((s) => (
+                    <button
+                      key={s}
+                      className="nexo-pill"
+                      onClick={() => sendNexoMessage(s)}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <form
