@@ -289,6 +289,8 @@ export default function InteriorBombeoView({
 }: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
   const [activePump, setActivePump] = useState<string | null>(selectedPumpId || null)
+  const [activeWorkerId, setActiveWorkerId] = useState<string | null>(null)
+  const [selectedSump, setSelectedSump] = useState<boolean>(false)
   const [screenCoords, setScreenCoords] = useState<Record<string, { x: number; y: number; visible: boolean }>>({})
   const [workerCoords, setWorkerCoords] = useState<Record<string, { x: number; y: number; visible: boolean }>>({})
   const [sumpCoord, setSumpCoord] = useState<{ x: number; y: number; visible: boolean } | null>(null)
@@ -813,6 +815,8 @@ export default function InteriorBombeoView({
             }}
             onClick={() => {
               setActivePump(pump.id)
+              setActiveWorkerId(null)
+              setSelectedSump(false)
               onSelectPump?.(pump.id)
             }}
           >
@@ -838,11 +842,18 @@ export default function InteriorBombeoView({
       {/* Sump 3D Badge */}
       {sumpCoord && sumpCoord.visible && (
         <div
-          className="bombeo-3d-sump-badge"
+          className={`bombeo-3d-sump-badge ${selectedSump ? 'selected' : ''}`}
           style={{
             left: `${sumpCoord.x}px`,
             top: `${sumpCoord.y}px`,
+            cursor: 'pointer',
           }}
+          onClick={() => {
+            setSelectedSump(!selectedSump)
+            setActivePump(null)
+            setActiveWorkerId(null)
+          }}
+          title="Clic para seleccionar sumidero"
         >
           <span className="callout-dot cyan" />
           <span>SUMIDERO 64%</span>
@@ -853,41 +864,31 @@ export default function InteriorBombeoView({
       {WORKERS_DATA.map((w) => {
         const coord = workerCoords[w.id]
         if (!coord || !coord.visible) return null
+        const isWorkerSelected = activeWorkerId === w.id
 
         return (
           <div
             key={w.id}
-            className="bombeo-worker-3d-badge glass"
+            className={`bombeo-worker-3d-badge ${isWorkerSelected ? 'selected' : ''}`}
             style={{
               position: 'absolute',
               left: `${coord.x}px`,
               top: `${coord.y}px`,
               transform: 'translate(-50%, -100%)',
               zIndex: 15,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '4px 10px',
-              borderRadius: 6,
-              background: 'rgba(15, 23, 42, 0.75)',
-              border: '1px solid rgba(255, 255, 255, 0.16)',
-              color: '#ffffff',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.5px',
-              textTransform: 'uppercase',
-              userSelect: 'none',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              transition: 'transform .15s ease, border-color .15s ease',
             }}
-            onClick={() => onSelectWorker?.(w)}
+            onClick={() => {
+              setActiveWorkerId(w.id)
+              setActivePump(null)
+              setSelectedSump(false)
+              onSelectWorker?.(w)
+            }}
             title={`Clic para ver telemetría de ${w.name}`}
           >
-            <span className="callout-dot green" />
-            <span>{w.name.toUpperCase()}</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span className="callout-dot green" />
+              <span>{w.name.toUpperCase()}</span>
+            </div>
           </div>
         )
       })}

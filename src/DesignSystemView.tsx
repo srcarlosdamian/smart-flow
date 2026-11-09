@@ -1993,126 +1993,180 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
             <div className="glass" style={cardSurfaceStyle}>
               <div style={labelTagStyle}>
                 <span>
-                  4.2 BADGES FLOTANTES EN ESCENA 3D (TRANSPARENTE CON BLUR, TEXTO BLANCO &amp; BOLITA)
+                  4.2 BADGES FLOTANTES EN ESCENA 3D (BLANCO 50% + BLUR POR DEFECTO, 100% BLANCO AL SELECCIONAR)
                 </span>
-                <span style={codePillStyle}>In-Scene 3D Overlays Homologados</span>
+                <span style={codePillStyle}>B1-B4, Sumidero, Jumbo, Manuel Reyes, Juan García</span>
               </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 16,
-                  alignItems: 'center',
-                  padding: '18px 20px',
-                  borderRadius: 12,
-                  background: theme === 'dark' ? '#0f172a' : '#ffffff',
-                  border: theme === 'dark' ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)',
-                }}
-              >
-                {/* Pump 3D Badge: Marcha (Top box with green dot + flow) */}
-                <div
-                  className="bombeo-3d-badge marcha"
-                  style={{ position: 'relative', transform: 'none' }}
-                >
-                  <div className="bombeo-badge-top-box">
-                    <span className="callout-dot green" />
-                    <span>B-01</span>
-                  </div>
-                  <div className="bombeo-badge-bottom-box">75 L/s</div>
+              {/* Sub-bloque A: Por defecto (50% blanco + blur 12px) */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Estado Por Defecto (Blanco 50% translúcido + Blur 12px)
                 </div>
-
-                {/* Pump 3D Badge: Reserva (Top box with yellow dot + reserva) */}
-                <div
-                  className="bombeo-3d-badge reserva"
-                  style={{ position: 'relative', transform: 'none' }}
-                >
-                  <div className="bombeo-badge-top-box">
-                    <span className="callout-dot yellow" />
-                    <span>B-03</span>
-                  </div>
-                  <div className="bombeo-badge-bottom-box reserva">RESERVA</div>
-                </div>
-
-                {/* Pump 3D Badge: Falla (Top box with red dot + falla) */}
-                <div
-                  className="bombeo-3d-badge falla"
-                  style={{ position: 'relative', transform: 'none' }}
-                >
-                  <div className="bombeo-badge-top-box">
-                    <span className="callout-dot red" />
-                    <span>B-04</span>
-                  </div>
-                  <div className="bombeo-badge-bottom-box falla">FALLA</div>
-                </div>
-
-                {/* Sump 3D Badge (Sumidero with cyan dot) */}
-                <div
-                  className="bombeo-3d-sump-badge"
-                  style={{ position: 'relative', transform: 'none' }}
-                >
-                  <span className="callout-dot cyan" />
-                  <span>SUMIDERO 64%</span>
-                </div>
-
-                {/* Interior Worker 3D Badge (Manuel Reyes) */}
                 <div
                   style={{
-                    display: 'inline-flex',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 16,
                     alignItems: 'center',
-                    gap: 6,
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    background: 'rgba(15, 23, 42, 0.75)',
-                    border: '1px solid rgba(255, 255, 255, 0.16)',
-                    color: '#ffffff',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: '0.5px',
-                    textTransform: 'uppercase',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
+                    padding: '24px 20px',
+                    borderRadius: 12,
+                    background: 'linear-gradient(135deg, #334155 0%, #1e293b 50%, #0f172a 100%)',
+                    border: '1px solid rgba(255,255,255,0.12)',
                   }}
                 >
-                  <span className="callout-dot green" />
-                  <span>MANUEL REYES</span>
-                </div>
-
-                {/* Simulated Vehicle 3D Badge (Jumbo J-01) */}
-                <div
-                  className="bombeo-3d-badge"
-                  style={{ position: 'relative', transform: 'none' }}
-                >
-                  <div className="bombeo-badge-top-box">
-                    <span className="callout-dot green" />
-                    <span>JUMBO J-01</span>
+                  {/* B1: Marcha */}
+                  <div className="bombeo-3d-badge marcha" style={{ position: 'relative', transform: 'none' }}>
+                    <div className="bombeo-badge-top-box">
+                      <span className="callout-dot green" />
+                      <span>B-01</span>
+                    </div>
+                    <div className="bombeo-badge-bottom-box">75 L/s</div>
                   </div>
-                  <div className="bombeo-badge-bottom-box">PERFORACIÓN</div>
-                </div>
 
-                {/* Surface Worker Marker (Juan García) */}
+                  {/* B2: Marcha */}
+                  <div className="bombeo-3d-badge marcha" style={{ position: 'relative', transform: 'none' }}>
+                    <div className="bombeo-badge-top-box">
+                      <span className="callout-dot green" />
+                      <span>B-02</span>
+                    </div>
+                    <div className="bombeo-badge-bottom-box">74 L/s</div>
+                  </div>
+
+                  {/* B3: Reserva */}
+                  <div className="bombeo-3d-badge reserva" style={{ position: 'relative', transform: 'none' }}>
+                    <div className="bombeo-badge-top-box">
+                      <span className="callout-dot yellow" />
+                      <span>B-03</span>
+                    </div>
+                    <div className="bombeo-badge-bottom-box reserva">RESERVA</div>
+                  </div>
+
+                  {/* B4: Falla */}
+                  <div className="bombeo-3d-badge falla" style={{ position: 'relative', transform: 'none' }}>
+                    <div className="bombeo-badge-top-box">
+                      <span className="callout-dot red" />
+                      <span>B-04</span>
+                    </div>
+                    <div className="bombeo-badge-bottom-box falla">FALLA</div>
+                  </div>
+
+                  {/* Sumidero */}
+                  <div className="bombeo-3d-sump-badge" style={{ position: 'relative', transform: 'none' }}>
+                    <span className="callout-dot cyan" />
+                    <span>SUMIDERO 64%</span>
+                  </div>
+
+                  {/* Jumbo J-01 */}
+                  <div className="sim-3d-badge" style={{ position: 'relative', transform: 'none' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <span className="callout-dot green" />
+                      <span>JUMBO J-01</span>
+                    </div>
+                    <span style={{ fontSize: 9.5, opacity: 0.75, fontWeight: 600 }}>PERFORACIÓN</span>
+                  </div>
+
+                  {/* Manuel Reyes */}
+                  <div className="bombeo-worker-3d-badge" style={{ position: 'relative', transform: 'none' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <span className="callout-dot green" />
+                      <span>MANUEL REYES</span>
+                    </div>
+                  </div>
+
+                  {/* Juan García */}
+                  <div className="sim-3d-badge" style={{ position: 'relative', transform: 'none' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <span className="callout-dot green" />
+                      <span>JUAN GARCÍA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sub-bloque B: Seleccionado (100% Blanco sólido + Sombra destacada) */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Estado Seleccionado (100% Blanco sólido + Sombra destacada)
+                </div>
                 <div
                   style={{
-                    display: 'inline-flex',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 16,
                     alignItems: 'center',
-                    gap: 6,
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    background: 'rgba(15, 23, 42, 0.75)',
-                    border: '1px solid rgba(255, 255, 255, 0.16)',
-                    color: '#ffffff',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: '0.5px',
-                    textTransform: 'uppercase',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
+                    padding: '24px 20px',
+                    borderRadius: 12,
+                    background: 'linear-gradient(135deg, #334155 0%, #1e293b 50%, #0f172a 100%)',
+                    border: '1px solid rgba(255,255,255,0.12)',
                   }}
                 >
-                  <span className="callout-dot green" />
-                  <span>JUAN GARCÍA</span>
+                  {/* B1 Selected */}
+                  <div className="bombeo-3d-badge marcha selected" style={{ position: 'relative', transform: 'none' }}>
+                    <div className="bombeo-badge-top-box">
+                      <span className="callout-dot green" />
+                      <span>B-01</span>
+                    </div>
+                    <div className="bombeo-badge-bottom-box">75 L/s</div>
+                  </div>
+
+                  {/* B2 Selected */}
+                  <div className="bombeo-3d-badge marcha selected" style={{ position: 'relative', transform: 'none' }}>
+                    <div className="bombeo-badge-top-box">
+                      <span className="callout-dot green" />
+                      <span>B-02</span>
+                    </div>
+                    <div className="bombeo-badge-bottom-box">74 L/s</div>
+                  </div>
+
+                  {/* B3 Selected */}
+                  <div className="bombeo-3d-badge reserva selected" style={{ position: 'relative', transform: 'none' }}>
+                    <div className="bombeo-badge-top-box">
+                      <span className="callout-dot yellow" />
+                      <span>B-03</span>
+                    </div>
+                    <div className="bombeo-badge-bottom-box reserva">RESERVA</div>
+                  </div>
+
+                  {/* B4 Selected */}
+                  <div className="bombeo-3d-badge falla selected" style={{ position: 'relative', transform: 'none' }}>
+                    <div className="bombeo-badge-top-box">
+                      <span className="callout-dot red" />
+                      <span>B-04</span>
+                    </div>
+                    <div className="bombeo-badge-bottom-box falla">FALLA</div>
+                  </div>
+
+                  {/* Sumidero Selected */}
+                  <div className="bombeo-3d-sump-badge selected" style={{ position: 'relative', transform: 'none' }}>
+                    <span className="callout-dot cyan" />
+                    <span>SUMIDERO 64%</span>
+                  </div>
+
+                  {/* Jumbo J-01 Selected */}
+                  <div className="sim-3d-badge selected" style={{ position: 'relative', transform: 'none' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <span className="callout-dot green" />
+                      <span>JUMBO J-01</span>
+                    </div>
+                    <span style={{ fontSize: 9.5, opacity: 0.75, fontWeight: 600 }}>PERFORACIÓN</span>
+                  </div>
+
+                  {/* Manuel Reyes Selected */}
+                  <div className="bombeo-worker-3d-badge selected" style={{ position: 'relative', transform: 'none' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <span className="callout-dot green" />
+                      <span>MANUEL REYES</span>
+                    </div>
+                  </div>
+
+                  {/* Juan García Selected */}
+                  <div className="sim-3d-badge selected" style={{ position: 'relative', transform: 'none' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <span className="callout-dot green" />
+                      <span>JUAN GARCÍA</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -3331,6 +3331,13 @@ select option {
 
 
 
+/* ==========================================================================
+   3D FLOATING IN-SCENE BADGES (B1-B4, Sumidero, Jumbo, Manuel Reyes, Juan García)
+   Blanco ligeramente transparente al 50% con blur de fondo por defecto.
+   Completamente blanco (100%) al seleccionarse. Sombra destacada.
+   ========================================================================== */
+
+/* 1. Bombas B1, B2, B3, B4 */
 .bombeo-3d-badge {
   position: absolute;
   transform: translate(-50%, -100%);
@@ -3340,117 +3347,142 @@ select option {
   gap: 3px;
   cursor: pointer;
   z-index: 12;
-  transition: transform 0.15s ease, filter 0.15s ease;
+  transition: transform 0.18s ease, filter 0.18s ease;
   user-select: none;
 }
-
 .bombeo-3d-badge:hover,
 .bombeo-3d-badge.selected {
   transform: translate(-50%, -105%) scale(1.08);
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.22));
 }
 
 .bombeo-badge-top-box {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.50) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 700;
-  color: #ffffff;
+  color: #0f172a !important;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14) !important;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-
-.bombeo-3d-badge.marcha .bombeo-badge-top-box {
-  border-color: rgba(255, 255, 255, 0.2);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .bombeo-badge-bottom-box {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.50) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
   border-radius: 5px;
   padding: 2px 8px;
   font-size: 10.5px;
   font-weight: 600;
-  color: #f1f5f9;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.bombeo-badge-bottom-box.reserva {
-  color: #cbd5e1;
-}
-
-.bombeo-3d-badge.falla .bombeo-badge-top-box {
-  background: rgba(15, 23, 42, 0.75);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.bombeo-badge-bottom-box.falla {
-  color: #fca5a5;
-}
-
-[data-theme="light"] .bombeo-badge-top-box,
-.app[data-theme="light"] .bombeo-badge-top-box {
-  background: rgba(255, 255, 255, 0.94) !important;
-  color: #0f172a !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-}
-[data-theme="light"] .bombeo-badge-bottom-box,
-.app[data-theme="light"] .bombeo-badge-bottom-box {
-  background: rgba(255, 255, 255, 0.94) !important;
   color: #334155 !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10) !important;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
-[data-theme="light"] .bombeo-badge-bottom-box.reserva,
-.app[data-theme="light"] .bombeo-badge-bottom-box.reserva {
+.bombeo-badge-bottom-box.reserva {
   color: #64748b !important;
 }
-[data-theme="light"] .bombeo-badge-bottom-box.falla,
-.app[data-theme="light"] .bombeo-badge-bottom-box.falla {
+.bombeo-badge-bottom-box.falla {
   color: #dc2626 !important;
 }
-[data-theme="light"] .bombeo-3d-sump-badge,
-.app[data-theme="light"] .bombeo-3d-sump-badge {
-  background: rgba(255, 255, 255, 0.94) !important;
+
+/* Estado Seleccionado: Completamente blanco */
+.bombeo-3d-badge.selected .bombeo-badge-top-box,
+.bombeo-3d-badge:hover .bombeo-badge-top-box {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
   color: #0f172a !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+}
+.bombeo-3d-badge.selected .bombeo-badge-bottom-box,
+.bombeo-3d-badge:hover .bombeo-badge-bottom-box {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16) !important;
+}
+.bombeo-3d-badge.selected .bombeo-badge-bottom-box.reserva,
+.bombeo-3d-badge:hover .bombeo-badge-bottom-box.reserva {
+  color: #64748b !important;
+}
+.bombeo-3d-badge.selected .bombeo-badge-bottom-box.falla,
+.bombeo-3d-badge:hover .bombeo-badge-bottom-box.falla {
+  color: #dc2626 !important;
 }
 
+/* 2. Sumidero */
 .bombeo-3d-sump-badge {
   position: absolute;
   transform: translate(-50%, -50%);
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.50) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
   border-radius: 6px;
   padding: 4px 12px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14) !important;
   z-index: 12;
   user-select: none;
-  pointer-events: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  transition: transform 0.18s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.bombeo-3d-sump-badge:hover,
+.bombeo-3d-sump-badge.selected {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+  transform: translate(-50%, -55%) scale(1.05);
+}
+
+/* 3. Trabajadores & Vehículos (Manuel Reyes, Victor Navarro, Juan García, Jumbo) */
+.bombeo-worker-3d-badge,
+.sim-3d-badge {
+  background: rgba(255, 255, 255, 0.50) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14) !important;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  user-select: none;
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: transform 0.18s ease, background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.bombeo-worker-3d-badge:hover,
+.bombeo-worker-3d-badge.selected,
+.sim-3d-badge:hover,
+.sim-3d-badge.selected {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+  color: #0f172a !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+  transform: translate(-50%, -105%) scale(1.06);
 }
 
 /* Callout status dot helper */

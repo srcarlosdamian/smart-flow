@@ -508,39 +508,33 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
           display: activeSimulations?.includes('personal') ? 'block' : 'none',
         }}
       >
-        {SIM_ENTITIES.map((ent) => (
-          <button
-            key={ent.id}
-            data-sim-id={ent.id}
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onSelectSimEntity?.(ent)
-            }}
-            style={{
-              position: 'absolute',
-              transform: 'translate(-50%, -100%)',
-              pointerEvents: 'auto',
-              display: 'none',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '4px 10px',
-              borderRadius: 6,
-              background: 'rgba(15, 23, 42, 0.92)',
-              backdropFilter: 'blur(8px)',
-              border: `1.5px solid ${ent.type === 'vehicle' ? '#eab308' : '#00e676'}`,
-              color: '#ffffff',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
-              whiteSpace: 'nowrap',
-              lineHeight: 1.25,
-            }}
-          >
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#f8fafc' }}>{ent.name}</span>
-            <span style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 400 }}>{ent.role}</span>
-          </button>
-        ))}
+        {SIM_ENTITIES.map((ent) => {
+          const isSelected = selectedObjectId === ent.id
+          return (
+            <button
+              key={ent.id}
+              data-sim-id={ent.id}
+              type="button"
+              className={`sim-3d-badge ${isSelected ? 'selected' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                onSelectSimEntity?.(ent)
+              }}
+              style={{
+                position: 'absolute',
+                transform: 'translate(-50%, -100%)',
+                pointerEvents: 'auto',
+                display: 'none',
+              }}
+            >
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span className={`callout-dot ${ent.type === 'vehicle' ? 'yellow' : 'green'}`} />
+                <span style={{ fontSize: 11, fontWeight: 700 }}>{ent.name.toUpperCase()}</span>
+              </div>
+              <span style={{ fontSize: 10, opacity: 0.85, fontWeight: 500 }}>{ent.role}</span>
+            </button>
+          )
+        })}
       </div>
     </div>
   )
