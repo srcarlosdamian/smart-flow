@@ -1728,18 +1728,19 @@ input[type=range]::-moz-range-thumb {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--hover-bg);
+  border: none;
+  background: rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text);
   cursor: pointer;
   flex-shrink: 0;
-  transition: transform .12s ease;
+  transition: transform .12s ease, background-color .12s ease;
 }
 .user-top-back-btn:hover {
   transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.12);
 }
 .user-top-crumb {
   flex: 1;
@@ -4034,24 +4035,26 @@ select option {
   flex-shrink: 0;
   transition: all .15s ease;
   background: rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border: none !important;
+  outline: none !important;
   color: #0f172a !important;
   box-shadow: none !important;
 }
 .user-top-back-btn:hover,
 .user-top-back-btn.no-border:hover {
-  background: rgba(0, 0, 0, 0.14) !important;
+  background: rgba(0, 0, 0, 0.13) !important;
 }
 .app[data-theme="dark"] .user-top-back-btn,
 .app[data-theme="dark"] .user-top-back-btn.no-border {
-  background: rgba(255, 255, 255, 0.14) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: none !important;
+  outline: none !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
 .app[data-theme="dark"] .user-top-back-btn:hover,
 .app[data-theme="dark"] .user-top-back-btn.no-border:hover {
-  background: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
 }
 
 .cta,
