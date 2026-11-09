@@ -273,7 +273,7 @@ function createConstructionWorker(worker: WorkerData): THREE.Group {
 
 export default function InteriorBombeoView({
   theme = 'light',
-  onClose,
+  onClose: _onClose,
   selectedPumpId,
   onSelectPump,
   onSelectWorker,
@@ -752,25 +752,6 @@ export default function InteriorBombeoView({
 
   return (
     <div className="interior-bombeo-container" ref={mountRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden' }}>
-      {/* Top Left Room Badge from sketch (image 2) */}
-      <div className="bombeo-top-badge glass">
-        <div className="bombeo-badge-sub">L5 · INTERIOR</div>
-        <div className="bombeo-badge-title">
-          <Droplets size={16} className="bombeo-badge-icon" />
-          <span>Sala de bombeo SB-01</span>
-        </div>
-      </div>
-
-      {/* Top Right Close Button */}
-      <button
-        className="bombeo-close-btn glass"
-        onClick={onClose}
-        title="Salir de la sala"
-        aria-label="Cerrar"
-      >
-        <X size={18} />
-      </button>
-
       {/* 1. In-Scene 3D Badges projected over pumps (image 2) */}
       {PUMPS.map((pump) => {
         const coord = screenCoords[pump.id]

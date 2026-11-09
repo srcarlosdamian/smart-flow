@@ -5128,24 +5128,26 @@ select:focus,
   border-left: 1px solid var(--line) !important;
 }
 
-/* Bombeo Pump Card V2 (media_1793689326791_e508b3a0.png) */
+/* Bombeo Pump Card V2 - Transparent without border by default, slightly darker gray border when selected */
 .bombeo-pump-card-v2 {
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 10px 14px;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px;
+  padding: 8px 10px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 .bombeo-pump-card-v2:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.03) !important;
 }
 .bombeo-pump-card-v2.selected {
-  border: 1.5px solid #0284c7 !important;
-  box-shadow: 0 0 0 1px #0284c7;
+  background: transparent !important;
+  border: 1px solid rgba(0, 0, 0, 0.28) !important;
+  box-shadow: none !important;
 }
 .bombeo-pump-v2-header {
   display: flex;
@@ -5557,12 +5559,18 @@ select:focus,
 
 /* 7. Bombeo & Evacuation Detail Panels */
 .app[data-theme="dark"] .bombeo-pump-card-v2 {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
   color: #f1f5f9 !important;
 }
 .app[data-theme="dark"] .bombeo-pump-card-v2:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.app[data-theme="dark"] .bombeo-pump-card-v2.selected {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: none !important;
 }
 .app[data-theme="dark"] .bombeo-pump-card-v2 b {
   color: #f1f5f9 !important;

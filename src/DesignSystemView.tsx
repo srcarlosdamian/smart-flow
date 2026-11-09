@@ -2633,7 +2633,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                   <div className="interior-metric-cell">
                     <span className="metric-cell-label">Caudal total</span>
-                    <span className="metric-cell-value">152 L/s</span>
+                    <span className="metric-cell-value">150 L/s</span>
                   </div>
                   <div className="interior-metric-cell">
                     <span className="metric-cell-label">En falla</span>

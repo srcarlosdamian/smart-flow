@@ -12,7 +12,7 @@ import {
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, Target, Upload, Download, Camera, Palette, LogIn, Move,
+  X, Target, Upload, Download, Camera, Palette, LogIn,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -170,8 +170,8 @@ type TrackingType = 'personal' | 'zonas' | 'perimetros' | 'recorrido' | 'escenar
 const PUMPS_SIDEBAR = [
   { id: 'B-01', name: 'B-01', flow: '75 L/s · 12.4 bar', hours: '3120 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '62°C', barPercent: 75 },
   { id: 'B-02', name: 'B-02', flow: '75 L/s · 11.9 bar', hours: '2870 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '59°C', barPercent: 75 },
-  { id: 'B-03', name: 'B-03', flow: '0 L/s · 0.0 bar', hours: '1490 h de servicio', status: 'reserva', statusText: 'Reserva', temp: '24°C', barPercent: 0 },
-  { id: 'B-04', name: 'B-04', flow: '0 L/s · 0.0 bar', hours: '4650 h de servicio', status: 'falla', statusText: 'Falla', temp: '81°C', barPercent: 100 },
+  { id: 'B-03', name: 'B-03', flow: '0 L/s · 0.0 bar', hours: '1490 h de servicio', status: 'reserva', statusText: 'En reserva', temp: '24°C', barPercent: 0 },
+  { id: 'B-04', name: 'B-04', flow: '0 L/s · 0.0 bar', hours: '4650 h de servicio', status: 'falla', statusText: 'En falla', temp: '81°C', barPercent: 100 },
 ]
 
 const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; color: string; icon: typeof UserRoundSearch }[] = [
@@ -1758,96 +1758,86 @@ export default function App() {
                   </div>
 
                   <div className="interior-panel-body" style={{ marginTop: 6 }}>
-                    <h2 style={{ margin: '4px 0 12px 0', fontSize: 16, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.2px' }}>
-                      Sala de bombeo
-                    </h2>
-
-                    {/* Telemetry Metrics Block */}
-                    <div className="bombeo-metrics-block" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      <div className="row between" style={{ alignItems: 'center' }}>
-                        <span style={{ fontSize: 13, color: 'var(--text)' }}>Nivel del sumidero</span>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: '#0284c7' }}>Sumidero 64</span>
-                      </div>
-                      {/* Horizontal progress bar */}
-                      <div className="neutral-progress-track">
-                        <div className="neutral-progress-fill" style={{ width: '64%' }} />
-                      </div>
-
-                      <div className="row between" style={{ alignItems: 'center', paddingTop: 4 }}>
-                        <span style={{ fontSize: 13, color: 'var(--text)' }}>En marcha</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981' }}>2 de 4</span>
-                      </div>
-
-                      <div className="row between" style={{ alignItems: 'center' }}>
-                        <span style={{ fontSize: 13, color: 'var(--text)' }}>Caudal</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>150 L/s</span>
-                      </div>
-
-                      <div className="row between" style={{ alignItems: 'center' }}>
-                        <span style={{ fontSize: 13, color: 'var(--text)' }}>En falla</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#ef4444' }}>1</span>
-                      </div>
-
-                      <div className="row between" style={{ alignItems: 'center' }}>
-                        <span style={{ fontSize: 13, color: 'var(--text)' }}>En reserva</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--muted)' }}>1</span>
-                      </div>
-
-                      <div className="row between" style={{ alignItems: 'center' }}>
-                        <span style={{ fontSize: 13, color: 'var(--text)' }}>Presión de descarga</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>12.4 bar</span>
-                      </div>
-                    </div>
-
-                    {/* Arrastrar para girar guide */}
-                    <div
-                      style={{
-                        marginTop: 14,
-                        padding: '8px 12px',
-                        borderRadius: 8,
-                        background: 'var(--panel-item-bg, rgba(0,0,0,0.04))',
-                        border: '1px solid var(--line)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        fontSize: 12,
-                        color: 'var(--muted)',
-                      }}
-                    >
-                      <Move size={14} style={{ color: 'var(--muted)', flexShrink: 0 }} />
-                      <span>Arrastrar para girar</span>
-                    </div>
-
-                    {/* IF NOT INSIDE: Entrar canonical primary full-width CTA button */}
+                    {/* IF NOT INSIDE: Preview card & Entrar CTA button */}
                     {!interiorView && (
-                      <div style={{ marginTop: 18 }}>
-                        <button
-                          className="cta full no-shadow"
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
+                        <div
                           style={{
-                            width: '100%',
-                            height: 42,
-                            borderRadius: 10,
-                            background: 'linear-gradient(90deg, #1253d6, #08ddf0)',
-                            color: '#ffffff',
-                            fontWeight: 700,
-                            fontSize: 14,
+                            padding: '12px 14px',
+                            borderRadius: 8,
+                            background: 'var(--panel-item-bg, rgba(0,0,0,0.03))',
+                            border: '1px solid var(--line)',
                             display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: 'none',
-                            cursor: 'pointer',
-                            boxShadow: 'none',
+                            flexDirection: 'column',
+                            gap: 8,
                           }}
-                          onClick={() => navigateToInterior('bombeo')}
                         >
-                          <span>Entrar</span>
-                        </button>
+                          <div className="row between" style={{ fontSize: 13 }}>
+                            <span style={{ color: 'var(--muted)' }}>Ubicación</span>
+                            <b style={{ color: 'var(--text)' }}>Nivel L5 · Sector Central</b>
+                          </div>
+                          <div className="row between" style={{ fontSize: 13 }}>
+                            <span style={{ color: 'var(--muted)' }}>Instalación</span>
+                            <span style={{ color: 'var(--text)' }}>Estación de bombeo SB1</span>
+                          </div>
+                          <div className="row between" style={{ fontSize: 13 }}>
+                            <span style={{ color: 'var(--muted)' }}>Equipos</span>
+                            <span style={{ color: 'var(--text)' }}>4 bombas hidráulicas</span>
+                          </div>
+                          <div className="row between" style={{ fontSize: 13 }}>
+                            <span style={{ color: 'var(--muted)' }}>Estado</span>
+                            <span style={{ color: '#10b981', fontWeight: 600 }}>2 en marcha · 1 falla</span>
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: 8 }}>
+                          <button
+                            className="cta full no-shadow"
+                            style={{
+                              width: '100%',
+                              height: 42,
+                              borderRadius: 10,
+                              background: 'linear-gradient(90deg, #1253d6, #08ddf0)',
+                              color: '#ffffff',
+                              fontWeight: 700,
+                              fontSize: 14,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              border: 'none',
+                              cursor: 'pointer',
+                              boxShadow: 'none',
+                            }}
+                            onClick={() => navigateToInterior('bombeo')}
+                          >
+                            <span>Entrar</span>
+                          </button>
+                        </div>
                       </div>
                     )}
 
-                    {/* IF INSIDE: Pump cards list (without redundant Nexo button) */}
+                    {/* IF INSIDE: 2x2 Telemetry Grid (Nivel sumidero, En marcha, Caudal total, En falla), Arrastrar para girar & Pump cards */}
                     {interiorView && (
                       <>
+                        <div className="interior-metrics-2grid" style={{ margin: '4px 0 12px 0' }}>
+                          <div className="interior-metric-cell">
+                            <span className="metric-cell-label">Nivel sumidero</span>
+                            <span className="metric-cell-value" style={{ color: '#0284c7' }}>64%</span>
+                          </div>
+                          <div className="interior-metric-cell">
+                            <span className="metric-cell-label">En marcha</span>
+                            <span className="metric-cell-value text-green">2 / 4</span>
+                          </div>
+                          <div className="interior-metric-cell">
+                            <span className="metric-cell-label">Caudal total</span>
+                            <span className="metric-cell-value">150 L/s</span>
+                          </div>
+                          <div className="interior-metric-cell">
+                            <span className="metric-cell-label">En falla</span>
+                            <span className="metric-cell-value text-red">1</span>
+                          </div>
+                        </div>
+
                         <div className="interior-card-divider" style={{ margin: '14px 0 10px 0' }} />
 
                         <div className="bombeo-section-title" style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', margin: '4px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -1899,7 +1889,7 @@ export default function App() {
               <div className="user-detail-panel interior-detail-panel">
                 <div className="user-detail-topbar">
                   <button
-                    className="user-top-back-btn no-border"
+                    className="user-top-back-btn"
                     onClick={handleBackFromInterior}
                     title="Volver"
                     aria-label="Volver"
@@ -1922,11 +1912,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="interior-panel-body">
-                  <h2 className="user-detail-title" style={{ margin: '4px 0 12px 0' }}>
-                    {currentInterior.title}
-                  </h2>
-
+                <div className="interior-panel-body" style={{ marginTop: 6 }}>
                   <div className="interior-metrics-list">
                     {currentInterior.metrics.map((m, idx) => (
                       <div key={idx} className="interior-metric-item">
