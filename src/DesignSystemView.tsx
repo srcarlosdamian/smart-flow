@@ -1359,19 +1359,21 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     gap: 10,
                   }}
                 >
-                  <div className="row between" style={{ alignItems: 'center' }}>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>
-                      Sala de bombeo SB-01
-                    </span>
-                    <button
-                      className="no-border"
-                      style={{ background: 'transparent', cursor: 'pointer', color: 'var(--muted)', padding: 2 }}
-                    >
-                      <X size={16} />
+                  {/* Canonical Navigation Topbar: Back (sin borde) + Breadcrumb + Buscar */}
+                  <div className="user-detail-topbar" style={{ margin: 0, padding: '0 0 10px 0', borderBottom: '1px solid var(--line)', width: '100%' }}>
+                    <button className="user-top-back-btn" title="Volver" aria-label="Volver">
+                      <ChevronLeft size={18} />
+                    </button>
+                    <div className="user-top-crumb">
+                      <span className="crumb-prefix">Interiores / </span>
+                      <span className="crumb-name"><b>Sala de Bombeo SB1</b></span>
+                    </div>
+                    <button className="user-top-search-btn" title="Buscar" aria-label="Buscar">
+                      <Search size={18} />
                     </button>
                   </div>
 
-                  <div className="row gap-2" style={{ alignItems: 'center' }}>
+                  <div className="row gap-2" style={{ alignItems: 'center', marginTop: 2 }}>
                     <Droplets size={15} style={{ color: '#00b0ff' }} />
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#0284c7' }}>Sala de bombeo</span>
                   </div>
@@ -1379,51 +1381,56 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <div className="row between" style={{ fontSize: 13 }}>
                       <span style={{ color: 'var(--text)' }}>Nivel del sumidero</span>
-                      <b style={{ color: '#ef4444', fontWeight: 700 }}>85%</b>
+                      <b style={{ color: '#0284c7', fontWeight: 700 }}>64%</b>
                     </div>
                     {/* Neutral progress bar */}
                     <div className="player-seekbar-bg" style={{ height: 6, margin: '2px 0' }}>
-                      <div className="player-seekbar-fill" style={{ width: '85%' }} />
+                      <div className="player-seekbar-fill" style={{ width: '64%' }} />
                     </div>
                   </div>
 
                   <div className="row between" style={{ fontSize: 13, color: 'var(--text)' }}>
                     <span>Bombas en marcha</span>
-                    <b>3 / 4</b>
+                    <b style={{ color: '#10b981' }}>2 / 4</b>
                   </div>
                   <div className="row between" style={{ fontSize: 13, color: 'var(--text)' }}>
                     <span>Caudal total</span>
-                    <b>157 L/s</b>
+                    <b>150 L/s</b>
                   </div>
                   <div className="row between" style={{ fontSize: 13, color: 'var(--text)' }}>
-                    <span>Presión de descarga</span>
-                    <b>12.4 bar</b>
+                    <span>En falla</span>
+                    <b style={{ color: '#ef4444' }}>1</b>
                   </div>
 
-                  <button
-                    className="cta full no-shadow"
-                    style={{
-                      marginTop: 6,
-                      height: 40,
-                      borderRadius: 10,
-                      fontWeight: 700,
-                      fontSize: 14,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                    }}
-                    onClick={() => {
-                      if (onNavigateToLocation) onNavigateToLocation('interior-sb01')
-                    }}
-                  >
-                    <SquareArrowOutUpRight size={16} />
-                    <span>Entrar</span>
-                  </button>
-
-                  <small style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', margin: '2px 0 0 0' }}>
-                    Vista interior del lugar
-                  </small>
+                  {/* Primary CTA Full Width WITHOUT icon */}
+                  <div style={{ marginTop: 6 }}>
+                    <button
+                      className="cta full no-shadow"
+                      style={{
+                        width: '100%',
+                        height: 42,
+                        borderRadius: 10,
+                        background: 'linear-gradient(90deg, #1253d6, #08ddf0)',
+                        color: '#ffffff',
+                        fontWeight: 700,
+                        fontSize: 14,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: 'none',
+                        cursor: 'pointer',
+                        boxShadow: 'none',
+                      }}
+                      onClick={() => {
+                        if (onNavigateToLocation) onNavigateToLocation('interior-sb01')
+                      }}
+                    >
+                      <span>Entrar</span>
+                    </button>
+                    <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', marginTop: 6 }}>
+                      Vista interior del lugar
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -12,7 +12,7 @@ import {
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, Target, Upload, Download, Camera, Palette, LogIn,
+  X, Target, Upload, Download, Camera, Palette,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -1954,7 +1954,6 @@ export default function App() {
                         }}
                         onClick={() => navigateToInterior(currentInterior.id)}
                       >
-                        <LogIn size={16} />
                         <span>Entrar</span>
                       </button>
                       <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', marginTop: 6 }}>
