@@ -90,6 +90,9 @@ export interface LightingConfig {
   fillIntensity: number
   lampIntensity: number
   orbEmissiveIntensity: number
+  orbColor: string
+  shadowRadius: number
+  shadowBias: number
   exposure: number
   wallRoughness: number
   pipeRoughness: number
@@ -117,6 +120,9 @@ const DEFAULT_LIGHTING_DARK: LightingConfig = {
   fillIntensity: 0.9,
   lampIntensity: 1.5,
   orbEmissiveIntensity: 2.6,
+  orbColor: '#10b981',
+  shadowRadius: 3.5,
+  shadowBias: -0.0005,
   exposure: 1.15,
   wallRoughness: 0.78,
   pipeRoughness: 0.35,
@@ -126,28 +132,31 @@ const DEFAULT_LIGHTING_DARK: LightingConfig = {
 
 const DEFAULT_LIGHTING_LIGHT: LightingConfig = {
   bgColor: '#eef2f6',
-  fogDensity: 0.012,
+  fogDensity: 0.022,
   floorColor: '#e2e8f0',
-  floorRoughness: 0.65,
-  floorMetalness: 0.05,
+  floorRoughness: 0.8,
+  floorMetalness: 0.65,
   ambientColor: '#ffffff',
   ambientIntensity: 1.8,
   hemiSkyColor: '#ffffff',
   hemiGroundColor: '#cbd5e1',
   hemiIntensity: 1.3,
   dirColor: '#ffffff',
-  dirIntensity: 1.8,
+  dirIntensity: 4,
   dirX: 10,
   dirY: 16,
   dirZ: 12,
   fillColor: '#38bdf8',
   fillIntensity: 0.8,
-  lampIntensity: 1.2,
-  orbEmissiveIntensity: 2.2,
-  exposure: 1.05,
+  lampIntensity: 1.8,
+  orbEmissiveIntensity: 1.8,
+  orbColor: '#10b981',
+  shadowRadius: 4.0,
+  shadowBias: -0.0005,
+  exposure: 0.7,
   wallRoughness: 0.65,
   pipeRoughness: 0.3,
-  pipeMetalness: 0.35,
+  pipeMetalness: 0.15,
   pipeColor: '#ffffff',
 }
 
@@ -306,8 +315,8 @@ export default function InteriorBombeoView({
   const fillLightRef = useRef<THREE.DirectionalLight | null>(null)
   const floorMatRef = useRef<THREE.MeshStandardMaterial | null>(null)
   const clayMatRef = useRef<THREE.MeshStandardMaterial | null>(null)
-  const orbLightsRef = useRef<THREE.PointLight[]>([])
-  const orbMaterialsRef = useRef<THREE.MeshStandardMaterial[]>([])
+  const orbLightsRef = useRef<{ light: THREE.PointLight; pump: Pump3D }[]>([])
+  const orbMaterialsRef = useRef<{ mat: THREE.MeshStandardMaterial; haloMat: THREE.MeshBasicMaterial; pump: Pump3D }[]>([])
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
 
   useEffect(() => {
@@ -360,6 +369,10 @@ export default function InteriorBombeoView({
       dirLightRef.current.color = new THREE.Color(cfg.dirColor)
       dirLightRef.current.intensity = cfg.dirIntensity
       dirLightRef.current.position.set(cfg.dirX, cfg.dirY, cfg.dirZ)
+      if (dirLightRef.current.shadow) {
+        dirLightRef.current.shadow.radius = cfg.shadowRadius
+        dirLightRef.current.shadow.bias = cfg.shadowBias
+      }
     }
     if (fillLightRef.current) {
       fillLightRef.current.color = new THREE.Color(cfg.fillColor)
@@ -367,11 +380,17 @@ export default function InteriorBombeoView({
     }
 
     // Pump Indicator Lights & Emissive Orbs
-    orbLightsRef.current.forEach((pl) => {
-      pl.intensity = cfg.lampIntensity
+    orbLightsRef.current.forEach(({ light, pump }) => {
+      light.intensity = cfg.lampIntensity
+      const c = pump.status === 'marcha' ? cfg.orbColor : pump.color
+      light.color.set(c)
     })
-    orbMaterialsRef.current.forEach((mat) => {
+    orbMaterialsRef.current.forEach(({ mat, haloMat, pump }) => {
+      const c = pump.status === 'marcha' ? cfg.orbColor : pump.color
+      mat.color.set(c)
+      mat.emissive.set(c)
       mat.emissiveIntensity = cfg.orbEmissiveIntensity
+      haloMat.color.set(c)
     })
     if (rendererRef.current) {
       rendererRef.current.toneMappingExposure = cfg.exposure
@@ -425,6 +444,14 @@ export default function InteriorBombeoView({
     mainDir.castShadow = true
     mainDir.shadow.mapSize.width = 2048
     mainDir.shadow.mapSize.height = 2048
+    mainDir.shadow.camera.near = 0.5
+    mainDir.shadow.camera.far = 40
+    mainDir.shadow.camera.left = -16
+    mainDir.shadow.camera.right = 16
+    mainDir.shadow.camera.top = 16
+    mainDir.shadow.camera.bottom = -16
+    mainDir.shadow.bias = cfg.shadowBias
+    mainDir.shadow.radius = cfg.shadowRadius
     scene.add(mainDir)
     dirLightRef.current = mainDir
 
@@ -474,6 +501,7 @@ export default function InteriorBombeoView({
     // 3. BUILD 4 PUMP TRAINS
     const pumpGroups: Record<string, THREE.Group> = {}
     orbLightsRef.current = []
+    orbMaterialsRef.current = []
 
     PUMPS.forEach((pump, pIdx) => {
       const g = new THREE.Group()
@@ -508,12 +536,12 @@ export default function InteriorBombeoView({
       // Electric Motor Cylinder: BA-02 has electric blue casing
       const isBlueAccent = pIdx === 1
       const motorMat = isBlueAccent
-        ? new THREE.MeshStandardMaterial({
-            color: 0x0284c7,
-            metalness: 0.35,
-            roughness: 0.3,
-          })
-        : clayMat
+      ? new THREE.MeshStandardMaterial({
+          color: 0x0284c7,
+          metalness: 0.35,
+          roughness: 0.3,
+        })
+      : clayMat
 
       const motorGeo = new THREE.CylinderGeometry(0.55, 0.55, 1.55, 32)
       const motor = new THREE.Mesh(motorGeo, motorMat)
@@ -537,37 +565,53 @@ export default function InteriorBombeoView({
       fPipe.castShadow = true
       g.add(fPipe)
 
-      // Glowing Indicator Orb on Pedestal front (Self-luminous emissive orb)
-      const orbGeo = new THREE.SphereGeometry(0.16, 24, 24)
+      // Elevated Mounting Stand for Indicator Orb (prevents clipping with pipes & makes color fully visible)
+      const activeColor = pump.status === 'marcha' ? cfg.orbColor : pump.color
+      const postGeo = new THREE.CylinderGeometry(0.04, 0.05, 0.46, 16)
+      const postMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.8 })
+      const post = new THREE.Mesh(postGeo, postMat)
+      post.position.set(0, 0.65, 1.25)
+      post.castShadow = true
+      g.add(post)
+
+      const collarGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.05, 24)
+      const collar = new THREE.Mesh(collarGeo, postMat)
+      collar.position.set(0, 0.88, 1.25)
+      collar.castShadow = true
+      g.add(collar)
+
+      // Glowing Indicator Orb elevated above pedestal and suction pipe
+      const orbGeo = new THREE.SphereGeometry(0.16, 28, 28)
       const orbMat = new THREE.MeshStandardMaterial({
-        color: pump.color,
-        emissive: new THREE.Color(pump.color),
+        color: new THREE.Color(activeColor),
+        emissive: new THREE.Color(activeColor),
         emissiveIntensity: cfg.orbEmissiveIntensity,
-        roughness: 0.15,
-        metalness: 0.1,
+        roughness: 0.25,
+        metalness: 0.05,
       })
-      orbMaterialsRef.current.push(orbMat)
       const orb = new THREE.Mesh(orbGeo, orbMat)
-      orb.position.set(0, 0.5, 1.0)
+      orb.position.set(0, 0.98, 1.25)
       g.add(orb)
 
       // Translucent luminous bloom halo around the glowing orb
-      const haloGeo = new THREE.SphereGeometry(0.24, 20, 20)
+      const haloGeo = new THREE.SphereGeometry(0.25, 20, 20)
       const haloMat = new THREE.MeshBasicMaterial({
-        color: pump.color,
+        color: new THREE.Color(activeColor),
         transparent: true,
-        opacity: 0.45,
-        blending: THREE.AdditiveBlending,
+        opacity: 0.35,
+        depthWrite: false,
       })
       const halo = new THREE.Mesh(haloGeo, haloMat)
-      halo.position.set(0, 0.5, 1.0)
+      halo.position.set(0, 0.98, 1.25)
       g.add(halo)
 
+      orbMaterialsRef.current.push({ mat: orbMat, haloMat, pump })
+
       // Local Point Light from the Orb
-      const orbLight = new THREE.PointLight(pump.color, cfg.lampIntensity, 4.0)
-      orbLight.position.set(0, 0.6, 0.8)
+      const orbLight = new THREE.PointLight(activeColor, cfg.lampIntensity, 4.5)
+      orbLight.position.set(0, 1.05, 1.25)
       g.add(orbLight)
-      orbLightsRef.current.push(orbLight)
+      orbLightsRef.current.push({ light: orbLight, pump })
 
       pumpGroups[pump.id] = g
       scene.add(g)
@@ -1202,27 +1246,85 @@ export default function InteriorBombeoView({
               </div>
             </div>
 
-            {/* Bolitas Luminosas & Realismo Extra */}
+            {/* Sombras & Desenfoque */}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 6 }}>
+                Sombras &amp; Desenfoque
+              </div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Desenfoque de Sombra (Blur)</span>
+                  <b>{cfg.shadowRadius.toFixed(1)} px</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.0}
+                  max={10.0}
+                  step={0.2}
+                  value={cfg.shadowRadius}
+                  onChange={(e) => setCfg({ ...cfg, shadowRadius: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ fontSize: 12 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Sesgo de Sombra (Bias)</span>
+                  <b>{cfg.shadowBias.toFixed(4)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={-0.002}
+                  max={0.002}
+                  step={0.0002}
+                  value={cfg.shadowBias}
+                  onChange={(e) => setCfg({ ...cfg, shadowBias: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+
+            {/* Bolitas Luminosas & Exposición */}
             <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 6 }}>
                 Bolitas Luminosas &amp; Exposición
               </div>
+              <div className="row between" style={{ marginBottom: 6, fontSize: 12 }}>
+                <span>Color Material Bolita (Marcha)</span>
+                <input
+                  type="color"
+                  value={cfg.orbColor}
+                  onChange={(e) => setCfg({ ...cfg, orbColor: e.target.value })}
+                  style={{ width: 28, height: 24, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                />
+              </div>
               <div style={{ fontSize: 12, marginBottom: 6 }}>
                 <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
-                  <span>Luminosidad Bolitas (Emissive)</span>
+                  <span>Luminosidad Bolitas (Material Emissive)</span>
                   <b>{cfg.orbEmissiveIntensity.toFixed(1)}</b>
                 </div>
                 <input
                   type="range"
-                  min={0.5}
+                  min={0.2}
                   max={6.0}
                   step={0.1}
                   value={cfg.orbEmissiveIntensity}
                   onChange={(e) => setCfg({ ...cfg, orbEmissiveIntensity: parseFloat(e.target.value) })}
-                  style={{
-                    width: '100%',
-                    ['--range-progress' as any]: `${((cfg.orbEmissiveIntensity - 0.5) / (6.0 - 0.5)) * 100}%`,
-                  }}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>
+                <div className="row between" style={{ color: 'var(--muted)', marginBottom: 2 }}>
+                  <span>Luz Local de Bombas (Point Light)</span>
+                  <b>{cfg.lampIntensity.toFixed(1)}</b>
+                </div>
+                <input
+                  type="range"
+                  min={0.2}
+                  max={4.0}
+                  step={0.2}
+                  value={cfg.lampIntensity}
+                  onChange={(e) => setCfg({ ...cfg, lampIntensity: parseFloat(e.target.value) })}
+                  style={{ width: '100%' }}
                 />
               </div>
               <div style={{ fontSize: 12, marginBottom: 6 }}>
@@ -1232,15 +1334,12 @@ export default function InteriorBombeoView({
                 </div>
                 <input
                   type="range"
-                  min={0.5}
+                  min={0.2}
                   max={2.5}
                   step={0.05}
                   value={cfg.exposure}
                   onChange={(e) => setCfg({ ...cfg, exposure: parseFloat(e.target.value) })}
-                  style={{
-                    width: '100%',
-                    ['--range-progress' as any]: `${((cfg.exposure - 0.5) / (2.5 - 0.5)) * 100}%`,
-                  }}
+                  style={{ width: '100%' }}
                 />
               </div>
               <div style={{ fontSize: 12 }}>
@@ -1255,10 +1354,7 @@ export default function InteriorBombeoView({
                   step={0.05}
                   value={cfg.pipeMetalness}
                   onChange={(e) => setCfg({ ...cfg, pipeMetalness: parseFloat(e.target.value) })}
-                  style={{
-                    width: '100%',
-                    ['--range-progress' as any]: `${(cfg.pipeMetalness / 1.0) * 100}%`,
-                  }}
+                  style={{ width: '100%' }}
                 />
               </div>
             </div>
