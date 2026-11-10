@@ -114,8 +114,6 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
   const [selectedProj, setSelectedProj] = useState<string>('3D - Perspectiva')
   const [selectedCam, setSelectedCam] = useState<string>('Superior')
   const [selectedZoom, setSelectedZoom] = useState<number>(50)
-  const [nexoEnabled, setNexoEnabled] = useState<boolean>(true)
-  const [nexoAutoAlerts, setNexoAutoAlerts] = useState<boolean>(true)
   const [whatIfTarget, setWhatIfTarget] = useState<string>('Ventilador principal V-PH-01')
   const [shiftStart, setShiftStart] = useState<string>('06:00')
   const [checkedPeople, setCheckedPeople] = useState<Record<string, boolean>>({
@@ -954,7 +952,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </h2>
               </div>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 0 0 0' }}>
-                Haz clic en cualquier disparador (<code>.dd-trigger</code>, <code>.nexo-settings-btn</code>, <code>.section-action-btn</code>) para abrir/cerrar su menú flotante real (<code>.dd-menu</code>, <code>.zoom-menu</code>, <code>.nexo-settings-menu</code>, <code>.track-add-menu</code>, <code>.sim-add-menu</code>, <code>.personal-checklist-menu</code>).
+                Haz clic en cualquier disparador (<code>.dd-trigger</code>, <code>.section-action-btn</code>) para abrir/cerrar su menú flotante real (<code>.dd-menu</code>, <code>.zoom-menu</code>, <code>.track-add-menu</code>, <code>.sim-add-menu</code>, <code>.personal-checklist-menu</code>).
               </p>
             </div>
 
@@ -1078,108 +1076,52 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </div>
               </div>
 
-              {/* 2.2 Nexo IA Settings Dropdown + Agregar Tracking Dropdown */}
-              <div className="glass" style={{ ...cardSurfaceStyle, display: 'flex', flexDirection: 'column', gap: 18, minHeight: 410 }}>
-                <div>
-                  <div style={labelTagStyle}>
-                    <span>2.2 CONFIGURACIÓN BIT IA &amp; AGREGAR TRACKING</span>
-                    <span style={codePillStyle}>.nexo-settings-menu</span>
-                  </div>
-
-                  {/* Nexo Bar with Gear Trigger */}
-                  <div className="nexo-bar-wrap">
-                    <div className={`nexo-bar ${!nexoEnabled ? 'disabled' : ''}`}>
-                      <button className="nexo-open-trigger">
-                        <span className="nexo-title">
-                          <BitLogo /> Pregúntale a Bit IA
-                        </span>
-                      </button>
-                      <button
-                        className={`nexo-settings-btn ${openDd === 'nexoSettings' ? 'active' : ''}`}
-                        onClick={() => setOpenDd(openDd === 'nexoSettings' ? null : 'nexoSettings')}
-                        title="Abrir dropdown de Configuración Bit IA"
-                      >
-                        <Settings size={17} />
-                      </button>
-                    </div>
-
-                    {openDd === 'nexoSettings' && (
-                      <div className="dd-menu nexo-settings-menu" style={{ position: 'relative', top: 8 }}>
-                        <div className="dd-group-title">CONFIGURACIÓN BIT IA</div>
-                        <div
-                          className="row between switch-row nexo-switch-row"
-                          onClick={() => setNexoEnabled((v) => !v)}
-                        >
-                          <div className="nexo-switch-text">
-                            <span>Asistente Bit IA</span>
-                            <small>{nexoEnabled ? 'Activo en el entorno' : 'Desactivado'}</small>
-                          </div>
-                          <span className={`mui-switch ${nexoEnabled ? 'checked' : ''}`}>
-                            <span className="mui-switch-track" />
-                            <span className="mui-switch-thumb" />
-                          </span>
-                        </div>
-                        <div className="dd-divider" />
-                        <div
-                          className="row between switch-row nexo-switch-row"
-                          onClick={() => setNexoAutoAlerts((v) => !v)}
-                        >
-                          <div className="nexo-switch-text">
-                            <span>Sugerencias automáticas</span>
-                            <small>Alertas proactivas del turno</small>
-                          </div>
-                          <span className={`mui-switch ${nexoAutoAlerts ? 'checked' : ''}`}>
-                            <span className="mui-switch-track" />
-                            <span className="mui-switch-thumb" />
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+              {/* 2.2 Menú Agregar Tracking (.track-add-menu) */}
+              <div className="glass" style={{ ...cardSurfaceStyle, minHeight: 410 }}>
+                <div style={labelTagStyle}>
+                  <span>2.2 MENÚ AGREGAR TRACKING</span>
+                  <span style={codePillStyle}>.track-add-menu</span>
                 </div>
 
-                {/* Agregar Tracking Popover */}
-                <div>
-                  <div className="section" style={{ borderTop: '1px solid var(--line)' }}>
-                    <div
-                      className="section-head"
-                      onClick={() => setOpenDd(openDd === 'addTrack' ? null : 'addTrack')}
-                    >
-                      <span>Tracking (Clic en + para abrir menú)</span>
-                      <div className="section-head-actions">
-                        <button
-                          className="section-action-btn"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setOpenDd(openDd === 'addTrack' ? null : 'addTrack')
-                          }}
-                        >
-                          <CirclePlus size={16} />
-                        </button>
-                        <button className="accordion-chevron-btn">
-                          <ChevronDown size={16} />
-                        </button>
-                      </div>
+                <div className="section" style={{ borderTop: 'none' }}>
+                  <div
+                    className="section-head"
+                    onClick={() => setOpenDd(openDd === 'addTrack' ? null : 'addTrack')}
+                  >
+                    <span>Tracking (Clic para abrir menú)</span>
+                    <div className="section-head-actions">
+                      <button
+                        className="section-action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setOpenDd(openDd === 'addTrack' ? null : 'addTrack')
+                        }}
+                      >
+                        <CirclePlus size={16} />
+                      </button>
+                      <button className="accordion-chevron-btn">
+                        <ChevronDown size={16} />
+                      </button>
                     </div>
-
-                    {openDd === 'addTrack' && (
-                      <div className="dd-menu track-add-menu" style={{ position: 'relative', top: 4, left: 0 }}>
-                        <div className="dd-group-title">AGREGAR TRACKING</div>
-                        {[
-                          { label: 'Declarar evacuación', color: '#ff1744', icon: Siren },
-                          { label: 'Zonas y áreas', color: '#aa00ff', icon: Layers2 },
-                          { label: 'Recorrido', color: '#ff9100', icon: Waypoints },
-                          { label: 'Personal y vehículos', color: '#2979ff', icon: UserRoundSearch },
-                          { label: 'Escenario alterno', color: '#00bfa5', icon: AudioWaveform },
-                        ].map(({ label, color, icon: I }) => (
-                          <button key={label} className="dd-item">
-                            <I size={18} style={{ color }} />
-                            <span>{label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
                   </div>
+
+                  {(openDd === 'addTrack' || openDd === 'proj') && (
+                    <div className="dd-menu track-add-menu" style={{ position: 'relative', top: 4, left: 0, width: '100%', maxHeight: 'none', overflowY: 'visible' }}>
+                      <div className="dd-group-title">AGREGAR TRACKING</div>
+                      {[
+                        { label: 'Declarar evacuación', color: '#ff1744', icon: Siren },
+                        { label: 'Zonas y áreas', color: '#aa00ff', icon: Layers2 },
+                        { label: 'Recorrido', color: '#ff9100', icon: Waypoints },
+                        { label: 'Personal y vehículos', color: '#2979ff', icon: UserRoundSearch },
+                        { label: 'Escenario alterno', color: '#00bfa5', icon: AudioWaveform },
+                      ].map(({ label, color, icon: I }) => (
+                        <button key={label} className="dd-item">
+                          <I size={18} style={{ color }} />
+                          <span>{label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2395,28 +2337,28 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                {/* 3. Botones Secundarios Bit IA (Lineal / Outline degradado, interior negro y rombo blanco) */}
+                {/* 3. Botones Secundarios Bit IA (Lineal / Outline degradado, interior transparente) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
-                    <b>3. Botones Secundarios (Lineal con degradado de contorno, fondo negro y rombo)</b> — <code>.consultar-nexo-btn.ia-secondary</code>
+                    <b>3. Botones Secundarios Lineales (Sin fondo, línea con degradado de izquierda a derecha)</b> — <code>.consultar-nexo-btn.ia-secondary</code>
                   </small>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <div>
                       <small style={{ fontSize: 10.5, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
-                        3.1 Secundario Lineal Full-Width (Altura 36px)
+                        3.1 Secundario Lineal Full-Width (Altura 36px, 100 % transparente, contorno degradado)
                       </small>
                       <button className="consultar-nexo-btn ia-secondary" style={{ margin: 0, width: '100%', height: 36, fontSize: 13 }}>
-                        <BitLogo width={14} height={14} color="#ffffff" />
+                        <BitLogo width={14} height={14} color="currentColor" />
                         <span>Consultar estado con Bit IA</span>
                       </button>
                     </div>
                     <div>
                       <small style={{ fontSize: 10.5, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
-                        3.2 Secundario Lineal Auto-Width (Altura 36px)
+                        3.2 Secundario Lineal Auto-Width (Altura 36px, 100 % transparente, contorno degradado)
                       </small>
                       <div style={{ display: 'flex' }}>
                         <button className="consultar-nexo-btn ia-secondary" style={{ margin: 0, width: 'auto', height: 36, padding: '0 16px', fontSize: 13 }}>
-                          <BitLogo width={14} height={14} color="#ffffff" />
+                          <BitLogo width={14} height={14} color="currentColor" />
                           <span>Preguntar a Bit IA</span>
                         </button>
                       </div>
@@ -2424,10 +2366,10 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                {/* 4. Botones Lineales Sin Fondo (Hollow Outline Gradient - Sala de Bombeo) */}
+                {/* 4. Botón Lineal de Falla en Tarjeta de Bomba (Sala de Bombeo) */}
                 <div>
                   <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
-                    <b>4. Botón Lineal Sin Fondo (Hollow Outline Gradient)</b> — <code>.consultar-nexo-btn.ia-outline</code> (Sin fondo, solo contorno degradado Bit IA)
+                    <b>4. Botón Lineal de Alerta en Interior (Sin fondo, contorno degradado Bit IA)</b> — <code>.consultar-nexo-btn.ia-outline</code>
                   </small>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <div>

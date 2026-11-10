@@ -4094,7 +4094,7 @@ export default function App() {
                 onClick={handleRunScenarioWithBit}
                 title="Simular escenario con Bit IA"
               >
-                <BitLogo width={14} height={14} color="#ffffff" />
+                <BitLogo width={14} height={14} color="currentColor" />
                 <span>Simular escenario con Bit IA</span>
               </button>
 
