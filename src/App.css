@@ -6259,38 +6259,49 @@ select:focus,
 .notifications-dropdown {
   width: 370px !important;
   max-width: calc(100vw - 24px) !important;
-  background: var(--popover-bg) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18) !important;
-  backdrop-filter: blur(44px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(44px) saturate(160%) !important;
+  /* Same neutral semi-transparent surface as every .dd-menu */
+  background: rgba(255, 255, 255, 0.93) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
   padding: 0 !important;
   overflow: hidden !important;
   z-index: 1000 !important;
 }
+.app[data-theme="dark"] .notifications-dropdown {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+/* Topbar must stack above sidebars so its dropdowns sit on top of everything */
+.app .topbar:has(.notifications-dropdown) {
+  z-index: 1000;
+}
 
+/* Tabs reuse the design-system segmented control (.seg-row) */
 .notif-tab-wrap {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
-  margin: 12px 14px 10px 14px;
-  border-radius: 9px;
-  background: rgba(0, 0, 0, 0.05);
+  gap: 2px;
+  padding: 3px;
+  margin: 10px 12px;
+  border-radius: 8px;
+  background: var(--panel-bg);
   border: 1px solid var(--line);
 }
 .app[data-theme="dark"] .notif-tab-wrap {
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .notif-fill-tab {
   flex: 1;
-  height: 32px;
-  border-radius: 7px;
+  padding: 6px 12px;
+  border-radius: 6px;
   border: none;
-  font-size: 12.5px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -6303,10 +6314,10 @@ select:focus,
   color: var(--text);
 }
 .notif-fill-tab.active {
-  background: #ffffff;
-  color: var(--text);
+  background: var(--surface-segment-active, rgba(0, 0, 0, 0.08));
+  color: var(--text-heading);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .app[data-theme="dark"] .notif-fill-tab.active {
   background: rgba(255, 255, 255, 0.14);
@@ -6339,13 +6350,13 @@ select:focus,
   border-bottom: none;
 }
 .notif-item-row:hover {
-  background: var(--hover-bg, rgba(0, 0, 0, 0.03));
+  background: rgba(0, 0, 0, 0.05);
 }
 .notif-item-row.unread {
-  background: rgba(2, 132, 199, 0.03);
+  background: transparent;
 }
-.app[data-theme="dark"] .notif-item-row.unread {
-  background: rgba(2, 132, 199, 0.06);
+.app[data-theme="dark"] .notif-item-row:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .notif-icon-circle {
@@ -6399,35 +6410,39 @@ select:focus,
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #00838f;
+  background: #475569;
   margin-top: 6px;
   flex-shrink: 0;
 }
 .app[data-theme="dark"] .notif-unread-dot {
-  background: #00acc1;
+  background: #cbd5e1;
 }
 
 .notif-footer {
-  padding: 10px 14px;
+  padding: 8px 12px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-top: 1px solid var(--line);
-  background: rgba(0, 0, 0, 0.02);
+  background: transparent;
 }
-.app[data-theme="dark"] .notif-footer {
-  background: rgba(255, 255, 255, 0.02);
-}
+/* Neutral text action (no blue) */
 .notif-footer-btn {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: #0284c7;
+  color: var(--text);
   background: transparent;
   border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
   cursor: pointer;
+  font-family: inherit;
 }
 .notif-footer-btn:hover {
-  text-decoration: underline;
+  background: rgba(0, 0, 0, 0.05);
+}
+.app[data-theme="dark"] .notif-footer-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 
