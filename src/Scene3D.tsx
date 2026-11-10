@@ -527,11 +527,8 @@ export default function Scene3D({ mode, zoom, theme, activeSimulations, selected
                 display: 'none',
               }}
             >
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span className={`callout-dot ${ent.type === 'vehicle' ? 'yellow' : 'green'}`} />
-                <span style={{ fontSize: 11, fontWeight: 700 }}>{ent.name.toUpperCase()}</span>
-              </div>
-              <span style={{ fontSize: 10, opacity: 0.85, fontWeight: 500 }}>{ent.role}</span>
+              <span className={`callout-dot ${ent.type === 'vehicle' ? 'yellow' : 'green'}`} />
+              <span style={{ fontSize: 11, fontWeight: 700 }}>{ent.name.toUpperCase()}</span>
             </button>
           )
         })}

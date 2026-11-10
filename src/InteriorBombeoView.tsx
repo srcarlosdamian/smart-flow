@@ -902,10 +902,8 @@ export default function InteriorBombeoView({
             onMouseLeave={() => onHelp?.(null)}
             title={`Clic para ver telemetría de ${w.name}`}
           >
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span className="callout-dot green" />
-              <span>{w.name.toUpperCase()}</span>
-            </div>
+            <span className="callout-dot green" />
+            <span>{w.name.toUpperCase()}</span>
           </div>
         )
       })}

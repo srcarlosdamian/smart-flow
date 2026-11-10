@@ -2118,27 +2118,20 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
 
                   {/* Jumbo J-01 */}
                   <div className="sim-3d-badge" style={{ position: 'relative', transform: 'none' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <span className="callout-dot green" />
-                      <span>JUMBO J-01</span>
-                    </div>
-                    <span style={{ fontSize: 9.5, opacity: 0.75, fontWeight: 600 }}>PERFORACIÓN</span>
+                    <span className="callout-dot yellow" />
+                    <span>JUMBO J-01</span>
                   </div>
 
                   {/* Manuel Reyes */}
                   <div className="bombeo-worker-3d-badge" style={{ position: 'relative', transform: 'none' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <span className="callout-dot green" />
-                      <span>MANUEL REYES</span>
-                    </div>
+                    <span className="callout-dot green" />
+                    <span>MANUEL REYES</span>
                   </div>
 
                   {/* Juan García */}
                   <div className="sim-3d-badge" style={{ position: 'relative', transform: 'none' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <span className="callout-dot green" />
-                      <span>JUAN GARCÍA</span>
-                    </div>
+                    <span className="callout-dot green" />
+                    <span>JUAN GARCÍA</span>
                   </div>
                 </div>
               </div>
@@ -2204,27 +2197,20 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
 
                   {/* Jumbo J-01 Selected */}
                   <div className="sim-3d-badge selected" style={{ position: 'relative', transform: 'none' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <span className="callout-dot green" />
-                      <span>JUMBO J-01</span>
-                    </div>
-                    <span style={{ fontSize: 9.5, opacity: 0.75, fontWeight: 600 }}>PERFORACIÓN</span>
+                    <span className="callout-dot yellow" />
+                    <span>JUMBO J-01</span>
                   </div>
 
                   {/* Manuel Reyes Selected */}
                   <div className="bombeo-worker-3d-badge selected" style={{ position: 'relative', transform: 'none' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <span className="callout-dot green" />
-                      <span>MANUEL REYES</span>
-                    </div>
+                    <span className="callout-dot green" />
+                    <span>MANUEL REYES</span>
                   </div>
 
                   {/* Juan García Selected */}
                   <div className="sim-3d-badge selected" style={{ position: 'relative', transform: 'none' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <span className="callout-dot green" />
-                      <span>JUAN GARCÍA</span>
-                    </div>
+                    <span className="callout-dot green" />
+                    <span>JUAN GARCÍA</span>
                   </div>
                 </div>
               </div>
