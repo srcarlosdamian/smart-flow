@@ -2610,16 +2610,15 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                       </div>
 
                       <div className={`nexo-scenario-card ${dsFindingCategory}`}>
-                        <div className="nexo-card-header">
-                          <div className={`nexo-card-cat-label ${dsFindingCategory}`}>
-                            <b>{dsFindingCategory === 'opportunity' ? 'Oportunidad' : 'Contexto'}</b>
-                            <span style={{ color: 'var(--muted)' }}>· {dsFindingSubCat}</span>
-                          </div>
-                          <div className="nexo-confidence-badge">
-                            <div className={`nexo-confidence-circle ${dsFindingCategory === 'opportunity' ? 'green' : 'blue'}`}>
-                              {dsFindingConfidence}%
+                        <div className="nexo-card-header" style={{ justifyContent: 'flex-start' }}>
+                          {/* Confidence % without circle, left of the category, separated by a vertical line */}
+                          <div className="row" style={{ alignItems: 'center', gap: 10, fontSize: 12.5 }}>
+                            <b className="mono" style={{ color: 'var(--text)' }}>{dsFindingConfidence}%</b>
+                            <span style={{ width: 1, height: 14, background: 'var(--line)' }} />
+                            <div className={`nexo-card-cat-label ${dsFindingCategory}`}>
+                              <b>{dsFindingCategory === 'opportunity' ? 'Oportunidad' : 'Contexto'}</b>
+                              <span style={{ color: 'var(--muted)' }}>· {dsFindingSubCat}</span>
                             </div>
-                            <span className="nexo-confidence-sub">confianza</span>
                           </div>
                         </div>
 
@@ -2706,8 +2705,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     {/* Confidence Slider */}
                     <div>
                       <div className="row between" style={{ fontSize: 12 }}>
-                        <span className="field-label" style={{ margin: 0, fontSize: 11.5 }}>Nivel de Confianza</span>
-                        <b className="mono" style={{ color: dsFindingCategory === 'opportunity' ? '#10b981' : '#0284c7' }}>
+                        <span className="field-label" style={{ margin: 0, fontSize: 11.5 }}>Nivel de confianza del hallazgo</span>
+                        <b className="mono" style={{ color: 'var(--text)' }}>
                           {dsFindingConfidence} %
                         </b>
                       </div>
