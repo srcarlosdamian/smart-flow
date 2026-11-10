@@ -687,7 +687,6 @@ export default function App() {
 
   const handleRunScenarioWithBit = () => {
     setNexoOpen(true)
-    setSidebarView({ type: 'whatif_result' })
     const promptText = `Ejecutar con: ${drillWindow} · ${tariffSeason.includes('Abr') ? 'tarifa de verano' : 'tarifa de invierno'} · acarreo en punta ${haulagePeak} %, ${recoverOffPeak ? 'recuperar en valle' : ''} · ${noBlastingPeak ? 'sin voladura en punta' : ''} · margen ${vodMargin} %`
 
     setNexoMessages((prev) => [
@@ -1040,7 +1039,6 @@ export default function App() {
     } else if (lower.includes('taller') || lower.includes('tm-01')) {
       reply = 'Estado Operativo Bit IA - Taller Mecánico TM-01 (Nivel 2):\n• Bahías ocupadas: 2 / 2 (LHD-02 en cambio de mangueras hidráulicas y Jumbo J-01 en revisión de martillo).\n• Cuadrilla técnica: 4 técnicos activos.\n• Horas de mantención pendientes: 29 h.\n• Ventilación en taller: 108% sobre norma.'
     } else if (lower.includes('escenario') || lower.includes('outside peak') || lower.includes('horas punta') || lower.includes('perforación') || lower.includes('tarifa')) {
-      setSidebarView({ type: 'whatif_result' })
       setNexoMessages((prev) => [
         ...prev,
         { role: 'user', text: clean },
@@ -1285,7 +1283,7 @@ export default function App() {
 
         case 'whatif-result':
         case 'resultado-escenario':
-          setSidebarView({ type: 'whatif_result' })
+          setNexoOpen(true)
           break
 
         case 'evacuacion':
@@ -4712,8 +4710,8 @@ export default function App() {
                               El costo cae de MXN 6.23 M a MXN 4.04 M. VOD por sí solo aporta MXN 1.23 M; la nueva programación añade MXN 957 k, principalmente al reducir la demanda en horario punta de 3,649 kW a 692 kW.
                             </p>
                             <div className="nexo-card-actions">
-                              <button className="nexo-card-btn" onClick={() => setSelectedProj('3D - Perspectiva')}>Mostrar hora punta</button>
-                              <button className="nexo-card-btn" onClick={() => setSidebarView({ type: 'whatif_result' })}>Comparar casos</button>
+                              <button className="nexo-card-btn" onClick={() => sendNexoMessage('Mostrar demanda y consumo en hora punta')}>Mostrar hora punta</button>
+                              <button className="nexo-card-btn" onClick={() => sendNexoMessage('Comparar casos de simulación')}>Comparar casos</button>
                             </div>
                           </div>
 
@@ -4734,7 +4732,7 @@ export default function App() {
                               Punto más ajustado: N1 al 110 % de su mínimo a las 00:00 (piso). 0 eventos de nivel de acción de gas. La ventilación post-voladura siempre opera al 100 % de velocidad de ventilador.
                             </p>
                             <div className="nexo-card-actions">
-                              <button className="nexo-card-btn" onClick={() => setLevel('L1')}>Mostrar punto más ajustado</button>
+                              <button className="nexo-card-btn" onClick={() => sendNexoMessage('Mostrar análisis del punto más ajustado L1')}>Mostrar punto más ajustado</button>
                             </div>
                           </div>
 
@@ -4755,7 +4753,7 @@ export default function App() {
                               Las 48 horas-jumbo de perforación caben. Las voladuras inician a las 04:00, 12:00, 22:00.
                             </p>
                             <div className="nexo-card-actions">
-                              <button className="nexo-card-btn">Mostrar primera voladura</button>
+                              <button className="nexo-card-btn" onClick={() => sendNexoMessage('Mostrar detalle de primera voladura 04:00')}>Mostrar primera voladura</button>
                             </div>
                           </div>
 
