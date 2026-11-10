@@ -1373,6 +1373,7 @@ export default function App() {
             setNexoOpen(true)
             sendNexoMessage(q)
           }}
+          onHelp={(info) => setHelpInfo(info)}
         />
       ) : selectedProj === '3D - Superficie' ? (
         <SurfaceView
@@ -1713,7 +1714,7 @@ export default function App() {
 
       {/* Right column */}
       <div className="right-col" ref={rightColRef}>
-        {!interiorView && !nexoOpen && (
+        {!nexoOpen && (
           <div className="nexo-bar-wrap">
             <div className={`nexo-bar ${!nexoEnabled ? 'disabled' : ''}`}>
               <button
@@ -1853,6 +1854,7 @@ export default function App() {
                       onClick={handleBackFromInterior}
                       title="Volver"
                       aria-label="Volver"
+                      {...showHelp('Volver a la mina', 'Regresar a la visualización 3D general de la mina.')}
                     >
                       <ChevronLeft size={18} />
                     </button>
@@ -1865,6 +1867,7 @@ export default function App() {
                       onClick={() => setSearchOpen(true)}
                       title="Buscar"
                       aria-label="Buscar"
+                      {...showHelp('Buscar', 'Buscar activos, zonas y trabajadores en la mina (Ctrl + K).')}
                     >
                       <Search size={18} />
                     </button>
@@ -4946,21 +4949,19 @@ export default function App() {
       )}
 
       {/* Ableton-style docked minimalist bottom info bar (no blur, non-floating) */}
-      {!interiorView && (
-        <footer className="ableton-status-bar" aria-live="polite">
-          {helpInfo ? (
-            <div className="ableton-status-content">
-              <span className="ableton-status-title">{helpInfo.title}:</span>
-              <span className="ableton-status-desc">{helpInfo.desc}</span>
-            </div>
-          ) : (
-            <div className="ableton-status-content idle">
-              <span className="ableton-status-title">SmartFlow:</span>
-              <span className="ableton-status-desc">Pasa el cursor sobre cualquier herramienta para ver su descripción.</span>
-            </div>
-          )}
-        </footer>
-      )}
+      <footer className="ableton-status-bar" aria-live="polite">
+        {helpInfo ? (
+          <div className="ableton-status-content">
+            <span className="ableton-status-title">{helpInfo.title}:</span>
+            <span className="ableton-status-desc">{helpInfo.desc}</span>
+          </div>
+        ) : (
+          <div className="ableton-status-content idle">
+            <span className="ableton-status-title">SmartFlow:</span>
+            <span className="ableton-status-desc">Pasa el cursor sobre cualquier herramienta para ver su descripción.</span>
+          </div>
+        )}
+      </footer>
 
       {/* Institutional Email Access Gate Modal */}
       {!authEmail && (

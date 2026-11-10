@@ -168,6 +168,7 @@ interface Props {
   onSelectPump?: (id: string) => void
   onSelectWorker?: (worker: WorkerData) => void
   onAskNexo?: (query: string) => void
+  onHelp?: (info: { title: string; desc: string } | null) => void
 }
 
 /**
@@ -286,6 +287,7 @@ export default function InteriorBombeoView({
   selectedPumpId,
   onSelectPump,
   onSelectWorker,
+  onHelp,
 }: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
   const [activePump, setActivePump] = useState<string | null>(selectedPumpId || null)
@@ -819,6 +821,11 @@ export default function InteriorBombeoView({
               setSelectedSump(false)
               onSelectPump?.(pump.id)
             }}
+            onMouseEnter={() => onHelp?.({
+              title: `Bomba ${pump.name.toUpperCase()}`,
+              desc: `Estado: ${pump.status === 'marcha' ? 'En marcha' : pump.status === 'reserva' ? 'En reserva' : 'En falla'} · Caudal: ${pump.flow} · Clic para ver telemetría`,
+            })}
+            onMouseLeave={() => onHelp?.(null)}
           >
             <div className="bombeo-badge-top-box">
               <span className={`callout-dot ${pump.status === 'marcha' ? 'green' : pump.status === 'reserva' ? 'yellow' : 'red'}`} />
@@ -853,6 +860,11 @@ export default function InteriorBombeoView({
             setActivePump(null)
             setActiveWorkerId(null)
           }}
+          onMouseEnter={() => onHelp?.({
+            title: 'Sumidero L5',
+            desc: 'Cárcamo colector de drenaje minero · Nivel actual: 64% · Clic para inspeccionar',
+          })}
+          onMouseLeave={() => onHelp?.(null)}
           title="Clic para seleccionar sumidero"
         >
           <span className="callout-dot cyan" />
@@ -883,6 +895,11 @@ export default function InteriorBombeoView({
               setSelectedSump(false)
               onSelectWorker?.(w)
             }}
+            onMouseEnter={() => onHelp?.({
+              title: w.name,
+              desc: `${w.role} · ${w.tag} · Personal activo en sala de bombeo`,
+            })}
+            onMouseLeave={() => onHelp?.(null)}
             title={`Clic para ver telemetría de ${w.name}`}
           >
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -893,9 +910,16 @@ export default function InteriorBombeoView({
         )
       })}
 
-      {/* Bottom KPI strip (image 2) */}
+      {/* Bottom KPI strip */}
       <div className="bombeo-bottom-kpi-strip glass">
-        <div className="bombeo-strip-item">
+        <div
+          className="bombeo-strip-item"
+          onMouseEnter={() => onHelp?.({
+            title: 'Nivel Sumidero',
+            desc: 'Capacidad volumétrica actual del cárcamo colector: 64%',
+          })}
+          onMouseLeave={() => onHelp?.(null)}
+        >
           <Droplets size={16} style={{ color: '#00b0ff' }} />
           <div className="strip-text">
             <span className="strip-lbl">NIVEL SUMIDERO</span>
@@ -903,7 +927,14 @@ export default function InteriorBombeoView({
           </div>
         </div>
         <div className="bombeo-strip-divider" />
-        <div className="bombeo-strip-item">
+        <div
+          className="bombeo-strip-item"
+          onMouseEnter={() => onHelp?.({
+            title: 'Bombas en marcha',
+            desc: '2 de 4 bombas activas desaguando la mina',
+          })}
+          onMouseLeave={() => onHelp?.(null)}
+        >
           <span className="strip-dot green" />
           <div className="strip-text">
             <span className="strip-lbl">EN MARCHA</span>
@@ -911,7 +942,14 @@ export default function InteriorBombeoView({
           </div>
         </div>
         <div className="bombeo-strip-divider" />
-        <div className="bombeo-strip-item">
+        <div
+          className="bombeo-strip-item"
+          onMouseEnter={() => onHelp?.({
+            title: 'Caudal Total',
+            desc: 'Caudal de desagüe combinado en tiempo real: 150 L/s',
+          })}
+          onMouseLeave={() => onHelp?.(null)}
+        >
           <Activity size={16} style={{ color: '#00b0ff' }} />
           <div className="strip-text">
             <span className="strip-lbl">CAUDAL TOTAL</span>
@@ -919,7 +957,15 @@ export default function InteriorBombeoView({
           </div>
         </div>
         <div className="bombeo-strip-divider" />
-        <div className="bombeo-strip-item clickable" onClick={() => onSelectPump?.('B-04')}>
+        <div
+          className="bombeo-strip-item clickable"
+          onClick={() => onSelectPump?.('B-04')}
+          onMouseEnter={() => onHelp?.({
+            title: 'Bombas en falla',
+            desc: '1 bomba en estado de falla (B-04 por sobrecalentamiento). Clic para ver detalle.',
+          })}
+          onMouseLeave={() => onHelp?.(null)}
+        >
           <AlertTriangle size={16} style={{ color: '#ef4444' }} />
           <div className="strip-text">
             <span className="strip-lbl">EN FALLA</span>
@@ -928,18 +974,19 @@ export default function InteriorBombeoView({
         </div>
       </div>
 
-      <div className="bombeo-bottom-hint">
-        Arrastra para girar · rueda para acercar · clic en una bomba
-      </div>
-
       {/* 3. Bottom-Left Trigger for Lighting & Color Editor */}
       {!editorOpen && (
         <button
           className="glass lighting-editor-trigger"
           onClick={() => setEditorOpen(true)}
+          onMouseEnter={() => onHelp?.({
+            title: 'Ajustar Iluminación',
+            desc: 'Personaliza fuentes de luz, focos y materiales del recinto interior',
+          })}
+          onMouseLeave={() => onHelp?.(null)}
           style={{
             position: 'absolute',
-            bottom: 84,
+            bottom: 94,
             left: 24,
             zIndex: 40,
             display: 'flex',
