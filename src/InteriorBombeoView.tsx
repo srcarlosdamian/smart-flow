@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { Sliders, Copy, Check, RotateCcw, X, Move, Droplets, Activity, AlertTriangle } from 'lucide-react'
+import { Sliders, Copy, Check, RotateCcw, X, Move } from 'lucide-react'
 import type { Theme } from './Scene3D'
 
 export interface Pump3D {
@@ -322,9 +322,28 @@ export default function InteriorBombeoView({
   const orbLightsRef = useRef<{ light: THREE.PointLight; pump: Pump3D }[]>([])
   const orbMaterialsRef = useRef<{ mat: THREE.MeshStandardMaterial; haloMat: THREE.MeshBasicMaterial; pump: Pump3D }[]>([])
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
+  const controlsRef = useRef<OrbitControls | null>(null)
+  const targetCameraPosRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 3.8, 12.8))
+  const targetLookAtRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.3, -0.2))
+  const isTransitioningRef = useRef<boolean>(false)
 
   useEffect(() => {
-    if (selectedPumpId) setActivePump(selectedPumpId)
+    setActivePump(selectedPumpId || null)
+    if (selectedPumpId) {
+      const p = PUMPS.find((pump) => pump.id === selectedPumpId)
+      if (p) {
+        // Zoom-in close-up towards this pump (especially B-04 with failure)
+        targetLookAtRef.current.set(p.pos[0], 1.1, p.pos[2] - 0.2)
+        targetCameraPosRef.current.set(p.pos[0] + 0.6, 2.2, p.pos[2] + 4.0)
+        isTransitioningRef.current = true
+      }
+    } else {
+      // Return to full room overview
+      targetLookAtRef.current.set(0, 1.3, -0.2)
+      targetCameraPosRef.current.set(0, 3.8, 12.8)
+      isTransitioningRef.current = true
+    }
   }, [selectedPumpId])
 
   // Update theme defaults when theme prop changes
@@ -415,6 +434,7 @@ export default function InteriorBombeoView({
 
     const camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 150)
     camera.position.set(0, 3.8, 12.8)
+    cameraRef.current = camera
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
     rendererRef.current = renderer
@@ -433,6 +453,7 @@ export default function InteriorBombeoView({
     controls.maxPolarAngle = Math.PI / 2 - 0.01 // Never dip below floor
     controls.minDistance = 4
     controls.maxDistance = 28
+    controlsRef.current = controls
 
     // Lighting
     const ambLight = new THREE.AmbientLight(cfg.ambientColor, cfg.ambientIntensity)
@@ -688,6 +709,19 @@ export default function InteriorBombeoView({
     let animId = 0
     const animate = () => {
       animId = requestAnimationFrame(animate)
+
+      // Smooth camera transition when focusing/zooming on a pump card
+      if (isTransitioningRef.current && controlsRef.current && cameraRef.current) {
+        camera.position.lerp(targetCameraPosRef.current, 0.075)
+        controls.target.lerp(targetLookAtRef.current, 0.075)
+        if (
+          camera.position.distanceTo(targetCameraPosRef.current) < 0.03 &&
+          controls.target.distanceTo(targetLookAtRef.current) < 0.03
+        ) {
+          isTransitioningRef.current = false
+        }
+      }
+
       controls.update()
 
       const width = container.clientWidth
@@ -907,70 +941,6 @@ export default function InteriorBombeoView({
           </div>
         )
       })}
-
-      {/* Bottom KPI strip */}
-      <div className="bombeo-bottom-kpi-strip glass">
-        <div
-          className="bombeo-strip-item"
-          onMouseEnter={() => onHelp?.({
-            title: 'Nivel Sumidero',
-            desc: 'Capacidad volumétrica actual del cárcamo colector: 64%',
-          })}
-          onMouseLeave={() => onHelp?.(null)}
-        >
-          <Droplets size={16} style={{ color: '#00b0ff' }} />
-          <div className="strip-text">
-            <span className="strip-lbl">NIVEL SUMIDERO</span>
-            <span className="strip-val" style={{ color: '#0284c7' }}>64%</span>
-          </div>
-        </div>
-        <div className="bombeo-strip-divider" />
-        <div
-          className="bombeo-strip-item"
-          onMouseEnter={() => onHelp?.({
-            title: 'Bombas en marcha',
-            desc: '2 de 4 bombas activas desaguando la mina',
-          })}
-          onMouseLeave={() => onHelp?.(null)}
-        >
-          <span className="strip-dot green" />
-          <div className="strip-text">
-            <span className="strip-lbl">EN MARCHA</span>
-            <span className="strip-val" style={{ color: '#00e676' }}>2 / 4</span>
-          </div>
-        </div>
-        <div className="bombeo-strip-divider" />
-        <div
-          className="bombeo-strip-item"
-          onMouseEnter={() => onHelp?.({
-            title: 'Caudal Total',
-            desc: 'Caudal de desagüe combinado en tiempo real: 150 L/s',
-          })}
-          onMouseLeave={() => onHelp?.(null)}
-        >
-          <Activity size={16} style={{ color: '#00b0ff' }} />
-          <div className="strip-text">
-            <span className="strip-lbl">CAUDAL TOTAL</span>
-            <span className="strip-val">150 L/s</span>
-          </div>
-        </div>
-        <div className="bombeo-strip-divider" />
-        <div
-          className="bombeo-strip-item clickable"
-          onClick={() => onSelectPump?.('B-04')}
-          onMouseEnter={() => onHelp?.({
-            title: 'Bombas en falla',
-            desc: '1 bomba en estado de falla (B-04 por sobrecalentamiento). Clic para ver detalle.',
-          })}
-          onMouseLeave={() => onHelp?.(null)}
-        >
-          <AlertTriangle size={16} style={{ color: '#ef4444' }} />
-          <div className="strip-text">
-            <span className="strip-lbl">EN FALLA</span>
-            <span className="strip-val" style={{ color: '#ef4444' }}>1</span>
-          </div>
-        </div>
-      </div>
 
       {/* 3. Bottom-Left Trigger for Lighting & Color Editor */}
       {!editorOpen && (

@@ -737,9 +737,12 @@ export default function App() {
   const [openSection, setOpenSection] = useState<string | null>(null)
   const [interiorView, setInteriorView] = useState<string | null>(null)
 
-  const navigateToInterior = (roomId: string) => {
-    setInteriorView(roomId)
-    window.location.hash = `#/interior/${roomId}`
+  const navigateToInterior = (_roomId?: string) => {
+    // Single canonical interior: Sala de bombeo
+    setInteriorView('bombeo')
+    const bombeoItem = INTERIORES_DATA.find((item) => item.id === 'bombeo') || INTERIORES_DATA[0]
+    setSidebarView({ type: 'interior', data: bombeoItem })
+    window.location.hash = '#/interior/bombeo'
   }
 
   const exitInterior = () => {
@@ -776,12 +779,10 @@ export default function App() {
 
       const match = hash.match(/^#\/interior\/([a-zA-Z0-9_-]+)/)
       if (match && match[1]) {
-        const roomId = match[1]
-        setInteriorView(roomId)
-        const found = INTERIORES_DATA.find((item) => item.id === roomId)
-        if (found) {
-          setSidebarView({ type: 'interior', data: found })
-        }
+        // Single canonical interior: Sala de bombeo
+        setInteriorView('bombeo')
+        const bombeoItem = INTERIORES_DATA.find((item) => item.id === 'bombeo') || INTERIORES_DATA[0]
+        setSidebarView({ type: 'interior', data: bombeoItem })
       } else if (!hash || hash === '#' || hash === '#/') {
         setInteriorView(null)
       }
@@ -1844,258 +1845,176 @@ export default function App() {
               </div>
             </div>
           ) : sidebarView?.type === 'interior' || interiorView ? (() => {
-            const currentInterior = sidebarView?.type === 'interior'
-              ? sidebarView.data
-              : INTERIORES_DATA.find((i) => i.id === interiorView) || INTERIORES_DATA[0]
-            const isBombeo = interiorView === 'bombeo' || currentInterior.id === 'bombeo'
-
-            if (isBombeo) {
-              return (
-                <div className="user-detail-panel interior-detail-panel bombeo-sidebar-panel">
-                  {/* Clean header: Back breadcrumb navigation + Search (NO X) */}
-                  <div className="user-detail-topbar">
-                    <button
-                      className="user-top-back-btn"
-                      onClick={handleBackFromInterior}
-                      title="Volver"
-                      aria-label="Volver"
-                      {...showHelp('Volver a la mina', 'Regresar a la visualización 3D general de la mina.')}
-                    >
-                      <ChevronLeft size={18} />
-                    </button>
-                    <div className="user-top-crumb">
-                      <span className="crumb-prefix">Interiores / </span>
-                      <span className="crumb-name"><b>Sala de Bombeo SB1</b></span>
-                    </div>
-                    <button
-                      className="user-top-search-btn"
-                      onClick={() => setSearchOpen(true)}
-                      title="Buscar"
-                      aria-label="Buscar"
-                      {...showHelp('Buscar', 'Buscar activos, zonas y trabajadores en la mina (Ctrl + K).')}
-                    >
-                      <Search size={18} />
-                    </button>
-                  </div>
-
-                  <div className="interior-panel-body" style={{ marginTop: 6 }}>
-                    {/* IF NOT INSIDE: Preview card & Entrar CTA button */}
-                    {!interiorView && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
-                        <div
-                          style={{
-                            padding: '12px 14px',
-                            borderRadius: 8,
-                            background: 'var(--panel-item-bg, rgba(0,0,0,0.03))',
-                            border: '1px solid var(--line)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 8,
-                          }}
-                        >
-                          <div className="row between" style={{ fontSize: 13 }}>
-                            <span style={{ color: 'var(--muted)' }}>Ubicación</span>
-                            <b style={{ color: 'var(--text)' }}>Nivel L5 · Sector Central</b>
-                          </div>
-                          <div className="row between" style={{ fontSize: 13 }}>
-                            <span style={{ color: 'var(--muted)' }}>Instalación</span>
-                            <span style={{ color: 'var(--text)' }}>Estación de bombeo SB1</span>
-                          </div>
-                          <div className="row between" style={{ fontSize: 13 }}>
-                            <span style={{ color: 'var(--muted)' }}>Equipos</span>
-                            <span style={{ color: 'var(--text)' }}>4 bombas hidráulicas</span>
-                          </div>
-                          <div className="row between" style={{ fontSize: 13 }}>
-                            <span style={{ color: 'var(--muted)' }}>Estado</span>
-                            <span style={{ color: '#10b981', fontWeight: 600 }}>2 en marcha · 1 falla</span>
-                          </div>
-                        </div>
-
-                        <div style={{ marginTop: 8 }}>
-                          <button
-                            className="cta full no-shadow"
-                            style={{
-                              width: '100%',
-                              height: 42,
-                              borderRadius: 10,
-                              background: 'linear-gradient(90deg, #1253d6, #08ddf0)',
-                              color: '#ffffff',
-                              fontWeight: 700,
-                              fontSize: 14,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              border: 'none',
-                              cursor: 'pointer',
-                              boxShadow: 'none',
-                            }}
-                            onClick={() => navigateToInterior('bombeo')}
-                          >
-                            <span>Entrar</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* IF INSIDE: 2x2 Telemetry Grid (Nivel sumidero, En marcha, Caudal total, En falla), Arrastrar para girar & Pump cards */}
-                    {interiorView && (
-                      <>
-                        <div className="interior-metrics-2grid" style={{ margin: '4px 0 12px 0' }}>
-                          <div className="interior-metric-cell">
-                            <span className="metric-cell-label">Nivel sumidero</span>
-                            <span className="metric-cell-value" style={{ color: '#0284c7' }}>64%</span>
-                          </div>
-                          <div className="interior-metric-cell">
-                            <span className="metric-cell-label">En marcha</span>
-                            <span className="metric-cell-value text-green">2 / 4</span>
-                          </div>
-                          <div className="interior-metric-cell">
-                            <span className="metric-cell-label">Caudal total</span>
-                            <span className="metric-cell-value">150 L/s</span>
-                          </div>
-                          <div className="interior-metric-cell">
-                            <span className="metric-cell-label">En falla</span>
-                            <span className="metric-cell-value text-red">1</span>
-                          </div>
-                        </div>
-
-                        <div className="interior-card-divider" style={{ margin: '14px 0 10px 0' }} />
-
-                        <div className="bombeo-section-title" style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', margin: '4px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Bombas (4)
-                        </div>
-
-                        <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                          {PUMPS_SIDEBAR.map((p) => {
-                            const isSel = selectedPump === p.id
-                            return (
-                              <div
-                                key={p.id}
-                                className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
-                                onClick={() => setSelectedPump(p.id)}
-                                style={{ cursor: 'pointer' }}
-                              >
-                                <div className="bombeo-pump-v2-header">
-                                  <div className="row gap-2" style={{ alignItems: 'center' }}>
-                                    <span className={`pump-status-dot-v2 ${p.status}`} />
-                                    <b style={{ fontSize: 13.5, color: 'var(--text)' }}>{p.id}</b>
-                                  </div>
-                                  <div className="row gap-2" style={{ alignItems: 'center' }}>
-                                    <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
-                                    <span style={{ fontSize: 12, fontWeight: 600, color: p.status === 'falla' ? '#ef4444' : '#64748b' }}>{p.temp}</span>
-                                  </div>
-                                </div>
-                                <div className="row between" style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-                                  <span>{p.flow}</span>
-                                  <span>{p.hours}</span>
-                                </div>
-                                <div className="pump-bar-v2-track">
-                                  <div
-                                    className={`pump-bar-v2-fill ${p.status}`}
-                                    style={{ width: p.status === 'reserva' ? '0%' : p.status === 'falla' ? '100%' : `${p.barPercent}%` }}
-                                  />
-                                </div>
-                                {(isSel || p.status === 'falla') && (
-                                  <button
-                                    className="consultar-nexo-btn ia-secondary"
-                                    style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setNexoOpen(true)
-                                      sendNexoMessage('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')
-                                    }}
-                                    title="Preguntar a Bit IA sobre la mitigación de falla"
-                                  >
-                                    <BitLogo width={12} height={14} color="#ffffff" />
-                                    <span>Preguntar a Bit IA sobre {p.id}</span>
-                                  </button>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )
-            }
-
             return (
-              <div className="user-detail-panel interior-detail-panel">
+              <div className="user-detail-panel interior-detail-panel bombeo-sidebar-panel">
+                {/* Clean header: Back breadcrumb navigation + Search (NO X) */}
                 <div className="user-detail-topbar">
                   <button
                     className="user-top-back-btn"
                     onClick={handleBackFromInterior}
                     title="Volver"
                     aria-label="Volver"
+                    {...showHelp('Volver a la mina', 'Regresar a la visualización 3D general de la mina.')}
                   >
                     <ChevronLeft size={18} />
                   </button>
                   <div className="user-top-crumb">
                     <span className="crumb-prefix">Interiores / </span>
-                    <span className="crumb-name">
-                      <b>{currentInterior.title}</b>
-                    </span>
+                    <span className="crumb-name"><b>Sala de bombeo</b></span>
                   </div>
                   <button
                     className="user-top-search-btn"
                     onClick={() => setSearchOpen(true)}
                     title="Buscar"
                     aria-label="Buscar"
+                    {...showHelp('Buscar', 'Buscar activos, zonas y trabajadores en la mina (Ctrl + K).')}
                   >
                     <Search size={18} />
                   </button>
                 </div>
 
                 <div className="interior-panel-body" style={{ marginTop: 6 }}>
-                  <div className="interior-metrics-list">
-                    {currentInterior.metrics.map((m, idx) => (
-                      <div key={idx} className="interior-metric-item">
-                        <div className="row between">
-                          <span style={{ color: 'var(--muted)' }}>{m.label}</span>
-                          <b style={{ color: m.valueColor || 'var(--text)' }}>{m.value}</b>
-                        </div>
-                        {m.bar && (
-                          <div className="neutral-progress-track">
-                            <div
-                              className="neutral-progress-fill"
-                              style={{ width: `${Math.round((m.bar.current / m.bar.max) * 100)}%` }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
+                  {/* IF NOT INSIDE: Preview card & Entrar CTA button */}
                   {!interiorView && (
-                    <div style={{ marginTop: 20 }}>
-                      <button
-                        className="cta full no-shadow"
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
+                      <h2 className="user-detail-title" style={{ margin: '4px 0 8px 0', fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
+                        Sala de bombeo
+                      </h2>
+                      <div
                         style={{
-                          width: '100%',
-                          height: 42,
-                          borderRadius: 10,
-                          background: 'linear-gradient(90deg, #1253d6, #08ddf0)',
-                          color: '#ffffff',
-                          fontWeight: 700,
-                          fontSize: 14,
+                          padding: '12px 14px',
+                          borderRadius: 8,
+                          background: 'var(--panel-item-bg, rgba(0,0,0,0.03))',
+                          border: '1px solid var(--line)',
                           display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
+                          flexDirection: 'column',
                           gap: 8,
-                          border: 'none',
-                          cursor: 'pointer',
-                          boxShadow: 'none',
                         }}
-                        onClick={() => navigateToInterior(currentInterior.id)}
                       >
-                        <span>Entrar</span>
-                      </button>
-                      <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', marginTop: 6 }}>
-                        Vista interior del lugar
+                        <div className="row between" style={{ fontSize: 13 }}>
+                          <span style={{ color: 'var(--muted)' }}>Ubicación</span>
+                          <b style={{ color: 'var(--text)' }}>Nivel L5 · Sector Central</b>
+                        </div>
+                        <div className="row between" style={{ fontSize: 13 }}>
+                          <span style={{ color: 'var(--muted)' }}>Instalación</span>
+                          <span style={{ color: 'var(--text)' }}>Estación de bombeo SB1</span>
+                        </div>
+                        <div className="row between" style={{ fontSize: 13 }}>
+                          <span style={{ color: 'var(--muted)' }}>Equipos</span>
+                          <span style={{ color: 'var(--text)' }}>4 bombas hidráulicas</span>
+                        </div>
+                        <div className="row between" style={{ fontSize: 13 }}>
+                          <span style={{ color: 'var(--muted)' }}>Estado</span>
+                          <span style={{ color: '#10b981', fontWeight: 600 }}>2 en marcha · 1 falla</span>
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: 8 }}>
+                        <button
+                          className="cta full no-shadow"
+                          style={{
+                            width: '100%',
+                            height: 42,
+                            borderRadius: 10,
+                            background: 'linear-gradient(90deg, #1253d6, #08ddf0)',
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: 14,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: 'none',
+                          }}
+                          onClick={() => navigateToInterior('bombeo')}
+                        >
+                          <span>Entrar</span>
+                        </button>
                       </div>
                     </div>
+                  )}
+
+                  {/* IF INSIDE: Title, 2x2 Telemetry Grid (Nivel sumidero, En marcha, Caudal total, Falla) & Pump cards */}
+                  {interiorView && (
+                    <>
+                      <h2 className="user-detail-title" style={{ margin: '6px 0 12px 0', fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
+                        Sala de bombeo
+                      </h2>
+
+                      <div className="interior-metrics-2grid" style={{ margin: '4px 0 14px 0' }}>
+                        <div className="interior-metric-cell">
+                          <span className="metric-cell-label">NIVEL SUMIDERO</span>
+                          <span className="metric-cell-value" style={{ color: '#0284c7' }}>64%</span>
+                        </div>
+                        <div className="interior-metric-cell">
+                          <span className="metric-cell-label">EN MARCHA</span>
+                          <span className="metric-cell-value text-green">2 / 4</span>
+                        </div>
+                        <div className="interior-metric-cell">
+                          <span className="metric-cell-label">CAUDAL TOTAL</span>
+                          <span className="metric-cell-value">150 L/s</span>
+                        </div>
+                        <div className="interior-metric-cell">
+                          <span className="metric-cell-label">FALLA</span>
+                          <span className="metric-cell-value text-red">1</span>
+                        </div>
+                      </div>
+
+                      <div className="bombeo-section-title" style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', margin: '14px 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Bombas (4)
+                      </div>
+
+                      <div className="bombeo-pumps-list">
+                        {PUMPS_SIDEBAR.map((p) => {
+                          const isSel = selectedPump === p.id
+                          return (
+                            <div
+                              key={p.id}
+                              className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
+                              onClick={() => setSelectedPump(p.id)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <div className="bombeo-pump-v2-header">
+                                <div className="row gap-2" style={{ alignItems: 'center' }}>
+                                  <span className={`pump-status-dot-v2 ${p.status}`} />
+                                  <b style={{ fontSize: 13.5, color: 'var(--text)' }}>{p.id}</b>
+                                </div>
+                                <div className="row gap-2" style={{ alignItems: 'center' }}>
+                                  <span className={`pump-badge-v2 ${p.status}`}>{p.statusText}</span>
+                                  <span style={{ fontSize: 12, fontWeight: 600, color: p.status === 'falla' ? '#ef4444' : '#64748b' }}>{p.temp}</span>
+                                </div>
+                              </div>
+                              <div className="row between" style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                                <span>{p.flow}</span>
+                                <span>{p.hours}</span>
+                              </div>
+                              <div className="pump-bar-v2-track">
+                                <div
+                                  className={`pump-bar-v2-fill ${p.status}`}
+                                  style={{ width: p.status === 'reserva' ? '0%' : p.status === 'falla' ? '100%' : `${p.barPercent}%` }}
+                                />
+                              </div>
+                              {(isSel || p.status === 'falla') && (
+                                <button
+                                  className="consultar-nexo-btn ia-secondary"
+                                  style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setNexoOpen(true)
+                                    sendNexoMessage('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')
+                                  }}
+                                  title="Preguntar a Bit IA sobre la mitigación de falla"
+                                >
+                                  <BitLogo width={12} height={14} color="#ffffff" />
+                                  <span>Preguntar a Bit IA sobre {p.id}</span>
+                                </button>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </>
                   )}
                 </div>
               </div>

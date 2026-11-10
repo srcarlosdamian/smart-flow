@@ -5419,32 +5419,47 @@ select:focus,
   border-left: 1px solid var(--line) !important;
 }
 
-/* Bombeo Pump Card V2 - Transparent without border by default, slightly darker gray border when selected */
+/* Bombeo Pump Card V2 - Transparent without border by default, divider lines like home sidebar */
+.bombeo-pumps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+.app[data-theme="dark"] .bombeo-pumps-list {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 .bombeo-pump-card-v2 {
   background: transparent !important;
-  border: 1px solid transparent !important;
-  border-radius: 8px;
-  padding: 8px 10px;
+  border: none !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 0 !important;
+  padding: 10px 4px !important;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 6px;
   box-shadow: none !important;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: background-color 0.15s ease;
+}
+.bombeo-pump-card-v2:last-child {
+  border-bottom: none !important;
 }
 .bombeo-pump-card-v2:hover {
   background: rgba(0, 0, 0, 0.03) !important;
 }
 .bombeo-pump-card-v2.selected {
-  background: transparent !important;
-  border: 1px solid rgba(0, 0, 0, 0.28) !important;
-  box-shadow: none !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+.app[data-theme="dark"] .bombeo-pump-card-v2 {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 .app[data-theme="dark"] .bombeo-pump-card-v2:hover {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
 }
 .app[data-theme="dark"] .bombeo-pump-card-v2.selected {
-  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 .bombeo-pump-v2-header {
   display: flex;
@@ -5975,17 +5990,19 @@ select:focus,
   margin: 12px 0 16px 0;
 }
 .interior-metric-cell {
-  background: rgba(0, 0, 0, 0.03);
+  background: transparent !important;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
   gap: 3px;
+  box-shadow: none !important;
 }
 .app[data-theme="dark"] .interior-metric-cell {
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent !important;
   border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none !important;
 }
 .interior-metric-cell .metric-cell-label {
   font-size: 11px;
