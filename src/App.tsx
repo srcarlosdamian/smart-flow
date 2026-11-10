@@ -842,6 +842,8 @@ export default function App() {
   }, [])
   const [selectedPump, setSelectedPump] = useState<string | null>(null)
   const [pumpAiDetail, setPumpAiDetail] = useState<string | null>(null)
+  const [aiCardLoading, setAiCardLoading] = useState<boolean>(false)
+  const [nexoThinking, setNexoThinking] = useState<boolean>(false)
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS)
   const [notifOpen, setNotifOpen] = useState<boolean>(false)
   const [notifTab, setNotifTab] = useState<'unread' | 'all'>('unread')
@@ -876,6 +878,26 @@ export default function App() {
   const [selected3DObjectId, setSelected3DObjectId] = useState<string | null>(null)
   const setSelectedUser = (u: PersonalItem | null) => setSidebarView(u ? { type: 'user', data: u } : null)
   const [recorridoPlayerVisible] = useState(true)
+
+  // Subtle AI loading -> reveal animation whenever a user/worker profile opens
+  const activeProfileKey =
+    sidebarView?.type === 'user'
+      ? `user-${sidebarView.data?.id || sidebarView.data?.name}`
+      : selectedWorker
+      ? `worker-${selectedWorker.id}`
+      : null
+
+  useEffect(() => {
+    if (!activeProfileKey) {
+      setAiCardLoading(false)
+      return
+    }
+    setAiCardLoading(true)
+    const t = setTimeout(() => {
+      setAiCardLoading(false)
+    }, 1050)
+    return () => clearTimeout(t)
+  }, [activeProfileKey])
 
   // TRACKING state: empty by default per user request
   const [activeTrackings, setActiveTrackings] = useState<TrackingType[]>([])
@@ -1119,6 +1141,13 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
       reply = 'Diagnóstico Bit IA - Refugio R-01 (Nivel 5):\n• Ocupación actual: 1 / 12 personas.\n• Autonomía de O₂: 69 horas calculadas según recambio químico y bancos de cilindros.\n• Comunicaciones: Enlace activo por fibra óptica y backup LoRaWAN verificado hace 12 min.\n• Monitoreo de gases interno: CO₂ 350 ppm, O₂ 20.9%, CO 0 ppm.'
     } else if (lower.includes('taller') || lower.includes('tm-01')) {
       reply = 'Estado Operativo Bit IA - Taller Mecánico TM-01 (Nivel 2):\n• Bahías ocupadas: 2 / 2 (LHD-02 en cambio de mangueras hidráulicas y Jumbo J-01 en revisión de martillo).\n• Cuadrilla técnica: 4 técnicos activos.\n• Horas de mantención pendientes: 29 h.\n• Ventilación en taller: 108% sobre norma.'
+    } else if (lower.includes('telemetría predictiva') || lower.includes('ruta de')) {
+      reply = `Reporte de IA Predictiva · Telemetría Activa:
+• Estado biométrico y señal: Enlace UWB/LoRa estable (latencia 18 ms, batería de tag en rango óptimo).
+• Ruta óptima calculada: Rampa N02 → Galería de Conexión → Refugio R-01 (distancia: 215 m, pendiente media 8%).
+• Tiempo estimado de traslado: 3 min 40 s a ritmo de caminata estándar (3.6 km/h), sin cruces activos con equipos LHD o camiones de acarreo en los próximos 12 minutos.
+• Calidad atmosférica en ruta: O₂ en 20.9%, CO < 5 ppm y velocidad de flujo de aire en 1.8 m/s (cumple 100% norma de seguridad).
+• Recomendación Bit IA: Mantener ruta asignada; los sensores del tramo N02 reportan visibilidad despejada y refugio R-01 con 11 plazas disponibles.`
     } else if (lower.includes('escenario') || lower.includes('outside peak') || lower.includes('horas punta') || lower.includes('perforación') || lower.includes('tarifa')) {
       setNexoMessages((prev) => [
         ...prev,
@@ -1144,8 +1173,13 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
       reply = replyMap[clean] || `Analizando "${clean}" en tiempo real sobre los sensores y telemetría activa de SmartFlow... Todos los indicadores del sector ${level} están sincronizados.`
     }
 
-    setNexoMessages((prev) => [...prev, { role: 'user', text: clean }, { role: 'assistant', text: reply }])
+    setNexoMessages((prev) => [...prev, { role: 'user', text: clean }])
     setNexoPrompt('')
+    setNexoThinking(true)
+    setTimeout(() => {
+      setNexoThinking(false)
+      setNexoMessages((prev) => [...prev, { role: 'assistant', text: reply }])
+    }, 650)
   }
 
   const selectedCount = Object.values(checkedPeople).filter(Boolean).length
@@ -2009,7 +2043,57 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
                   </div>
                 </div>
 
-                {/* Telemetría y acciones */}
+                {/* AI Metric Card (IA Predictiva · Telemetría Activa) with subtle loading -> reveal animation */}
+                <div className={`user-ai-gradient-card ${aiCardLoading ? 'is-loading' : 'is-ready'}`}>
+                  <div className="user-ai-card-top" style={aiCardLoading ? { borderBottom: 'none', marginBottom: 0, paddingBottom: 0 } : undefined}>
+                    <div className="user-ai-tag">
+                      <span className={`ai-diamond-wrap ${aiCardLoading ? 'pulsing' : ''}`}>
+                        <BitLogo width={14} height={14} color="#546e7a" />
+                      </span>
+                      <span>IA Predictiva · Telemetría Activa</span>
+                    </div>
+                    {aiCardLoading && (
+                      <span className="ai-subtle-loading-pill">
+                        <span className="ai-shimmer-text">Analizando</span>
+                        <span className="ai-dots">
+                          <i /><i /><i />
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                  {!aiCardLoading && (
+                    <div className="user-ai-card-body">
+                      <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '20ms' }}>
+                        <span className="user-ai-lbl">Ruta recomendada</span>
+                        <b className="user-ai-val">Rampa N02 → Refugio R-01</b>
+                      </div>
+                      <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '70ms' }}>
+                        <span className="user-ai-lbl">Tiempo estimado</span>
+                        <b className="user-ai-val">3 min 40 s (Sin riesgo)</b>
+                      </div>
+                      <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '120ms' }}>
+                        <span className="user-ai-lbl">Atmósfera en ruta</span>
+                        <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
+                      </div>
+                      <div className="user-ai-metric-row user-ai-reveal-row" style={{ borderBottom: 'none', animationDelay: '170ms' }}>
+                        <span className="user-ai-lbl">Estado</span>
+                        <span className="status-badge-optimo">Óptimo</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="consultar-nexo-btn ia-secondary user-ai-reveal-row"
+                        style={{ marginTop: 10, marginBottom: 0, width: '100%', height: 34, fontSize: 12, animationDelay: '220ms' }}
+                        onClick={() => {
+                          setNexoOpen(true)
+                          sendNexoMessage(`Analizar telemetría predictiva y ruta de ${selectedWorker.name} (${selectedWorker.zona})`)
+                        }}
+                      >
+                        <BitLogo width={12} height={12} color="currentColor" />
+                        <span>Preguntar a Bit IA</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ) : sidebarView?.type === 'interior' || interiorView ? (() => {
@@ -2546,32 +2630,58 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
                 </div>
               </div>
 
-              {/* AI Metric Card (Bit IA · Telemetría Activa, neutral colors, divider lines) */}
-              <div className="user-ai-gradient-card animating">
-                <div className="user-ai-card-top">
+              {/* AI Metric Card (Bit IA · Telemetría Activa, subtle AI loading -> reveal animation + Bit IA button) */}
+              <div className={`user-ai-gradient-card ${aiCardLoading ? 'is-loading' : 'is-ready'}`}>
+                <div className="user-ai-card-top" style={aiCardLoading ? { borderBottom: 'none', marginBottom: 0, paddingBottom: 0 } : undefined}>
                   <div className="user-ai-tag">
-                    <BitLogo width={14} height={14} color="#546e7a" />
+                    <span className={`ai-diamond-wrap ${aiCardLoading ? 'pulsing' : ''}`}>
+                      <BitLogo width={14} height={14} color="#546e7a" />
+                    </span>
                     <span>IA Predictiva · Telemetría Activa</span>
                   </div>
+                  {aiCardLoading && (
+                    <span className="ai-subtle-loading-pill">
+                      <span className="ai-shimmer-text">Analizando</span>
+                      <span className="ai-dots">
+                        <i /><i /><i />
+                      </span>
+                    </span>
+                  )}
                 </div>
-                <div className="user-ai-card-body">
-                  <div className="user-ai-metric-row">
-                    <span className="user-ai-lbl">Ruta recomendada</span>
-                    <b className="user-ai-val">Rampa N02 → Refugio R-01</b>
+                {!aiCardLoading && (
+                  <div className="user-ai-card-body">
+                    <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '20ms' }}>
+                      <span className="user-ai-lbl">Ruta recomendada</span>
+                      <b className="user-ai-val">Rampa N02 → Refugio R-01</b>
+                    </div>
+                    <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '70ms' }}>
+                      <span className="user-ai-lbl">Tiempo estimado</span>
+                      <b className="user-ai-val">3 min 40 s (Sin riesgo)</b>
+                    </div>
+                    <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '120ms' }}>
+                      <span className="user-ai-lbl">Atmósfera en ruta</span>
+                      <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
+                    </div>
+                    <div className="user-ai-metric-row user-ai-reveal-row" style={{ borderBottom: 'none', animationDelay: '170ms' }}>
+                      <span className="user-ai-lbl">Estado</span>
+                      <span className="status-badge-optimo">Óptimo</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="consultar-nexo-btn ia-secondary user-ai-reveal-row"
+                      style={{ marginTop: 10, marginBottom: 0, width: '100%', height: 34, fontSize: 12, animationDelay: '220ms' }}
+                      onClick={() => {
+                        const uName = sidebarView.data?.name || 'Elena Torres'
+                        const uZone = sidebarView.data?.zone || 'Rampa N02'
+                        setNexoOpen(true)
+                        sendNexoMessage(`Analizar telemetría predictiva y ruta de ${uName} (${uZone})`)
+                      }}
+                    >
+                      <BitLogo width={12} height={12} color="currentColor" />
+                      <span>Preguntar a Bit IA</span>
+                    </button>
                   </div>
-                  <div className="user-ai-metric-row">
-                    <span className="user-ai-lbl">Tiempo estimado</span>
-                    <b className="user-ai-val">3 min 40 s (Sin riesgo)</b>
-                  </div>
-                  <div className="user-ai-metric-row">
-                    <span className="user-ai-lbl">Atmósfera en ruta</span>
-                    <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
-                  </div>
-                  <div className="user-ai-metric-row" style={{ borderBottom: 'none' }}>
-                    <span className="user-ai-lbl">Estado</span>
-                    <span className="status-badge-optimo">Óptimo</span>
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Sparkline / Recorrido Graph */}
@@ -5011,11 +5121,22 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
                   }
 
                   return (
-                    <div key={i} className={`nexo-msg ${m.role}`}>
+                    <div key={i} className={`nexo-msg ${m.role} ${m.role === 'assistant' ? 'ai-msg-reveal' : ''}`}>
                       {m.text}
                     </div>
                   )
                 })}
+                {nexoThinking && (
+                  <div className="nexo-msg assistant ai-thinking-row">
+                    <span className="ai-diamond-wrap pulsing">
+                      <BitLogo width={13} height={13} color="#546e7a" />
+                    </span>
+                    <span className="ai-shimmer-text">IA Predictiva · Generando análisis</span>
+                    <span className="ai-dots">
+                      <i /><i /><i />
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 

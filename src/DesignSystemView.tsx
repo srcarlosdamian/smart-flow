@@ -152,6 +152,12 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
 
   // Slider speed state
   const [beamSpeed, setBeamSpeed] = useState<number>(8)
+  const [dsAiCardLoading, setDsAiCardLoading] = useState<boolean>(false)
+
+  const triggerDsAiLoading = () => {
+    setDsAiCardLoading(true)
+    setTimeout(() => setDsAiCardLoading(false), 1100)
+  }
 
   // Editable state for Bit IA Simulation Result Finding (Live Editor)
   const [dsFindingTitle, setDsFindingTitle] = useState('Ahorro de MXN 2.18 M por mes (35 %)')
@@ -2342,7 +2348,15 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 <div style={labelTagStyle}>
                   <span>5.1 CARD IA PREDICTIVA CON &lt;BorderBeam /&gt;</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={codePillStyle}>&lt;BorderBeam /&gt;</span>
+                    <span style={codePillStyle}>.user-ai-gradient-card</span>
+                    <button
+                      type="button"
+                      className="ds-open-app-btn"
+                      onClick={triggerDsAiLoading}
+                      title="Previsualizar animación sutil de carga IA"
+                    >
+                      <span>Probar carga IA</span>
+                    </button>
                     {onNavigateToLocation && (
                       <button
                         className="ds-open-app-btn"
@@ -2357,7 +2371,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </div>
 
                 <div
-                  className="user-ai-gradient-card animating"
+                  className={`user-ai-gradient-card ${dsAiCardLoading ? 'is-loading' : 'is-ready'}`}
                   style={{
                     position: 'relative',
                     overflow: 'hidden',
@@ -2367,30 +2381,53 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     background: 'transparent',
                   }}
                 >
-                  <div className="user-ai-card-top">
+                  <div className="user-ai-card-top" style={dsAiCardLoading ? { borderBottom: 'none', marginBottom: 0, paddingBottom: 0 } : undefined}>
                     <div className="user-ai-tag">
-                      <BitLogo width={14} height={14} color="#546e7a" />
+                      <span className={`ai-diamond-wrap ${dsAiCardLoading ? 'pulsing' : ''}`}>
+                        <BitLogo width={14} height={14} color="#546e7a" />
+                      </span>
                       <span>IA Predictiva · Telemetría Activa</span>
                     </div>
+                    {dsAiCardLoading && (
+                      <span className="ai-subtle-loading-pill">
+                        <span className="ai-shimmer-text">Analizando</span>
+                        <span className="ai-dots">
+                          <i /><i /><i />
+                        </span>
+                      </span>
+                    )}
                   </div>
-                  <div className="user-ai-card-body">
-                    <div className="user-ai-metric-row">
-                      <span className="user-ai-lbl">Ruta recomendada</span>
-                      <b className="user-ai-val">Rampa N02 → Refugio R-01</b>
+                  {!dsAiCardLoading && (
+                    <div className="user-ai-card-body">
+                      <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '20ms' }}>
+                        <span className="user-ai-lbl">Ruta recomendada</span>
+                        <b className="user-ai-val">Rampa N02 → Refugio R-01</b>
+                      </div>
+                      <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '70ms' }}>
+                        <span className="user-ai-lbl">Tiempo estimado</span>
+                        <b className="user-ai-val">3 min 40 s (Sin riesgo)</b>
+                      </div>
+                      <div className="user-ai-metric-row user-ai-reveal-row" style={{ animationDelay: '120ms' }}>
+                        <span className="user-ai-lbl">Atmósfera en ruta</span>
+                        <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
+                      </div>
+                      <div className="user-ai-metric-row user-ai-reveal-row" style={{ borderBottom: 'none', animationDelay: '170ms' }}>
+                        <span className="user-ai-lbl">Estado</span>
+                        <span className="status-badge-optimo">Óptimo</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="consultar-nexo-btn ia-secondary user-ai-reveal-row"
+                        style={{ marginTop: 10, marginBottom: 0, width: '100%', height: 34, fontSize: 12, animationDelay: '220ms' }}
+                        onClick={() => {
+                          if (onNavigateToLocation) onNavigateToLocation('nexo-drawer')
+                        }}
+                      >
+                        <BitLogo width={12} height={12} color="currentColor" />
+                        <span>Preguntar a Bit IA</span>
+                      </button>
                     </div>
-                    <div className="user-ai-metric-row">
-                      <span className="user-ai-lbl">Tiempo estimado</span>
-                      <b className="user-ai-val">3 min 40 s (Sin riesgo)</b>
-                    </div>
-                    <div className="user-ai-metric-row">
-                      <span className="user-ai-lbl">Atmósfera en ruta</span>
-                      <b className="user-ai-val">CO &lt; 5 ppm · O₂ 20.9%</b>
-                    </div>
-                    <div className="user-ai-metric-row" style={{ borderBottom: 'none' }}>
-                      <span className="user-ai-lbl">Estado</span>
-                      <span className="status-badge-optimo">Óptimo</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Control Deslizante de Progreso / Velocidad de duración (Único, Homologado & Neutro) */}

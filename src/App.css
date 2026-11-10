@@ -5060,6 +5060,110 @@ select:focus,
   color: #f1f5f9;
 }
 
+/* Subtle AI Loading -> Staggered Blur-to-Crisp Reveal Animations */
+.ai-diamond-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ai-diamond-wrap.pulsing {
+  animation: ai-diamond-breathe 1.6s ease-in-out infinite;
+}
+@keyframes ai-diamond-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.ai-subtle-loading-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted, #64748b);
+}
+
+.ai-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--muted, #64748b) 0%,
+    var(--text, #1e293b) 50%,
+    var(--muted, #64748b) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ai-text-shimmer 1.8s linear infinite;
+}
+.app[data-theme="dark"] .ai-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #64748b 0%,
+    #f1f5f9 50%,
+    #64748b 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+@keyframes ai-text-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.ai-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5px;
+}
+.ai-dots i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--muted, #64748b);
+  display: inline-block;
+  animation: ai-dot-wave 1.2s ease-in-out infinite;
+}
+.ai-dots i:nth-child(2) { animation-delay: 0.18s; }
+.ai-dots i:nth-child(3) { animation-delay: 0.36s; }
+@keyframes ai-dot-wave {
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 0.9; transform: translateY(-1.5px); }
+}
+
+.user-ai-reveal-row {
+  opacity: 0;
+  animation: ai-row-reveal 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes ai-row-reveal {
+  0% {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.ai-thinking-row {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+}
+
+.ai-msg-reveal {
+  animation: ai-row-reveal 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Homologated Section Action Buttons & Chevrons in Sidebar */
 .section-head-actions {
   display: flex;
