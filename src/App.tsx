@@ -1352,16 +1352,9 @@ export default function App() {
 
   return (
     <div className={`app ${nexoOpen ? 'nexo-open' : ''} ${interiorView ? 'in-interior' : ''}`} data-theme={theme}>
-      {/* Borde perimetral sutil de emergencia y tag de modo de evacuación en todo el sitio */}
+      {/* Borde perimetral sutil de emergencia en todo el sitio */}
       {(evacuacionActiva || sidebarView?.type === 'evacuacion_alertas') && (
-        <div className="evacuacion-site-border">
-          <div className="evac-top-warning-pill">
-            <span className="evac-pulse-dot" />
-            <Siren size={13} />
-            <span>MODO DE EVACUACIÓN ACTIVO</span>
-            <span className="evac-pill-timer">{formatEvacTime(evacSeconds)}</span>
-          </div>
-        </div>
+        <div className="evacuacion-site-border" />
       )}
 
       {interiorView ? (
@@ -2878,34 +2871,23 @@ export default function App() {
               </div>
 
               <div style={{ padding: '0 4px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {/* 1. Icono arriba */}
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 10,
-                    background: 'rgba(239, 68, 68, 0.12)',
-                    color: '#ef4444',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginTop: 4,
-                  }}
-                >
-                  <Siren size={22} />
-                </div>
-
-                {/* 2. Título "Evacuación en curso" y abajo descripción */}
+                {/* 1. Título "Evacuación en curso" con icono a un lado de Activo y abajo descripción */}
                 <div>
-                  <h2 className="user-detail-title" style={{ margin: '0 0 4px 0', fontSize: 18, fontWeight: 700 }}>
-                    Evacuación en curso
-                  </h2>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, margin: '4px 0 4px 0' }}>
+                    <h2 className="user-detail-title" style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
+                      Evacuación en curso
+                    </h2>
+                    <span className="smart-badge red" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                      <Siren size={13} />
+                      <span>Activo</span>
+                    </span>
+                  </div>
                   <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.4 }}>
                     Área sin determinar · 33 sin contabilizar · Declarada por Operador
                   </p>
                 </div>
 
-                {/* 3. Card con tiempo sobre una sola línea y detalles operativos */}
+                {/* 2. Card con tiempo sobre una sola línea y detalles operativos */}
                 <div
                   className="evac-info-card"
                   style={{
@@ -2927,9 +2909,9 @@ export default function App() {
 
                   <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
                     <span style={{ color: 'var(--muted)' }}>Estado</span>
-                    <span style={{ color: '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
-                      Activa
+                    <span className="smart-badge red" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                      <Siren size={13} />
+                      <span>Activo</span>
                     </span>
                   </div>
 

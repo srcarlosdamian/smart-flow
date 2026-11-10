@@ -2725,33 +2725,23 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                {/* 1. Icono arriba */}
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 10,
-                    background: 'rgba(239, 68, 68, 0.12)',
-                    color: '#ef4444',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Siren size={22} />
-                </div>
-
-                {/* 2. Título y descripción */}
+                {/* 1. Título y descripción con badge de estado Activo */}
                 <div>
-                  <h3 style={{ margin: '0 0 4px 0', fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>
-                    Evacuación en curso
-                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, margin: '4px 0 4px 0' }}>
+                    <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>
+                      Evacuación en curso
+                    </h3>
+                    <span className="smart-badge red" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                      <Siren size={13} />
+                      <span>Activo</span>
+                    </span>
+                  </div>
                   <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.4 }}>
                     Área sin determinar · 33 sin contabilizar · Declarada por Operador
                   </p>
                 </div>
 
-                {/* 3. Card con tiempo sobre una sola línea y detalles operativos */}
+                {/* 2. Card con tiempo sobre una sola línea y detalles operativos */}
                 <div
                   className="evac-info-card"
                   style={{
@@ -2773,9 +2763,9 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
 
                   <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
                     <span style={{ color: 'var(--muted)' }}>Estado</span>
-                    <span style={{ color: '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
-                      Activa
+                    <span className="smart-badge red" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                      <Siren size={13} />
+                      <span>Activo</span>
                     </span>
                   </div>
 
