@@ -322,6 +322,7 @@ export default function InteriorBombeoView({
   const fillLightRef = useRef<THREE.DirectionalLight | null>(null)
   const floorMatRef = useRef<THREE.MeshStandardMaterial | null>(null)
   const clayMatRef = useRef<THREE.MeshStandardMaterial | null>(null)
+  const pumpAccentMatsRef = useRef<Record<string, THREE.MeshStandardMaterial>>({})
   const orbLightsRef = useRef<{ light: THREE.PointLight; pump: Pump3D }[]>([])
   const orbMaterialsRef = useRef<{ mat: THREE.MeshStandardMaterial; haloMat: THREE.MeshBasicMaterial; pump: Pump3D }[]>([])
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
@@ -348,6 +349,38 @@ export default function InteriorBombeoView({
       isTransitioningRef.current = true
     }
   }, [selectedPumpId])
+
+  // Dynamically update pump pipe & motor element colors on selection or fault:
+  // - BE-04 (with active fault) always shows red (0xef4444) on entry and maintains it
+  // - Unselected normal pumps are clean white (cfg.pipeColor)
+  // - Selected normal pump turns electric blue (0x0284c7)
+  useEffect(() => {
+    PUMPS.forEach((pump) => {
+      const mat = pumpAccentMatsRef.current[pump.id]
+      if (!mat) return
+
+      const isFault = pump.status === 'falla' || pump.id === 'BE-04'
+      const isSelected = activePump === pump.id || selectedPumpId === pump.id
+
+      if (isFault) {
+        // Red is always maintained when there is a fault and you enter
+        mat.color.set(0xef4444)
+        mat.metalness = 0.35
+        mat.roughness = 0.3
+      } else if (isSelected) {
+        // Selected normal element turns electric blue
+        mat.color.set(0x0284c7)
+        mat.metalness = 0.35
+        mat.roughness = 0.3
+      } else {
+        // Unselected normal elements are clean white
+        mat.color.set(new THREE.Color(cfg.pipeColor || '#ffffff'))
+        mat.metalness = 0.15
+        mat.roughness = 0.38
+      }
+      mat.needsUpdate = true
+    })
+  }, [activePump, selectedPumpId, cfg.pipeColor])
 
   // Update theme defaults when theme prop changes
   useEffect(() => {
@@ -531,7 +564,7 @@ export default function InteriorBombeoView({
     orbLightsRef.current = []
     orbMaterialsRef.current = []
 
-    PUMPS.forEach((pump, pIdx) => {
+    PUMPS.forEach((pump) => {
       const g = new THREE.Group()
       g.position.set(...pump.pos)
       g.userData = { isPump: true, pumpId: pump.id }
@@ -561,26 +594,36 @@ export default function InteriorBombeoView({
       ring.castShadow = true
       g.add(ring)
 
-      // Electric Motor Cylinder: BA-02 has electric blue casing
-      const isBlueAccent = pIdx === 1
-      const motorMat = isBlueAccent
-      ? new THREE.MeshStandardMaterial({
-          color: 0x0284c7,
-          metalness: 0.35,
-          roughness: 0.3,
-        })
-      : clayMat
+      // Dynamic Accent Material for Motor & Vertical Discharge Pipe:
+      // - BE-04 (in fault) is RED (0xef4444) by default upon entering and always maintained
+      // - Normal pumps (BE-01, BE-02, BE-03) are clean WHITE (cfg.pipeColor) by default
+      // - If a normal pump is selected, its motor & pipe turn electric BLUE (0x0284c7)
+      const isFault = pump.status === 'falla' || pump.id === 'BE-04'
+      const isSelected = (selectedPumpId || activePump) === pump.id
+
+      const initialColor = isFault
+        ? 0xef4444
+        : isSelected
+        ? 0x0284c7
+        : new THREE.Color(cfg.pipeColor || '#ffffff')
+
+      const pumpElementMat = new THREE.MeshStandardMaterial({
+        color: initialColor,
+        metalness: isFault || isSelected ? 0.35 : 0.15,
+        roughness: isFault || isSelected ? 0.3 : 0.38,
+      })
+      pumpAccentMatsRef.current[pump.id] = pumpElementMat
 
       const motorGeo = new THREE.CylinderGeometry(0.55, 0.55, 1.55, 32)
-      const motor = new THREE.Mesh(motorGeo, motorMat)
+      const motor = new THREE.Mesh(motorGeo, pumpElementMat)
       motor.rotation.z = Math.PI / 2
       motor.position.set(0.7, 1.0, -0.2)
       motor.castShadow = true
       g.add(motor)
 
-      // Vertical Discharge Pipe going up to overhead manifold
+      // Vertical Discharge Pipe going up to overhead manifold ("ese tubo")
       const vPipeGeo = new THREE.CylinderGeometry(0.2, 0.2, 2.2, 24)
-      const vPipe = new THREE.Mesh(vPipeGeo, clayMat)
+      const vPipe = new THREE.Mesh(vPipeGeo, pumpElementMat)
       vPipe.position.set(-0.35, 2.1, -0.8)
       vPipe.castShadow = true
       g.add(vPipe)
