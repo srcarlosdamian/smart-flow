@@ -12,7 +12,7 @@ import {
   RotateCcw, FlaskConical, History, ShieldCheck,
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
-  X, Target, Upload, Download, Camera, Palette,
+  X, Target, Upload, Download, Camera, Palette, Copy,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -683,7 +683,16 @@ export default function App() {
   const [recoverOffPeak, setRecoverOffPeak] = useState(true)
   const [noBlastingPeak, setNoBlastingPeak] = useState(true)
   const [vodMargin, setVodMargin] = useState(10)
-  const [scenarioJsonCopied, setScenarioJsonCopied] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = (msg: string) => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
+    setToastMessage(msg)
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage(null)
+    }, 2200)
+  }
 
   const handleRunScenarioWithBit = () => {
     setNexoOpen(true)
@@ -723,8 +732,7 @@ export default function App() {
       },
     }
     navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
-    setScenarioJsonCopied(true)
-    setTimeout(() => setScenarioJsonCopied(false), 2400)
+    showToast('Copiado')
   }
   const [openSection, setOpenSection] = useState<string | null>(null)
   const [interiorView, setInteriorView] = useState<string | null>(null)
@@ -4174,22 +4182,22 @@ export default function App() {
 
               <button
                 type="button"
+                className="esc-secondary-btn full no-shadow"
                 style={{
-                  width: '100%',
-                  height: 32,
-                  marginTop: 6,
-                  fontSize: 12,
+                  height: 34,
+                  marginTop: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 7,
+                  fontSize: 12.5,
                   fontWeight: 500,
-                  background: 'transparent',
-                  border: '1px solid var(--line)',
-                  borderRadius: 6,
-                  color: 'var(--muted)',
-                  cursor: 'pointer',
-                  transition: 'background 0.15s ease',
                 }}
                 onClick={handleCopyScenarioJson}
+                title="Copiar JSON del escenario"
               >
-                {scenarioJsonCopied ? '✔ JSON copiado al portapapeles' : 'Copiar JSON del escenario'}
+                <Copy size={13} style={{ color: 'var(--muted)' }} />
+                <span>Copiar JSON del escenario</span>
               </button>
             </div>
           </Section>
@@ -4905,6 +4913,14 @@ export default function App() {
           </div>
         )}
       </footer>
+
+      {/* Floating Canvas Toast Notification (Mensaje emergente pequeño en el centro abajo del canvas) */}
+      {toastMessage && (
+        <div className="canvas-floating-toast" role="status" aria-live="polite">
+          <Check size={14} style={{ color: '#10b981' }} />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       {/* Institutional Email Access Gate Modal */}
       {!authEmail && (
