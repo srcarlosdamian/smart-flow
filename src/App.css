@@ -5322,58 +5322,40 @@ select:focus,
   box-shadow: none !important;
 }
 
-/* Secondary Lineal Bit IA Button: NO fill, only a 1.5px left-to-right gradient outline
-   (same gradient as Pregunta a Bit IA #455a64 -> #90a4ae), drawn with a masked ::before */
+/* Secondary Lineal Bit IA Button: Clean uniform 1px outline, 100% transparent background, no pseudo-element animations or masks */
 .consultar-nexo-btn.ia-secondary,
 .consultar-nexo-btn.ia-lineal,
 .consultar-nexo-btn.ia-outline,
 .bombeo-pump-card-v2 .consultar-nexo-btn {
   position: relative !important;
-  background: none !important;
+  background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
   color: var(--text) !important;
-  border: none !important;
+  border: 1px solid #546e7a !important;
   border-radius: 8px !important;
   box-shadow: none !important;
-  overflow: visible !important;
+  outline: none !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  isolation: isolate !important;
-  transition: background-color 0.15s ease !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease !important;
 }
 
 .consultar-nexo-btn.ia-secondary::before,
-.consultar-nexo-btn.ia-lineal::before,
-.consultar-nexo-btn.ia-outline::before,
-.bombeo-pump-card-v2 .consultar-nexo-btn::before {
-  content: '' !important;
-  display: block !important;
-  position: absolute !important;
-  inset: 0 !important;
-  border-radius: inherit !important;
-  padding: 1.5px !important;
-  background: linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
-  -webkit-mask-composite: xor !important;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0) !important;
-  pointer-events: none !important;
-  opacity: 1 !important;
-  filter: none !important;
-  animation: none !important;
-  transform: none !important;
-  z-index: 0 !important;
-}
-
 .consultar-nexo-btn.ia-secondary::after,
+.consultar-nexo-btn.ia-lineal::before,
 .consultar-nexo-btn.ia-lineal::after,
+.consultar-nexo-btn.ia-outline::before,
 .consultar-nexo-btn.ia-outline::after,
+.bombeo-pump-card-v2 .consultar-nexo-btn::before,
 .bombeo-pump-card-v2 .consultar-nexo-btn::after {
   display: none !important;
+  content: none !important;
 }
 
 .consultar-nexo-btn.ia-secondary:hover,
@@ -5381,6 +5363,8 @@ select:focus,
 .consultar-nexo-btn.ia-outline:hover,
 .bombeo-pump-card-v2 .consultar-nexo-btn:hover {
   background: rgba(84, 110, 122, 0.08) !important;
+  background-image: none !important;
+  border: 1px solid #455a64 !important;
   color: var(--text) !important;
   filter: none !important;
 }
@@ -5389,24 +5373,21 @@ select:focus,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-lineal,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-outline,
 .app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn {
-  background: none !important;
+  background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
-  border: none !important;
+  border: 1px solid #90a4ae !important;
   box-shadow: none !important;
   color: #f1f5f9 !important;
 }
-.app[data-theme="dark"] .consultar-nexo-btn.ia-secondary::before,
-.app[data-theme="dark"] .consultar-nexo-btn.ia-lineal::before,
-.app[data-theme="dark"] .consultar-nexo-btn.ia-outline::before,
-.app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn::before {
-  background: linear-gradient(90deg, #607d8b 0%, #78909c 50%, #b0bec5 100%) !important;
-}
+
 .app[data-theme="dark"] .consultar-nexo-btn.ia-secondary:hover,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-lineal:hover,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-outline:hover,
 .app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn:hover {
   background: rgba(255, 255, 255, 0.06) !important;
+  background-image: none !important;
+  border: 1px solid #b0bec5 !important;
   color: #ffffff !important;
 }
 

@@ -777,6 +777,8 @@ export default function App() {
   const navigateToInterior = (_roomId?: string) => {
     // Single canonical interior: Sala de bombeo
     setInteriorView('bombeo')
+    setSelectedPump(null)
+    setPumpAiDetail(null)
     const bombeoItem = INTERIORES_DATA.find((item) => item.id === 'bombeo') || INTERIORES_DATA[0]
     setSidebarView({ type: 'interior', data: bombeoItem })
     window.location.hash = '#/interior/bombeo'
@@ -784,6 +786,7 @@ export default function App() {
 
   const exitInterior = () => {
     setInteriorView(null)
+    setSelectedPump(null)
     setSelectedWorker(null)
     setSidebarView(null)
     setPumpAiDetail(null)
@@ -819,10 +822,13 @@ export default function App() {
       if (match && match[1]) {
         // Single canonical interior: Sala de bombeo
         setInteriorView('bombeo')
+        setSelectedPump(null)
+        setPumpAiDetail(null)
         const bombeoItem = INTERIORES_DATA.find((item) => item.id === 'bombeo') || INTERIORES_DATA[0]
         setSidebarView({ type: 'interior', data: bombeoItem })
       } else if (!hash || hash === '#' || hash === '#/') {
         setInteriorView(null)
+        setSelectedPump(null)
       }
     }
 
@@ -834,7 +840,7 @@ export default function App() {
       window.removeEventListener('popstate', handleHash)
     }
   }, [])
-  const [selectedPump, setSelectedPump] = useState<string>('BE-04')
+  const [selectedPump, setSelectedPump] = useState<string | null>(null)
   const [pumpAiDetail, setPumpAiDetail] = useState<string | null>(null)
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS)
   const [notifOpen, setNotifOpen] = useState<boolean>(false)
@@ -2268,7 +2274,7 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
                             <div
                               key={p.id}
                               className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
-                              onClick={() => setSelectedPump(p.id)}
+                              onClick={() => setSelectedPump((prev) => (prev === p.id ? null : p.id))}
                               style={{ cursor: 'pointer' }}
                             >
                               <div className="bombeo-pump-v2-header">
@@ -2291,7 +2297,7 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
                                   style={{ width: p.status === 'reserva' ? '0%' : p.status === 'falla' ? '100%' : `${p.barPercent}%` }}
                                 />
                               </div>
-                              {(isSel || p.status === 'falla') && (
+                              {isSel && (
                                 <button
                                   className="consultar-nexo-btn ia-outline"
                                   style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}

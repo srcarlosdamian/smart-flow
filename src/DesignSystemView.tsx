@@ -141,7 +141,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
   const [whatIfChecks, setWhatIfChecks] = useState({ carga: true, vent: true, dilucion: false })
   const [auxilioAttended, setAuxilioAttended] = useState<boolean>(false)
   const [auxilioTab, setAuxilioTab] = useState<'sin_cerrar' | 'resueltas'>('sin_cerrar')
-  const [selectedPump, setSelectedPump] = useState<string>('BA-04')
+  const [selectedPump, setSelectedPump] = useState<string | null>(null)
   const [playerPlaying, setPlayerPlaying] = useState<boolean>(false)
   const [playerSpeed, setPlayerSpeed] = useState<string>('1x')
   const [playerSev, setPlayerSev] = useState<string>('Crítico')
@@ -3076,12 +3076,12 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     { id: 'BE-01', status: 'marcha' as const, statusText: 'En marcha', temp: '48 °C', flow: '78 L/s · 4.2 bar', hours: '1,240 h', pct: 78 },
                     { id: 'BE-04', status: 'falla' as const, statusText: 'En falla', temp: '78 °C', flow: '0 L/s · 0.0 bar', hours: '2,150 h', pct: 100 },
                   ].map((p) => {
-                    const isSel = selectedPump === p.id || p.id === 'BE-04'
+                    const isSel = selectedPump === p.id
                     return (
                       <div
                         key={p.id}
                         className={`bombeo-pump-card-v2 ${isSel ? 'selected' : ''}`}
-                        onClick={() => setSelectedPump(p.id)}
+                        onClick={() => setSelectedPump((prev) => (prev === p.id ? null : p.id))}
                       >
                         <div className="bombeo-pump-v2-header">
                           <div className="row gap-2" style={{ alignItems: 'center' }}>
@@ -3102,7 +3102,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                         <div className="pump-bar-v2-track">
                           <div className={`pump-bar-v2-fill ${p.status}`} style={{ width: `${p.pct}%` }} />
                         </div>
-                        {p.status === 'falla' && (
+                        {isSel && (
                           <button
                             className="consultar-nexo-btn ia-outline"
                             style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}
