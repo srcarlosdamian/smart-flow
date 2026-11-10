@@ -5248,35 +5248,69 @@ select:focus,
   box-shadow: none !important;
 }
 
-/* Secondary Lineal Bit IA Button (Linear metallic gradient border, black inside, rombo & text) */
+/* Secondary Lineal Bit IA Button (Lineal con la línea de degradado metálico de la IA, fondo negro y rombo) */
 .consultar-nexo-btn.ia-secondary,
 .consultar-nexo-btn.ia-lineal {
-  position: relative;
-  background: #000000 !important;
+  position: relative !important;
+  background: transparent !important;
   color: #ffffff !important;
-  border: 1.5px solid transparent !important;
-  background-image: linear-gradient(#000000, #000000), linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
-  background-origin: border-box !important;
-  background-clip: padding-box, border-box !important;
+  border: none !important;
+  border-radius: 10px !important;
   box-shadow: none !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
+  overflow: visible !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
 }
-.consultar-nexo-btn.ia-secondary:hover,
-.consultar-nexo-btn.ia-lineal:hover {
-  filter: brightness(1.22);
-  background-image: linear-gradient(#0b0f19, #0b0f19), linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%) !important;
-  color: #ffffff !important;
+
+.consultar-nexo-btn.ia-secondary::before,
+.consultar-nexo-btn.ia-lineal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -1.5px !important;
+  border-radius: 11.5px !important;
+  background: linear-gradient(90deg, #37474f 0%, #607d8b 25%, #90a4ae 50%, #b0bec5 75%, #eceff1 100%) !important;
+  z-index: -2 !important;
+  transition: filter 0.2s ease, opacity 0.2s ease !important;
 }
+
+.consultar-nexo-btn.ia-secondary::after,
+.consultar-nexo-btn.ia-lineal::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 10px !important;
+  background: #000000 !important;
+  z-index: -1 !important;
+  transition: background 0.15s ease !important;
+}
+
+.consultar-nexo-btn.ia-secondary:hover::before,
+.consultar-nexo-btn.ia-lineal:hover::before {
+  filter: brightness(1.35) drop-shadow(0 0 6px rgba(176, 190, 197, 0.45));
+  background: linear-gradient(90deg, #546e7a 0%, #78909c 25%, #b0bec5 50%, #cfd8dc 75%, #ffffff 100%) !important;
+}
+
+.consultar-nexo-btn.ia-secondary:hover::after,
+.consultar-nexo-btn.ia-lineal:hover::after {
+  background: #0d121c !important;
+}
+
 .app[data-theme="dark"] .consultar-nexo-btn.ia-secondary,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-lineal {
-  background: #000000 !important;
-  background-image: linear-gradient(#000000, #000000), linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
-  color: #ffffff !important;
+  background: transparent !important;
+  border: none !important;
 }
-.app[data-theme="dark"] .consultar-nexo-btn.ia-secondary:hover,
-.app[data-theme="dark"] .consultar-nexo-btn.ia-lineal:hover {
-  filter: brightness(1.22);
-  background-image: linear-gradient(#0b0f19, #0b0f19), linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%) !important;
-  color: #ffffff !important;
+.app[data-theme="dark"] .consultar-nexo-btn.ia-secondary::after,
+.app[data-theme="dark"] .consultar-nexo-btn.ia-lineal::after {
+  background: #000000 !important;
+}
+.app[data-theme="dark"] .consultar-nexo-btn.ia-secondary:hover::after,
+.app[data-theme="dark"] .consultar-nexo-btn.ia-lineal:hover::after {
+  background: #0d121c !important;
 }
 
 /* Sticky Breadcrumb Topbar with solid blur to prevent bleed-through while scrolling */
