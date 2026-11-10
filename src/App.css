@@ -5322,23 +5322,20 @@ select:focus,
   box-shadow: none !important;
 }
 
-/* Secondary Lineal Bit IA Button (Lineal sin fondo, contorno con el degradado de izquierda a derecha de Pregúntale a Bit IA #455a64 a #90a4ae) */
+/* Secondary Lineal Bit IA Button: NO fill, only a 1.5px left-to-right gradient outline
+   (same gradient as Pregunta a Bit IA #455a64 -> #90a4ae), drawn with a masked ::before */
 .consultar-nexo-btn.ia-secondary,
 .consultar-nexo-btn.ia-lineal,
 .consultar-nexo-btn.ia-outline,
 .bombeo-pump-card-v2 .consultar-nexo-btn {
   position: relative !important;
-  background: transparent !important;
+  background: none !important;
   background-color: transparent !important;
+  background-image: none !important;
   color: var(--text) !important;
-  border: 1.5px solid transparent !important;
+  border: none !important;
   border-radius: 8px !important;
-  background-image: linear-gradient(transparent, transparent),
-                    linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
-  background-origin: border-box !important;
-  background-clip: padding-box, border-box !important;
   box-shadow: none !important;
-  z-index: 1 !important;
   overflow: visible !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -5346,17 +5343,35 @@ select:focus,
   gap: 8px !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  isolation: auto !important;
-  transition: all 0.15s ease !important;
+  isolation: isolate !important;
+  transition: background-color 0.15s ease !important;
 }
 
 .consultar-nexo-btn.ia-secondary::before,
-.consultar-nexo-btn.ia-secondary::after,
 .consultar-nexo-btn.ia-lineal::before,
-.consultar-nexo-btn.ia-lineal::after,
 .consultar-nexo-btn.ia-outline::before,
+.bombeo-pump-card-v2 .consultar-nexo-btn::before {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  padding: 1.5px !important;
+  background: linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0) !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  animation: none !important;
+  transform: none !important;
+  z-index: 0 !important;
+}
+
+.consultar-nexo-btn.ia-secondary::after,
+.consultar-nexo-btn.ia-lineal::after,
 .consultar-nexo-btn.ia-outline::after,
-.bombeo-pump-card-v2 .consultar-nexo-btn::before,
 .bombeo-pump-card-v2 .consultar-nexo-btn::after {
   display: none !important;
 }
@@ -5365,34 +5380,28 @@ select:focus,
 .consultar-nexo-btn.ia-lineal:hover,
 .consultar-nexo-btn.ia-outline:hover,
 .bombeo-pump-card-v2 .consultar-nexo-btn:hover {
-  background-color: rgba(84, 110, 122, 0.08) !important;
-  background-image: linear-gradient(rgba(84, 110, 122, 0.08), rgba(84, 110, 122, 0.08)),
-                    linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%) !important;
+  background: rgba(84, 110, 122, 0.08) !important;
   color: var(--text) !important;
-  filter: brightness(1.15) !important;
+  filter: none !important;
 }
 
 .app[data-theme="dark"] .consultar-nexo-btn.ia-secondary,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-lineal,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-outline,
 .app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn {
-  background: transparent !important;
-  background-color: transparent !important;
   color: #f1f5f9 !important;
-  border: 1.5px solid transparent !important;
-  background-image: linear-gradient(transparent, transparent),
-                    linear-gradient(90deg, #455a64 0%, #607d8b 50%, #90a4ae 100%) !important;
-  background-origin: border-box !important;
-  background-clip: padding-box, border-box !important;
 }
-
+.app[data-theme="dark"] .consultar-nexo-btn.ia-secondary::before,
+.app[data-theme="dark"] .consultar-nexo-btn.ia-lineal::before,
+.app[data-theme="dark"] .consultar-nexo-btn.ia-outline::before,
+.app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn::before {
+  background: linear-gradient(90deg, #607d8b 0%, #78909c 50%, #b0bec5 100%) !important;
+}
 .app[data-theme="dark"] .consultar-nexo-btn.ia-secondary:hover,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-lineal:hover,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-outline:hover,
 .app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn:hover {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08)),
-                    linear-gradient(90deg, #607d8b 0%, #78909c 50%, #b0bec5 100%) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
   color: #ffffff !important;
 }
 
