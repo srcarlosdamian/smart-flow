@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react'
-import { MapPin, X, LogIn } from 'lucide-react'
 import type { Theme } from './Scene3D'
 
 interface Props {
@@ -81,12 +80,12 @@ const FACILITIES: (FacilityInfo & { x: number; y: number })[] = [
   },
 ]
 
-export default function DiagramView({ theme, zoom, onZoomChange, onEnterInterior }: Props) {
+export default function DiagramView({ theme, zoom, onZoomChange, onEnterInterior: _onEnterInterior }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [pan, setPan] = useState({ x: -40, y: -20 })
   const [dragging, setDragging] = useState(false)
   const dragStart = useRef({ x: 0, y: 0, px: 0, py: 0 })
-  const [selectedFacility, setSelectedFacility] = useState<FacilityInfo | null>(FACILITIES[0]) // default active or null
+  const [selectedFacility, setSelectedFacility] = useState<FacilityInfo | null>(null)
 
   const handlePointerDown = (e: React.PointerEvent) => {
     // If clicking inside the modal, don't drag
@@ -274,145 +273,6 @@ export default function DiagramView({ theme, zoom, onZoomChange, onEnterInterior
           })}
         </g>
       </svg>
-
-      {/* Floating Preview Card matching media_1793857921272_9b39c102.png when facility is selected */}
-      {selectedFacility && (
-        <div
-          className="diagram-preview-card glass"
-          style={{
-            position: 'absolute',
-            top: 24,
-            left: 24,
-            width: 300,
-            padding: '16px 18px',
-            borderRadius: 14,
-            background: isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.94)',
-            border: isDark ? '1px solid rgba(255,255,255,0.14)' : '1px solid rgba(0,0,0,0.1)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
-            zIndex: 30,
-            fontFamily: 'Titillium Web, sans-serif',
-            userSelect: 'text',
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header row with title and close icon */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-            <b style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-heading, #0f172a)' }}>
-              {selectedFacility.name}
-            </b>
-            <button
-              onClick={() => setSelectedFacility(null)}
-              style={{
-                background: 'transparent',
-                border: 0,
-                color: 'var(--muted)',
-                cursor: 'pointer',
-                padding: 4,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 4,
-              }}
-              title="Cerrar"
-            >
-              <X size={16} />
-            </button>
-          </div>
-
-          {/* Subtitle location badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
-            <MapPin size={14} style={{ color: selectedFacility.color }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: selectedFacility.color }}>
-              {selectedFacility.type}
-            </span>
-          </div>
-
-          {/* Key-Value Details */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13 }}>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ color: 'var(--muted)' }}>Ocupación</span>
-                <b style={{ fontWeight: 600, color: 'var(--text-heading, #0f172a)' }}>
-                  {selectedFacility.ocupacion}
-                </b>
-              </div>
-              {/* Progress bar matching capture */}
-              <div
-                style={{
-                  width: '100%',
-                  height: 6,
-                  borderRadius: 3,
-                  background: isDark ? 'rgba(255,255,255,0.12)' : '#e2e8f0',
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    width: `${Math.round(selectedFacility.ocupacionRatio * 100)}%`,
-                    height: '100%',
-                    background: '#0891b2',
-                    borderRadius: 3,
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--muted)' }}>Oxígeno</span>
-              <b style={{ fontWeight: 600, color: 'var(--text-heading, #0f172a)' }}>
-                {selectedFacility.oxigeno}
-              </b>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--muted)' }}>Comunicación</span>
-              <span style={{ fontWeight: 600, color: '#10b981' }}>
-                {selectedFacility.comunicacion}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--muted)' }}>Última inspección</span>
-              <b style={{ fontWeight: 600, color: 'var(--text-heading, #0f172a)' }}>
-                {selectedFacility.inspeccion}
-              </b>
-            </div>
-          </div>
-
-          {/* Action button: Entrar */}
-          <div style={{ marginTop: 18, textAlign: 'center' }}>
-            <button
-              onClick={() => onEnterInterior?.(selectedFacility.roomId)}
-              style={{
-                width: '100%',
-                height: 38,
-                borderRadius: 10,
-                background: '#007791',
-                color: '#ffffff',
-                border: 0,
-                fontSize: 14,
-                fontWeight: 600,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0, 119, 145, 0.35)',
-                transition: 'opacity .15s ease',
-              }}
-            >
-              <LogIn size={16} />
-              <span>Entrar</span>
-            </button>
-            <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginTop: 6 }}>
-              Vista interior del lugar
-            </small>
-          </div>
-        </div>
-      )}
-
     </div>
   )
 }
