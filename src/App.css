@@ -5326,6 +5326,66 @@ select:focus,
   background: #0d121c !important;
 }
 
+/* Botón Bit IA Lineal Sin Fondo (Hollow Outline Gradient) - Contorno con el degradado de Preguntar a Bit IA arriba (#455a64 a #90a4ae), interior 100% transparente */
+.consultar-nexo-btn.ia-outline,
+.bombeo-pump-card-v2 .consultar-nexo-btn {
+  position: relative !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--text) !important;
+  border: 1.5px solid transparent !important;
+  border-radius: 8px !important;
+  background-image: linear-gradient(transparent, transparent),
+                    linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  isolation: auto !important;
+  transition: all 0.15s ease !important;
+}
+
+.consultar-nexo-btn.ia-outline::before,
+.consultar-nexo-btn.ia-outline::after,
+.bombeo-pump-card-v2 .consultar-nexo-btn::before,
+.bombeo-pump-card-v2 .consultar-nexo-btn::after {
+  display: none !important;
+}
+
+.consultar-nexo-btn.ia-outline:hover,
+.bombeo-pump-card-v2 .consultar-nexo-btn:hover {
+  background-color: rgba(84, 110, 122, 0.08) !important;
+  background-image: linear-gradient(rgba(84, 110, 122, 0.08), rgba(84, 110, 122, 0.08)),
+                    linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%) !important;
+  color: var(--text) !important;
+  filter: brightness(1.15) !important;
+}
+
+.app[data-theme="dark"] .consultar-nexo-btn.ia-outline,
+.app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #f1f5f9 !important;
+  border: 1.5px solid transparent !important;
+  background-image: linear-gradient(transparent, transparent),
+                    linear-gradient(90deg, #455a64 0%, #607d8b 50%, #90a4ae 100%) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+}
+
+.app[data-theme="dark"] .consultar-nexo-btn.ia-outline:hover,
+.app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08)),
+                    linear-gradient(90deg, #607d8b 0%, #78909c 50%, #b0bec5 100%) !important;
+  color: #ffffff !important;
+}
+
 /* Sticky Breadcrumb Topbar with solid blur to prevent bleed-through while scrolling */
 .user-detail-topbar {
   position: sticky !important;

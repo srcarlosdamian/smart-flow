@@ -2423,6 +2423,21 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     </div>
                   </div>
                 </div>
+
+                {/* 4. Botones Lineales Sin Fondo (Hollow Outline Gradient - Sala de Bombeo) */}
+                <div>
+                  <small style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>
+                    <b>4. Botón Lineal Sin Fondo (Hollow Outline Gradient)</b> — <code>.consultar-nexo-btn.ia-outline</code> (Sin fondo, solo contorno degradado Bit IA)
+                  </small>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div>
+                      <button className="consultar-nexo-btn ia-outline" style={{ margin: 0, width: '100%', height: 34, fontSize: 12 }}>
+                        <BitLogo width={12} height={14} color="currentColor" />
+                        <span>Preguntar a Bit IA sobre BA-04</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Bit Drawer Components (Avatar, Chat Bubbles & Prompt Box) */}
@@ -3014,7 +3029,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                         </div>
                         {p.status === 'falla' && (
                           <button
-                            className="consultar-nexo-btn ia-secondary"
+                            className="consultar-nexo-btn ia-outline"
                             style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}
                             onClick={(e) => {
                               e.stopPropagation()
@@ -3022,7 +3037,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                             }}
                             title="Preguntar a Bit IA sobre la mitigación de falla"
                           >
-                            <BitLogo width={12} height={14} color="#ffffff" />
+                            <BitLogo width={12} height={14} color="currentColor" />
                             <span>Preguntar a Bit IA sobre {p.id}</span>
                           </button>
                         )}

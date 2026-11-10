@@ -1441,71 +1441,70 @@ export default function App() {
         />
       )}
 
-      {!interiorView && (
-        <header className="glass topbar">
-          <button
-            className="logo-btn"
-            aria-label="Volver"
-            {...showHelp('Motor de Gemelo Digital', 'Núcleo de la representación virtual 3D de la infraestructura minera.')}
-          >
-            <img src={logoUrl} alt="SmartFlow" className="logo-img" />
-            <span className="logo-back">
-              <ArrowLeft size={18} />
-            </span>
-          </button>
+      <header className="glass topbar">
+        <button
+          className="logo-btn"
+          aria-label={interiorView ? "Volver a la mina" : "Volver"}
+          onClick={interiorView ? exitInterior : undefined}
+          {...showHelp('Motor de Gemelo Digital', 'Núcleo de la representación virtual 3D de la infraestructura minera.')}
+        >
+          <img src={logoUrl} alt="SmartFlow" className="logo-img" />
+          <span className="logo-back">
+            <ArrowLeft size={18} />
+          </span>
+        </button>
 
-          <div className="top-actions">
-            <button
-              aria-label="Buscar"
-              onClick={() => setSearchOpen(true)}
-              {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
-            >
-              <Search size={20} />
-            </button>
-            <button
-              aria-label="Notificaciones"
-              {...showHelp('Tableros de comandos', 'Paneles visuales (dashboards) con indicadores clave de desempeño (KPIs) y resúmenes operativos.')}
-            >
-              <Bell size={20} />
-            </button>
-            <button
-              aria-label="Idioma"
-              {...showHelp('Servicios Digitales de Mina', 'Suite de herramientas tecnológicas que integran la plataforma.')}
-            >
-              <Globe size={20} />
-            </button>
-            <button
-              aria-label="Cambiar tema"
-              onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-              {...showHelp('Configuración', 'Ajustes generales del sistema, modo claro/oscuro, permisos y parámetros de la plataforma.')}
-            >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-            <button
-              aria-label="Sistema de diseño"
-              title="Abrir Sistema de Diseño (/design-system)"
-              onClick={() => {
-                window.location.hash = '/design-system'
-                setCurrentRoute('design-system')
-              }}
-              {...showHelp('Sistema de Diseño', 'Catálogo de componentes, tokens, badges, botones e interacción de SmartFlow (/design-system).')}
-            >
-              <Palette size={20} />
-            </button>
-            <button
-              className="avatar"
-              onClick={() => {
-                clearSavedAuthEmail()
-                setEmailInput('')
-                setAuthEmail(null)
-              }}
-              {...showHelp('Operaciones', 'Módulos principales para gestionar las distintas áreas de la empresa minera (HSEC, planeación y producción).')}
-            >
-              DS
-            </button>
-          </div>
-        </header>
-      )}
+        <div className="top-actions">
+          <button
+            aria-label="Buscar"
+            onClick={() => setSearchOpen(true)}
+            {...showHelp('Datos', 'Consulta y administración de fuentes de información y flujos de datos del sistema (Ctrl + K).')}
+          >
+            <Search size={20} />
+          </button>
+          <button
+            aria-label="Notificaciones"
+            {...showHelp('Tableros de comandos', 'Paneles visuales (dashboards) con indicadores clave de desempeño (KPIs) y resúmenes operativos.')}
+          >
+            <Bell size={20} />
+          </button>
+          <button
+            aria-label="Idioma"
+            {...showHelp('Servicios Digitales de Mina', 'Suite de herramientas tecnológicas que integran la plataforma.')}
+          >
+            <Globe size={20} />
+          </button>
+          <button
+            aria-label="Cambiar tema"
+            onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+            {...showHelp('Configuración', 'Ajustes generales del sistema, modo claro/oscuro, permisos y parámetros de la plataforma.')}
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          <button
+            aria-label="Sistema de diseño"
+            title="Abrir Sistema de Diseño (/design-system)"
+            onClick={() => {
+              window.location.hash = '/design-system'
+              setCurrentRoute('design-system')
+            }}
+            {...showHelp('Sistema de Diseño', 'Catálogo de componentes, tokens, badges, botones e interacción de SmartFlow (/design-system).')}
+          >
+            <Palette size={20} />
+          </button>
+          <button
+            className="avatar"
+            onClick={() => {
+              clearSavedAuthEmail()
+              setEmailInput('')
+              setAuthEmail(null)
+            }}
+            {...showHelp('Operaciones', 'Módulos principales para gestionar las distintas áreas de la empresa minera (HSEC, planeación y producción).')}
+          >
+            DS
+          </button>
+        </div>
+      </header>
 
       {/* Left vertical floating toolbar (Diagrama 2D: Zoom in/out/fit; Superficie: 5 tools; 3D: full tools) */}
       {!interiorView && (
@@ -1997,7 +1996,7 @@ export default function App() {
                               </div>
                               {(isSel || p.status === 'falla') && (
                                 <button
-                                  className="consultar-nexo-btn ia-secondary"
+                                  className="consultar-nexo-btn ia-outline"
                                   style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -2006,7 +2005,7 @@ export default function App() {
                                   }}
                                   title="Preguntar a Bit IA sobre la mitigación de falla"
                                 >
-                                  <BitLogo width={12} height={14} color="#ffffff" />
+                                  <BitLogo width={12} height={14} color="currentColor" />
                                   <span>Preguntar a Bit IA sobre {p.id}</span>
                                 </button>
                               )}
