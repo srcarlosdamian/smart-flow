@@ -238,10 +238,11 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 }
 
 .app.in-interior .right-col {
-  top: 18px !important;
-  right: 18px !important;
+  /* Offset below the topbar (8px + 56px + 16px gap) so the header is never covered */
+  top: 80px !important;
+  right: 16px !important;
   width: 326px !important;
-  max-height: calc(100vh - 42px) !important;
+  max-height: calc(100vh - 96px) !important;
   z-index: 80 !important;
   transition: right 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
@@ -251,7 +252,7 @@ button { background: none; border: 0; cursor: pointer; display: grid; place-item
 }
 
 .app.in-interior .panel {
-  max-height: calc(100vh - 44px) !important;
+  max-height: calc(100vh - 96px) !important;
   overflow-y: auto !important;
   padding: 14px 16px !important;
 }
@@ -4812,7 +4813,7 @@ select:focus,
 /* Nexo IA within Interior Views - Identical size (42px) & gradient as other Nexo buttons */
 .bombeo-nexo-top-trigger {
   position: absolute;
-  top: 18px;
+  top: 80px;
   left: 280px;
   display: inline-flex;
   align-items: center;
