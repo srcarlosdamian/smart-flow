@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Sliders, Copy, Check, RotateCcw, X, Move } from 'lucide-react'
+import { BitLogo } from './App'
 import type { Theme } from './Scene3D'
 
 export interface Pump3D {
@@ -33,10 +34,10 @@ export interface WorkerData {
 }
 
 export const PUMPS: Pump3D[] = [
-  { id: 'B-01', name: 'B-01', flow: '75 L/s', pressure: '12.4 bar', temp: '62°C', hours: '3120 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-6, 0, 0] },
-  { id: 'B-02', name: 'B-02', flow: '75 L/s', pressure: '11.9 bar', temp: '59°C', hours: '2870 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-2, 0, 0] },
-  { id: 'B-03', name: 'B-03', flow: '0 L/s', pressure: '0.0 bar', temp: '24°C', hours: '1490 h', status: 'reserva', color: '#94a3b8', statusText: 'En reserva', pos: [2, 0, 0] },
-  { id: 'B-04', name: 'B-04', flow: '0 L/s', pressure: '0.0 bar', temp: '81°C', hours: '4650 h', status: 'falla', color: '#ef4444', statusText: 'Falla', pos: [6, 0, 0] },
+  { id: 'BE-01', name: 'BE-01', flow: '75 L/s', pressure: '12.4 bar', temp: '62°C', hours: '3120 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-6, 0, 0] },
+  { id: 'BE-02', name: 'BE-02', flow: '75 L/s', pressure: '11.9 bar', temp: '59°C', hours: '2870 h', status: 'marcha', color: '#00e676', statusText: 'En marcha', pos: [-2, 0, 0] },
+  { id: 'BE-03', name: 'BE-03', flow: '0 L/s', pressure: '0.0 bar', temp: '24°C', hours: '1490 h', status: 'reserva', color: '#94a3b8', statusText: 'En reserva', pos: [2, 0, 0] },
+  { id: 'BE-04', name: 'BE-04', flow: '0 L/s', pressure: '0.0 bar', temp: '81°C', hours: '4650 h', status: 'falla', color: '#ef4444', statusText: 'Falla', pos: [6, 0, 0] },
 ]
 
 export const WORKERS_DATA: WorkerData[] = [
@@ -166,6 +167,7 @@ interface Props {
   onClose?: () => void
   selectedPumpId?: string | null
   onSelectPump?: (id: string) => void
+  onOpenPumpAi?: (id: string) => void
   onSelectWorker?: (worker: WorkerData) => void
   onAskNexo?: (query: string) => void
   onHelp?: (info: { title: string; desc: string } | null) => void
@@ -286,6 +288,7 @@ export default function InteriorBombeoView({
   onClose: _onClose,
   selectedPumpId,
   onSelectPump,
+  onOpenPumpAi,
   onSelectWorker,
   onHelp,
 }: Props) {
@@ -331,9 +334,9 @@ export default function InteriorBombeoView({
   useEffect(() => {
     setActivePump(selectedPumpId || null)
     if (selectedPumpId) {
-      const p = PUMPS.find((pump) => pump.id === selectedPumpId)
+      const p = PUMPS.find((pump) => pump.id === selectedPumpId || (selectedPumpId && pump.id.endsWith(selectedPumpId.slice(-2))))
       if (p) {
-        // Zoom-in close-up towards this pump (especially B-04 with failure)
+        // Zoom-in close-up towards this pump (especially BE-04 with failure)
         targetLookAtRef.current.set(p.pos[0], 1.1, p.pos[2] - 0.2)
         targetCameraPosRef.current.set(p.pos[0] + 0.6, 2.2, p.pos[2] + 4.0)
         isTransitioningRef.current = true
@@ -841,39 +844,70 @@ export default function InteriorBombeoView({
         const isSelected = activePump === pump.id
 
         return (
-          <div
-            key={pump.id}
-            className={`bombeo-3d-badge ${pump.status} ${isSelected ? 'selected' : ''}`}
-            style={{
-              left: `${coord.x}px`,
-              top: `${coord.y}px`,
-              cursor: 'pointer',
-            }}
-            onClick={() => {
-              setActivePump(pump.id)
-              setActiveWorkerId(null)
-              setSelectedSump(false)
-              onSelectPump?.(pump.id)
-            }}
-            onMouseEnter={() => onHelp?.({
-              title: `Bomba ${pump.name.toUpperCase()}`,
-              desc: `Estado: ${pump.status === 'marcha' ? 'En marcha' : pump.status === 'reserva' ? 'En reserva' : 'En falla'} · Caudal: ${pump.flow} · Clic para ver telemetría`,
-            })}
-            onMouseLeave={() => onHelp?.(null)}
-          >
-            <div className="bombeo-badge-top-box">
-              <span className={`callout-dot ${pump.status === 'marcha' ? 'green' : pump.status === 'reserva' ? 'yellow' : 'red'}`} />
-              <span>{pump.name.toUpperCase()}</span>
+          <div key={pump.id}>
+            <div
+              className={`bombeo-3d-badge ${pump.status} ${isSelected ? 'selected' : ''}`}
+              style={{
+                left: `${coord.x}px`,
+                top: `${coord.y}px`,
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                setActivePump(pump.id)
+                setActiveWorkerId(null)
+                setSelectedSump(false)
+                onSelectPump?.(pump.id)
+              }}
+              onMouseEnter={() => onHelp?.({
+                title: `Bomba ${pump.name.toUpperCase()}`,
+                desc: `Estado: ${pump.status === 'marcha' ? 'En marcha' : pump.status === 'reserva' ? 'En reserva' : 'En falla'} · Caudal: ${pump.flow} · Clic para ver telemetría`,
+              })}
+              onMouseLeave={() => onHelp?.(null)}
+            >
+              <div className="bombeo-badge-top-box">
+                <span className={`callout-dot ${pump.status === 'marcha' ? 'green' : pump.status === 'reserva' ? 'yellow' : 'red'}`} />
+                <span>{pump.name.toUpperCase()}</span>
+              </div>
+              {pump.status === 'marcha' && (
+                <div className="bombeo-badge-bottom-box">{pump.flow}</div>
+              )}
+              {pump.status === 'reserva' && (
+                <div className="bombeo-badge-bottom-box reserva">Reserva</div>
+              )}
+              {pump.status === 'falla' && (
+                <div className="bombeo-badge-bottom-box falla">
+                  <span>Falla</span>
+                </div>
+              )}
             </div>
-            {pump.status === 'marcha' && (
-              <div className="bombeo-badge-bottom-box">{pump.flow}</div>
-            )}
-            {pump.status === 'reserva' && (
-              <div className="bombeo-badge-bottom-box reserva">Reserva</div>
-            )}
-            {pump.status === 'falla' && (
-              <div className="bombeo-badge-bottom-box falla">
-                <span>Falla</span>
+
+            {/* Companion Bit IA Badge beside BE-04 (fixed in 3D render with blur effect) */}
+            {(pump.id === 'BE-04' || pump.status === 'falla') && (
+              <div
+                className={`bombeo-3d-ai-badge ${isSelected ? 'active' : ''}`}
+                style={{
+                  left: `${coord.x + 42}px`,
+                  top: `${coord.y - 8}px`,
+                  cursor: 'pointer',
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setActivePump(pump.id)
+                  setActiveWorkerId(null)
+                  setSelectedSump(false)
+                  onSelectPump?.(pump.id)
+                  onOpenPumpAi?.(pump.id)
+                }}
+                onMouseEnter={() => onHelp?.({
+                  title: 'Diagnóstico Bit IA · BE-04',
+                  desc: 'Falla por sobretemperatura detectada (81 °C). Clic para abrir telemetría y plan de mitigación en el sidebar.',
+                })}
+                onMouseLeave={() => onHelp?.(null)}
+                title="Diagnóstico Bit IA · BE-04"
+              >
+                <BitLogo size={13} color="currentColor" />
+                <span className="ai-badge-pulse-dot" />
+                <span>BE-04 · Bit IA</span>
               </div>
             )}
           </div>

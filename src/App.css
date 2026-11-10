@@ -3623,6 +3623,66 @@ select option {
   transform: translate(-50%, -55%) scale(1.05);
 }
 
+/* 2.1 Bit IA Companion 3D Badge beside BE-04 */
+.bombeo-3d-ai-badge {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.70) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1.5px solid transparent !important;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.70)),
+                    linear-gradient(90deg, #455a64 0%, #546e7a 50%, #90a4ae 100%) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a !important;
+  cursor: pointer;
+  z-index: 15;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16), 0 0 10px rgba(84, 110, 122, 0.28) !important;
+  user-select: none;
+  white-space: nowrap;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bombeo-3d-ai-badge:hover,
+.bombeo-3d-ai-badge.active {
+  transform: scale(1.08);
+  background: #ffffff !important;
+  background-image: linear-gradient(#ffffff, #ffffff),
+                    linear-gradient(90deg, #37474f 0%, #546e7a 50%, #78909c 100%) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), 0 0 16px rgba(84, 110, 122, 0.45) !important;
+}
+
+.app[data-theme="dark"] .bombeo-3d-ai-badge {
+  background: rgba(15, 23, 42, 0.75) !important;
+  background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)),
+                    linear-gradient(90deg, #455a64 0%, #607d8b 50%, #90a4ae 100%) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 10px rgba(144, 164, 174, 0.35) !important;
+}
+
+.app[data-theme="dark"] .bombeo-3d-ai-badge:hover,
+.app[data-theme="dark"] .bombeo-3d-ai-badge.active {
+  background: #0f172a !important;
+  background-image: linear-gradient(#0f172a, #0f172a),
+                    linear-gradient(90deg, #546e7a 0%, #78909c 50%, #b0bec5 100%) !important;
+  color: #ffffff !important;
+}
+
+.bombeo-3d-ai-badge .ai-badge-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: evac-dot-blink 1.2s ease-in-out infinite alternate;
+}
+
 /* 3. Trabajadores & Vehículos (Manuel Reyes, Victor Navarro, Juan García, Jumbo) */
 .bombeo-worker-3d-badge,
 .sim-3d-badge {

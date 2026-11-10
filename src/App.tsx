@@ -187,10 +187,10 @@ const TARIFF_SEASON_OPTIONS = [
 ]
 
 const PUMPS_SIDEBAR = [
-  { id: 'B-01', name: 'B-01', flow: '75 L/s · 12.4 bar', hours: '3120 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '62°C', barPercent: 75 },
-  { id: 'B-02', name: 'B-02', flow: '75 L/s · 11.9 bar', hours: '2870 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '59°C', barPercent: 75 },
-  { id: 'B-03', name: 'B-03', flow: '0 L/s · 0.0 bar', hours: '1490 h de servicio', status: 'reserva', statusText: 'En reserva', temp: '24°C', barPercent: 0 },
-  { id: 'B-04', name: 'B-04', flow: '0 L/s · 0.0 bar', hours: '4650 h de servicio', status: 'falla', statusText: 'En falla', temp: '81°C', barPercent: 100 },
+  { id: 'BE-01', name: 'BE-01', flow: '75 L/s · 12.4 bar', hours: '3120 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '62°C', barPercent: 75 },
+  { id: 'BE-02', name: 'BE-02', flow: '75 L/s · 11.9 bar', hours: '2870 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '59°C', barPercent: 75 },
+  { id: 'BE-03', name: 'BE-03', flow: '0 L/s · 0.0 bar', hours: '1490 h de servicio', status: 'reserva', statusText: 'En reserva', temp: '24°C', barPercent: 0 },
+  { id: 'BE-04', name: 'BE-04', flow: '0 L/s · 0.0 bar', hours: '4650 h de servicio', status: 'falla', statusText: 'En falla', temp: '81°C', barPercent: 100 },
 ]
 
 const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; color: string; icon: typeof UserRoundSearch }[] = [
@@ -749,6 +749,7 @@ export default function App() {
     setInteriorView(null)
     setSelectedWorker(null)
     setSidebarView(null)
+    setPumpAiDetail(null)
     setSelected3DObjectId(null)
     if (window.location.hash.startsWith('#/interior')) {
       window.history.pushState(null, '', window.location.pathname)
@@ -796,7 +797,8 @@ export default function App() {
       window.removeEventListener('popstate', handleHash)
     }
   }, [])
-  const [selectedPump, setSelectedPump] = useState<string>('BA-01')
+  const [selectedPump, setSelectedPump] = useState<string>('BE-04')
+  const [pumpAiDetail, setPumpAiDetail] = useState<string | null>(null)
   const [selectedWorker, setSelectedWorker] = useState<WorkerData | null>(null)
   const [whatIfTarget] = useState('V-PH-01')
   const [whatIfHorizon] = useState(60)
@@ -1030,15 +1032,27 @@ export default function App() {
     const lower = clean.toLowerCase()
 
     let reply = ''
-    if (lower.includes('ba-04') || (lower.includes('bomba') && (lower.includes('falla') || lower.includes('alarma') || lower.includes('sobretemperatura')))) {
-      reply = 'Diagnóstico Bit IA para Bomba BA-04:\n• Estado: Disparo térmico por sobretemperatura (81 °C) y presión nula (0.0 bar).\n• Horas acumuladas: 4,650 h de servicio continuo (próxima a ciclo mayor).\n• Causa probable: Restricción en el caudal de refrigeración del sello mecánico y desgaste del rodamiento de empuje.\n• Recomendación inmediata: Conmutar el arranque de la bomba BA-03 (reserva fría) para estabilizar el caudal en 152 L/s y evitar el rebose del sumidero L5 (64%), mientras la brigada aísla y desarma BA-04.'
-    } else if (lower.includes('ba-03') || (lower.includes('bomba') && lower.includes('reserva'))) {
-      reply = 'Telemetría Bit IA - Bomba BA-03:\n• Estado: En reserva (Standby operativo listo).\n• Temperatura: 24 °C (ambiente nominal).\n• Horas de servicio: 1,490 h.\n• Presión proyectada: 12.0 bar a 75 L/s.\n• Bit puede autorizar la secuencia de cebado y arranque automático si se aprueba la maniobra de relevo.'
-    } else if (lower.includes('ba-01') || lower.includes('ba-02')) {
-      const pName = lower.includes('01') ? 'BA-01' : 'BA-02'
-      const flow = lower.includes('01') ? '78 L/s' : '74 L/s'
-      const temp = lower.includes('01') ? '62 °C' : '59 °C'
-      reply = `Telemetría Bit IA - Bomba ${pName}:\n• Estado: En marcha continua y estable.\n• Caudal aportado: ${flow} a 12 bar de presión.\n• Temperatura de operación: ${temp} (dentro de rango seguro < 70 °C).\n• Eficiencia hidráulica estimada: 92.4%. No requiere intervención inmediata.`
+    if (lower.includes('be-04') || lower.includes('ba-04') || lower.includes('b-04') || (lower.includes('bomba') && (lower.includes('falla') || lower.includes('mitigar') || lower.includes('alarma') || lower.includes('sobretemperatura') || lower.includes('sb-01')))) {
+      reply = `Diagnóstico de Telemetría Bit IA — Bomba BE-04 (Sala de Bombeo SB-01):
+
+• Estado actual: Disparo térmico por sobretemperatura (81 °C registrado vs. umbral seguro < 70 °C). Presión en descarga 0.0 bar (bomba despresurizada y fuera de línea).
+• Horas acumuladas: 4,650 h de servicio continuo (próxima a ciclo de mantenimiento mayor).
+• Causa raíz detectada: Restricción severa en línea de lubricación forzada y desgaste acelerado en pista exterior de rodamiento de empuje SKF (vibración RMS 4.8 mm/s, Zona C ISO 10816).
+• Riesgo hidráulico en Sumidero L5: El afluente promedio es de 148 L/s y actualmente solo BE-01 + BE-02 extraen 150 L/s. Con un margen neto de apenas +2 L/s, cualquier incremento de agua de perforación causará rebose en 38 minutos.
+
+Protocolo de Mitigación Recomendado por Bit IA:
+1. Conmutación de relevo: Arrancar inmediatamente la bomba BE-03 (en reserva operativa, 24 °C, 1,490 h acumuladas). Esto elevará la extracción a 225 L/s, garantizando un margen seguro de vaciado de 77 L/s.
+2. Aislamiento LOTO: Proceder con desenergización en interruptor Q4 del tablero MCC-SB01.
+3. Despacho técnico: Notificar al técnico Juan García (Mantenimiento Mecánico, ubicado a 45 m en galería SB-01) para inspección física y reemplazo de rodamientos.
+
+He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el panel lateral.`
+    } else if (lower.includes('be-03') || lower.includes('ba-03') || lower.includes('b-03') || (lower.includes('bomba') && lower.includes('reserva'))) {
+      reply = 'Telemetría Bit IA - Bomba BE-03:\n• Estado: En reserva (Standby operativo listo).\n• Temperatura: 24 °C (ambiente nominal).\n• Horas de servicio: 1,490 h.\n• Presión proyectada: 12.0 bar a 75 L/s.\n• Bit autoriza la secuencia de arranque remoto para sustituir el caudal de BE-04.'
+    } else if (lower.includes('be-01') || lower.includes('be-02') || lower.includes('ba-01') || lower.includes('ba-02')) {
+      const pName = (lower.includes('01') || lower.includes('be-01')) ? 'BE-01' : 'BE-02'
+      const flow = (lower.includes('01') || lower.includes('be-01')) ? '75 L/s' : '75 L/s'
+      const temp = (lower.includes('01') || lower.includes('be-01')) ? '62 °C' : '59 °C'
+      reply = `Telemetría Bit IA - Bomba ${pName}:\n• Estado: En marcha continua y estable.\n• Caudal aportado: ${flow} a 12.2 bar de presión.\n• Temperatura de operación: ${temp} (dentro de rango seguro < 70 °C).\n• Eficiencia hidráulica estimada: 92.4%. No requiere intervención inmediata.`
     } else if (lower.includes('sumidero') || lower.includes('desborde') || lower.includes('nivel')) {
       reply = 'Monitoreo de Sumidero L5 (Bit IA):\n• Nivel actual: 64% (~180 m³).\n• Caudal de afluente: 148 L/s promedio.\n• Caudal de extracción activo: 152 L/s (BA-01 + BA-02).\n• Margen neto: +4 L/s de descenso gradual.\n• Tiempo crítico hasta cota de alarma en caso de parada: 42 minutos. Con BA-01 y BA-02 activas el sistema se mantiene en equilibrio seguro.'
     } else if (lower.includes('sala de bombeo') || lower.includes('sb-01') || lower.includes('bombeo')) {
@@ -1366,6 +1380,11 @@ export default function App() {
           onSelectPump={(id) => {
             setSelectedPump(id)
             setSelectedWorker(null)
+          }}
+          onOpenPumpAi={(id) => {
+            setSelectedPump(id)
+            setSelectedWorker(null)
+            setPumpAiDetail(id)
           }}
           onSelectWorker={(w) => setSelectedWorker(w)}
           onAskNexo={(q) => {
@@ -1843,16 +1862,16 @@ export default function App() {
                 <div className="user-detail-topbar">
                   <button
                     className="user-top-back-btn"
-                    onClick={handleBackFromInterior}
-                    title="Volver"
-                    aria-label="Volver"
-                    {...showHelp('Volver a la mina', 'Regresar a la visualización 3D general de la mina.')}
+                    onClick={pumpAiDetail ? () => setPumpAiDetail(null) : handleBackFromInterior}
+                    title={pumpAiDetail ? "Volver a bombas" : "Volver"}
+                    aria-label={pumpAiDetail ? "Volver a bombas" : "Volver"}
+                    {...showHelp('Volver', pumpAiDetail ? 'Volver al listado de bombas de la sala.' : 'Regresar a la visualización 3D general de la mina.')}
                   >
                     <ChevronLeft size={18} />
                   </button>
                   <div className="user-top-crumb">
-                    <span className="crumb-prefix">Interiores / </span>
-                    <span className="crumb-name"><b>Sala de bombeo</b></span>
+                    <span className="crumb-prefix">{pumpAiDetail ? 'Sala de bombeo / ' : 'Interiores / '}</span>
+                    <span className="crumb-name"><b>{pumpAiDetail ? `${pumpAiDetail} Diagnóstico Bit IA` : 'Sala de bombeo'}</b></span>
                   </div>
                   <button
                     className="user-top-search-btn"
@@ -1927,8 +1946,142 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* IF INSIDE: Title, 2x2 Telemetry Grid (Nivel sumidero, En marcha, Caudal total, Falla) & Pump cards */}
-                  {interiorView && (
+                  {/* IF INSIDE: Check if pumpAiDetail sub-level is open OR render default pumps list */}
+                  {interiorView && pumpAiDetail ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      {/* Header with status badge */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, margin: '4px 0 4px 0' }}>
+                          <h2 className="user-detail-title" style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
+                            Bomba {pumpAiDetail}
+                          </h2>
+                          <span className="smart-badge red" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                            <Siren size={13} />
+                            <span>En falla (Crítico)</span>
+                          </span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.4 }}>
+                          Disparo térmico en rodamiento · Detectado por telemetría Bit IA
+                        </p>
+                      </div>
+
+                      {/* AI Diagnostic card */}
+                      <div
+                        className="evac-info-card"
+                        style={{
+                          borderRadius: 10,
+                          padding: '12px 14px',
+                          background: 'var(--panel-bg)',
+                          border: '1px solid var(--line)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 10,
+                        }}
+                      >
+                        <div className="row between" style={{ fontSize: 12.5, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                          <span style={{ color: 'var(--muted)' }}>Causa raíz detectada</span>
+                          <b style={{ color: '#ef4444' }}>Sobretemperatura (81 °C)</b>
+                        </div>
+                        <div className="row between" style={{ fontSize: 12.5, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                          <span style={{ color: 'var(--muted)' }}>Vibración radial RMS</span>
+                          <span style={{ color: 'var(--text)', fontWeight: 600 }}>4.8 mm/s (Zona C)</span>
+                        </div>
+                        <div className="row between" style={{ fontSize: 12.5, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                          <span style={{ color: 'var(--muted)' }}>Presión en descarga</span>
+                          <span style={{ color: 'var(--text)', fontWeight: 600 }}>0.0 bar (Sin flujo)</span>
+                        </div>
+                        <div className="row between" style={{ fontSize: 12.5, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                          <span style={{ color: 'var(--muted)' }}>Horas acumuladas</span>
+                          <span style={{ color: 'var(--text)', fontWeight: 600 }}>4,650 h (Vencido)</span>
+                        </div>
+                        <div className="row between" style={{ fontSize: 12.5 }}>
+                          <span style={{ color: 'var(--muted)' }}>Riesgo en sumidero L5</span>
+                          <span style={{ color: '#f59e0b', fontWeight: 600 }}>Cota de alarma en 38 min</span>
+                        </div>
+                      </div>
+
+                      {/* Plan de mitigación sugerido */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', letterSpacing: '0.5px' }}>
+                          Plan de Mitigación Sugerido por Bit IA
+                        </div>
+                        <div
+                          style={{
+                            padding: '10px 12px',
+                            borderRadius: 8,
+                            background: 'rgba(84, 110, 122, 0.08)',
+                            border: '1px solid rgba(84, 110, 122, 0.2)',
+                            fontSize: 12.5,
+                            lineHeight: 1.45,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 8,
+                          }}
+                        >
+                          <div><b>1. Arrancar BE-03 (Standby)</b>: Recupera el caudal a 225 L/s y evita el desborde del sumidero.</div>
+                          <div><b>2. Bloqueo LOTO</b>: Aislar alimentación eléctrica en panel MCC-SB01 celda 4.</div>
+                          <div><b>3. Despacho técnico</b>: Cuadrilla técnica asignada (Juan García) en galería N5.</div>
+                        </div>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+                        <button
+                          type="button"
+                          className="cta full no-shadow"
+                          style={{
+                            width: '100%',
+                            height: 38,
+                            background: '#0284c7',
+                            color: '#ffffff',
+                            fontWeight: 600,
+                            borderRadius: 8,
+                            fontSize: 13,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 6,
+                          }}
+                          onClick={() => {
+                            setNexoMessages((prev) => [
+                              ...prev,
+                              { role: 'user', text: `Arrancar bomba BE-03 en relevo de ${pumpAiDetail}` },
+                              {
+                                role: 'assistant',
+                                text: `Secuencia de arranque remoto de BE-03 ejecutada exitosamente. Caudal restablecido a 225 L/s. Nivel del sumidero L5 estabilizado en 64% con margen neto de vaciado de 77 L/s. La bomba ${pumpAiDetail} permanece aislada bajo protocolo LOTO.`,
+                              },
+                            ])
+                            setNexoOpen(true)
+                          }}
+                        >
+                          <Play size={15} />
+                          <span>Arrancar BE-03 (Bomba en reserva)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="consultar-nexo-btn ia-outline"
+                          style={{ width: '100%', height: 38, margin: 0, fontSize: 12.5 }}
+                          onClick={() => {
+                            setNexoOpen(true)
+                            sendNexoMessage(`¿Cómo mitigar la falla de ${pumpAiDetail} en Sala de bombeo SB-01?`)
+                          }}
+                        >
+                          <BitLogo width={12} height={14} color="currentColor" />
+                          <span>Abrir consulta interactiva con Bit IA</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="esc-secondary-btn full no-shadow"
+                          style={{ width: '100%', height: 36, margin: 0, fontSize: 12.5 }}
+                          onClick={() => setPumpAiDetail(null)}
+                        >
+                          <span>Volver a Sala de bombeo</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : interiorView ? (
                     <>
                       <h2 className="user-detail-title" style={{ margin: '6px 0 12px 0', fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
                         Sala de bombeo
@@ -1993,8 +2146,10 @@ export default function App() {
                                   style={{ marginTop: 8, marginBottom: 0, height: 34, padding: '0 12px', fontSize: 12 }}
                                   onClick={(e) => {
                                     e.stopPropagation()
+                                    setSelectedPump(p.id)
+                                    setPumpAiDetail(p.id)
                                     setNexoOpen(true)
-                                    sendNexoMessage('¿Cómo mitigar la falla de BA-04 en Sala de bombeo SB-01?')
+                                    sendNexoMessage(`¿Cómo mitigar la falla de ${p.id} en Sala de bombeo SB-01?`)
                                   }}
                                   title="Preguntar a Bit IA sobre la mitigación de falla"
                                 >
@@ -2007,7 +2162,7 @@ export default function App() {
                         })}
                       </div>
                     </>
-                  )}
+                  ) : null}
                 </div>
               </div>
             )

@@ -2029,7 +2029,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div className="bombeo-3d-badge marcha" style={{ position: 'relative', transform: 'none' }}>
                     <div className="bombeo-badge-top-box">
                       <span className="callout-dot green" />
-                      <span>B-01</span>
+                      <span>BE-01</span>
                     </div>
                     <div className="bombeo-badge-bottom-box">75 L/s</div>
                   </div>
@@ -2038,7 +2038,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div className="bombeo-3d-badge marcha" style={{ position: 'relative', transform: 'none' }}>
                     <div className="bombeo-badge-top-box">
                       <span className="callout-dot green" />
-                      <span>B-02</span>
+                      <span>BE-02</span>
                     </div>
                     <div className="bombeo-badge-bottom-box">74 L/s</div>
                   </div>
@@ -2047,18 +2047,26 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div className="bombeo-3d-badge reserva" style={{ position: 'relative', transform: 'none' }}>
                     <div className="bombeo-badge-top-box">
                       <span className="callout-dot yellow" />
-                      <span>B-03</span>
+                      <span>BE-03</span>
                     </div>
                     <div className="bombeo-badge-bottom-box reserva">RESERVA</div>
                   </div>
 
-                  {/* B4: Falla */}
-                  <div className="bombeo-3d-badge falla" style={{ position: 'relative', transform: 'none' }}>
-                    <div className="bombeo-badge-top-box">
-                      <span className="callout-dot red" />
-                      <span>B-04</span>
+                  {/* BE-04: Falla + Companion Bit IA Badge */}
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <div className="bombeo-3d-badge falla" style={{ position: 'relative', transform: 'none' }}>
+                      <div className="bombeo-badge-top-box">
+                        <span className="callout-dot red" />
+                        <span>BE-04</span>
+                      </div>
+                      <div className="bombeo-badge-bottom-box falla">FALLA</div>
                     </div>
-                    <div className="bombeo-badge-bottom-box falla">FALLA</div>
+
+                    <div className="bombeo-3d-ai-badge" style={{ position: 'relative', transform: 'none' }}>
+                      <BitLogo size={13} color="currentColor" />
+                      <span className="ai-badge-pulse-dot" />
+                      <span>BE-04 · Bit IA</span>
+                    </div>
                   </div>
 
                   {/* Sumidero */}
@@ -2117,7 +2125,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div className="bombeo-3d-badge marcha selected" style={{ position: 'relative', transform: 'none' }}>
                     <div className="bombeo-badge-top-box">
                       <span className="callout-dot green" />
-                      <span>B-02</span>
+                      <span>BE-02</span>
                     </div>
                     <div className="bombeo-badge-bottom-box">74 L/s</div>
                   </div>
@@ -2126,18 +2134,26 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   <div className="bombeo-3d-badge reserva selected" style={{ position: 'relative', transform: 'none' }}>
                     <div className="bombeo-badge-top-box">
                       <span className="callout-dot yellow" />
-                      <span>B-03</span>
+                      <span>BE-03</span>
                     </div>
                     <div className="bombeo-badge-bottom-box reserva">RESERVA</div>
                   </div>
 
-                  {/* B4 Selected */}
-                  <div className="bombeo-3d-badge falla selected" style={{ position: 'relative', transform: 'none' }}>
-                    <div className="bombeo-badge-top-box">
-                      <span className="callout-dot red" />
-                      <span>B-04</span>
+                  {/* BE-04 Selected + Companion Bit IA Badge */}
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <div className="bombeo-3d-badge falla selected" style={{ position: 'relative', transform: 'none' }}>
+                      <div className="bombeo-badge-top-box">
+                        <span className="callout-dot red" />
+                        <span>BE-04</span>
+                      </div>
+                      <div className="bombeo-badge-bottom-box falla">FALLA</div>
                     </div>
-                    <div className="bombeo-badge-bottom-box falla">FALLA</div>
+
+                    <div className="bombeo-3d-ai-badge active" style={{ position: 'relative', transform: 'none' }}>
+                      <BitLogo size={13} color="currentColor" />
+                      <span className="ai-badge-pulse-dot" />
+                      <span>BE-04 · Diagnóstico Bit IA</span>
+                    </div>
                   </div>
 
                   {/* Sumidero Selected */}
@@ -2930,10 +2946,10 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
 
                 <div className="bombeo-pumps-list" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {[
-                    { id: 'BA-01', status: 'marcha' as const, statusText: 'En marcha', temp: '48 °C', flow: '78 L/s · 4.2 bar', hours: '1,240 h', pct: 78 },
-                    { id: 'BA-04', status: 'falla' as const, statusText: 'En falla', temp: '78 °C', flow: '0 L/s · 0.0 bar', hours: '2,150 h', pct: 100 },
+                    { id: 'BE-01', status: 'marcha' as const, statusText: 'En marcha', temp: '48 °C', flow: '78 L/s · 4.2 bar', hours: '1,240 h', pct: 78 },
+                    { id: 'BE-04', status: 'falla' as const, statusText: 'En falla', temp: '78 °C', flow: '0 L/s · 0.0 bar', hours: '2,150 h', pct: 100 },
                   ].map((p) => {
-                    const isSel = selectedPump === p.id || p.id === 'BA-04'
+                    const isSel = selectedPump === p.id || p.id === 'BE-04'
                     return (
                       <div
                         key={p.id}
