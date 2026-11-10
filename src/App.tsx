@@ -683,7 +683,6 @@ export default function App() {
   const [recoverOffPeak, setRecoverOffPeak] = useState(true)
   const [noBlastingPeak, setNoBlastingPeak] = useState(true)
   const [vodMargin, setVodMargin] = useState(10)
-  const [fleetDetailsOpen, setFleetDetailsOpen] = useState(false)
   const [scenarioJsonCopied, setScenarioJsonCopied] = useState(false)
 
   const handleRunScenarioWithBit = () => {
@@ -4128,7 +4127,7 @@ export default function App() {
                     {recoverOffPeak && <Check size={14} />}
                   </span>
                   <span className="whatif-check-label">
-                    Recuperar toneladas perdidas en valle (utilización de camiones hasta 92 %)
+                    Recuperar toneladas en valle (hasta 92 %)
                   </span>
                 </div>
                 <div
@@ -4139,14 +4138,14 @@ export default function App() {
                     {noBlastingPeak && <Check size={14} />}
                   </span>
                   <span className="whatif-check-label">
-                    Sin autorización de voladura (clearance) durante horas punta
+                    Sin voladuras en horas punta
                   </span>
                 </div>
               </div>
 
-              {/* 5. Margen de seguridad VOD sobre requerimiento */}
+              {/* 5. Margen de seguridad VOD */}
               <div className="row between" style={{ marginTop: 12, fontSize: 13 }}>
-                <span className="field-label" style={{ margin: 0 }}>Margen de seguridad VOD sobre requerimiento</span>
+                <span className="field-label" style={{ margin: 0 }}>Margen de seguridad VOD</span>
                 <b className="mono">{vodMargin} %</b>
               </div>
               <input
@@ -4163,51 +4162,7 @@ export default function App() {
                 }}
               />
 
-              {/* 6. Acordeón: Valores de flota, personal y tarifas */}
-              <div style={{ marginTop: 12 }}>
-                <button
-                  type="button"
-                  onClick={() => setFleetDetailsOpen((prev) => !prev)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    background: 'transparent',
-                    border: 'none',
-                    padding: '4px 0',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: 'var(--muted)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {fleetDetailsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                  <span>Valores de flota, personal y tarifas</span>
-                </button>
-                {fleetDetailsOpen && (
-                  <div
-                    style={{
-                      marginTop: 6,
-                      padding: '8px 10px',
-                      borderRadius: 6,
-                      background: 'rgba(0,0,0,0.03)',
-                      border: '1px solid var(--line)',
-                      fontSize: 11.5,
-                      lineHeight: 1.5,
-                      color: 'var(--text)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 4,
-                    }}
-                  >
-                    <div>• <b>Flota activa:</b> 4 Jumbos DD422i, 6 Camiones TH551i, 3 Scoops LH517i.</div>
-                    <div>• <b>Personal:</b> 28 trabajadores en interior mina (Turno A).</div>
-                    <div>• <b>Contrato CFE:</b> Tarifa GDMTH Media Tensión horaria ($312.40 MXN/kW-mes demanda punta).</div>
-                  </div>
-                )}
-              </div>
-
-              {/* 7. Action buttons: Secondary Bit IA button + Copiar JSON */}
+              {/* 6. Action buttons: Secondary Bit IA button + Copiar JSON */}
               <button
                 type="button"
                 className="consultar-nexo-btn ia-secondary"

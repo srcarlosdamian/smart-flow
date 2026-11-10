@@ -151,6 +151,15 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
   // Slider speed state
   const [beamSpeed, setBeamSpeed] = useState<number>(8)
 
+  // Editable state for Bit IA Simulation Result Finding (Live Editor)
+  const [dsFindingTitle, setDsFindingTitle] = useState('Ahorro de MXN 2.18 M por mes (35 %)')
+  const [dsFindingBody, setDsFindingBody] = useState(
+    'El costo cae de MXN 6.23 M a MXN 4.04 M. VOD por sí solo aporta MXN 1.23 M; la nueva programación añade MXN 957 k, principalmente al reducir la demanda en horario punta de 3,649 kW a 692 kW.'
+  )
+  const [dsFindingCategory, setDsFindingCategory] = useState<'opportunity' | 'context'>('opportunity')
+  const [dsFindingSubCat, setDsFindingSubCat] = useState('Energía y costo')
+  const [dsFindingConfidence, setDsFindingConfidence] = useState(82)
+
   const isLight = theme === 'light'
 
   // Exact background colors & technical grid from Scene3D.tsx PALETTE
@@ -2455,6 +2464,208 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     <button className="nexo-send-btn" title="Enviar">
                       <ArrowUp size={17} />
                     </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 5.4 Resultados y Hallazgos de Simulación Bit IA (Sin fondo · Línea separada) */}
+              <div className="glass" style={{ ...cardSurfaceStyle, gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={labelTagStyle}>
+                  <span>5.4 RESULTADOS Y HALLAZGOS DE SIMULACIÓN BIT IA (SIN FONDO · LÍNEA SEPARADA)</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.nexo-scenario-card</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('nexo-drawer')}
+                        title="Abrir Bit IA en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
+                  Patrón alineado al diseño SmartFlow: <b>sin fondo (transparente)</b>, <b>sin bordes redondeados tipo caja</b>, con <b>línea lateral de categoría</b> (verde para Oportunidad, azul para Contexto) y <b>línea separadora inferior</b> (<code>border-bottom: 1px solid var(--line)</code>).
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+                  {/* Left: Live Interactive Card Preview */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <small style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
+                      Previsualización en Vivo (Editable desde el panel derecho)
+                    </small>
+
+                    <div style={{ background: 'var(--panel-bg)', padding: '12px 16px', borderRadius: 10, border: '1px solid var(--line)' }}>
+                      {/* Status header like inside drawer */}
+                      <div className="nexo-status-pill" style={{ marginBottom: 12 }}>
+                        <div className="row gap-2" style={{ alignItems: 'center' }}>
+                          <Settings size={14} style={{ color: 'var(--muted)' }} />
+                          <span>Bit calculó la red de ventilación</span>
+                        </div>
+                        <span className="mono" style={{ fontSize: 11, color: 'var(--muted)' }}>7 ms</span>
+                      </div>
+
+                      <div className={`nexo-scenario-card ${dsFindingCategory}`}>
+                        <div className="nexo-card-header">
+                          <div className={`nexo-card-cat-label ${dsFindingCategory}`}>
+                            <b>{dsFindingCategory === 'opportunity' ? 'Oportunidad' : 'Contexto'}</b>
+                            <span style={{ color: 'var(--muted)' }}>· {dsFindingSubCat}</span>
+                          </div>
+                          <div className="nexo-confidence-badge">
+                            <div className={`nexo-confidence-circle ${dsFindingCategory === 'opportunity' ? 'green' : 'blue'}`}>
+                              {dsFindingConfidence}%
+                            </div>
+                            <span className="nexo-confidence-sub">confianza</span>
+                          </div>
+                        </div>
+
+                        <h3 className="nexo-card-title">{dsFindingTitle}</h3>
+                        <p className="nexo-card-body">{dsFindingBody}</p>
+
+                        <div className="nexo-card-actions">
+                          <button className="nexo-card-btn" type="button">Mostrar hora punta</button>
+                          <button className="nexo-card-btn" type="button">Comparar casos</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Live Field Editor for Design Customization */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '14px', borderRadius: 10, background: 'rgba(0,0,0,0.02)', border: '1px solid var(--line)' }}>
+                    <small style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
+                      Editor de Propiedades del Hallazgo
+                    </small>
+
+                    {/* Category Switcher */}
+                    <div>
+                      <label className="field-label" style={{ fontSize: 11.5, marginBottom: 4 }}>Categoría</label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          className="nexo-card-btn"
+                          style={{
+                            flex: 1,
+                            padding: '6px 10px',
+                            background: dsFindingCategory === 'opportunity' ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
+                            borderColor: dsFindingCategory === 'opportunity' ? '#10b981' : 'var(--line)',
+                            color: dsFindingCategory === 'opportunity' ? '#10b981' : 'var(--text)',
+                            fontWeight: 600,
+                          }}
+                          onClick={() => {
+                            setDsFindingCategory('opportunity')
+                            setDsFindingSubCat('Energía y costo')
+                          }}
+                        >
+                          Oportunidad (#10b981)
+                        </button>
+                        <button
+                          type="button"
+                          className="nexo-card-btn"
+                          style={{
+                            flex: 1,
+                            padding: '6px 10px',
+                            background: dsFindingCategory === 'context' ? 'rgba(2, 132, 199, 0.12)' : 'transparent',
+                            borderColor: dsFindingCategory === 'context' ? '#0284c7' : 'var(--line)',
+                            color: dsFindingCategory === 'context' ? '#0284c7' : 'var(--text)',
+                            fontWeight: 600,
+                          }}
+                          onClick={() => {
+                            setDsFindingCategory('context')
+                            setDsFindingSubCat('Seguridad')
+                          }}
+                        >
+                          Contexto (#0284c7)
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Subcategory */}
+                    <div>
+                      <label className="field-label" style={{ fontSize: 11.5, marginBottom: 4 }}>Subcategoría</label>
+                      <input
+                        type="text"
+                        value={dsFindingSubCat}
+                        onChange={(e) => setDsFindingSubCat(e.target.value)}
+                        style={{
+                          width: '100%',
+                          height: 32,
+                          padding: '4px 10px',
+                          borderRadius: 6,
+                          border: '1px solid var(--line)',
+                          background: 'var(--input-bg, #fff)',
+                          color: 'var(--text)',
+                          fontSize: 12.5,
+                        }}
+                      />
+                    </div>
+
+                    {/* Confidence Slider */}
+                    <div>
+                      <div className="row between" style={{ fontSize: 12 }}>
+                        <span className="field-label" style={{ margin: 0, fontSize: 11.5 }}>Nivel de Confianza</span>
+                        <b className="mono" style={{ color: dsFindingCategory === 'opportunity' ? '#10b981' : '#0284c7' }}>
+                          {dsFindingConfidence} %
+                        </b>
+                      </div>
+                      <input
+                        type="range"
+                        min={50}
+                        max={100}
+                        value={dsFindingConfidence}
+                        onChange={(e) => setDsFindingConfidence(+e.target.value)}
+                        style={{
+                          width: '100%',
+                          marginTop: 4,
+                          ['--range-progress' as any]: `${((dsFindingConfidence - 50) / 50) * 100}%`,
+                        }}
+                      />
+                    </div>
+
+                    {/* Title */}
+                    <div>
+                      <label className="field-label" style={{ fontSize: 11.5, marginBottom: 4 }}>Título del Hallazgo</label>
+                      <input
+                        type="text"
+                        value={dsFindingTitle}
+                        onChange={(e) => setDsFindingTitle(e.target.value)}
+                        style={{
+                          width: '100%',
+                          height: 32,
+                          padding: '4px 10px',
+                          borderRadius: 6,
+                          border: '1px solid var(--line)',
+                          background: 'var(--input-bg, #fff)',
+                          color: 'var(--text)',
+                          fontSize: 12.5,
+                          fontWeight: 600,
+                        }}
+                      />
+                    </div>
+
+                    {/* Body */}
+                    <div>
+                      <label className="field-label" style={{ fontSize: 11.5, marginBottom: 4 }}>Descripción y métricas</label>
+                      <textarea
+                        rows={3}
+                        value={dsFindingBody}
+                        onChange={(e) => setDsFindingBody(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '6px 10px',
+                          borderRadius: 6,
+                          border: '1px solid var(--line)',
+                          background: 'var(--input-bg, #fff)',
+                          color: 'var(--text)',
+                          fontSize: 12,
+                          lineHeight: 1.4,
+                          resize: 'vertical',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
