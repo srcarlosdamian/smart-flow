@@ -331,22 +331,36 @@ export default function InteriorBombeoView({
   const targetCameraPosRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 3.8, 12.8))
   const targetLookAtRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.3, -0.2))
   const isTransitioningRef = useRef<boolean>(false)
+  const transitionFramesRef = useRef<number>(0)
+  const prevSelectedPumpRef = useRef<string | null | undefined>(undefined)
 
-  useEffect(() => {
-    setActivePump(selectedPumpId || null)
-    if (selectedPumpId) {
-      const p = PUMPS.find((pump) => pump.id === selectedPumpId || (selectedPumpId && pump.id.endsWith(selectedPumpId.slice(-2))))
+  const focusPumpCamera = (pumpId: string | null) => {
+    if (pumpId) {
+      const p = PUMPS.find((pump) => pump.id === pumpId || pump.id.endsWith(pumpId.slice(-2)))
       if (p) {
-        // Zoom-in close-up towards this pump (especially BE-04 with failure)
         targetLookAtRef.current.set(p.pos[0], 1.1, p.pos[2] - 0.2)
         targetCameraPosRef.current.set(p.pos[0] + 0.6, 2.2, p.pos[2] + 4.0)
+        transitionFramesRef.current = 0
         isTransitioningRef.current = true
       }
     } else {
-      // Return to full room overview
       targetLookAtRef.current.set(0, 1.3, -0.2)
       targetCameraPosRef.current.set(0, 3.8, 12.8)
+      transitionFramesRef.current = 0
       isTransitioningRef.current = true
+    }
+  }
+
+  useEffect(() => {
+    setActivePump(selectedPumpId || null)
+    // Skip camera transition on initial mount when nothing is selected
+    if (prevSelectedPumpRef.current === undefined && !selectedPumpId) {
+      prevSelectedPumpRef.current = null
+      return
+    }
+    if (prevSelectedPumpRef.current !== selectedPumpId) {
+      prevSelectedPumpRef.current = selectedPumpId || null
+      focusPumpCamera(selectedPumpId || null)
     }
   }, [selectedPumpId])
 
@@ -487,8 +501,8 @@ export default function InteriorBombeoView({
     controls.dampingFactor = 0.05
     controls.target.set(0, 1.3, -0.2)
     controls.maxPolarAngle = Math.PI / 2 - 0.01 // Never dip below floor
-    controls.minDistance = 4
-    controls.maxDistance = 28
+    controls.minDistance = 1.5
+    controls.maxDistance = 45
     controlsRef.current = controls
 
     // Lighting
@@ -720,11 +734,39 @@ export default function InteriorBombeoView({
     sumpGroup.add(waterMesh)
     scene.add(sumpGroup)
 
-    // Raycasting for pump & worker selection on click
+    // Raycasting for pump & worker selection on click (ignores camera drag)
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
+    let pointerDownX = 0
+    let pointerDownY = 0
+    let isPointerPressed = false
+
+    const cancelCameraTransition = () => {
+      isTransitioningRef.current = false
+    }
 
     const onPointerDown = (evt: PointerEvent) => {
+      isPointerPressed = true
+      pointerDownX = evt.clientX
+      pointerDownY = evt.clientY
+    }
+
+    const onPointerMove = (evt: PointerEvent) => {
+      if (!isPointerPressed) return
+      if (Math.hypot(evt.clientX - pointerDownX, evt.clientY - pointerDownY) > 4) {
+        // User is dragging to orbit/pan: stop automatic zoom immediately
+        isTransitioningRef.current = false
+      }
+    }
+
+    const onPointerUp = (evt: PointerEvent) => {
+      if (!isPointerPressed) return
+      isPointerPressed = false
+      // Only treat as selection click if pointer barely moved
+      if (Math.hypot(evt.clientX - pointerDownX, evt.clientY - pointerDownY) > 6) {
+        return
+      }
+
       const rect = renderer.domElement.getBoundingClientRect()
       mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1
       mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1
@@ -740,8 +782,11 @@ export default function InteriorBombeoView({
             return
           }
           if (cur.userData?.isPump) {
-            setActivePump(cur.userData.pumpId)
-            onSelectPump?.(cur.userData.pumpId)
+            const pId = cur.userData.pumpId
+            setActivePump(pId)
+            prevSelectedPumpRef.current = pId
+            focusPumpCamera(pId)
+            onSelectPump?.(pId)
             return
           }
           cur = cur.parent
@@ -750,19 +795,27 @@ export default function InteriorBombeoView({
     }
 
     renderer.domElement.addEventListener('pointerdown', onPointerDown)
+    renderer.domElement.addEventListener('pointermove', onPointerMove)
+    renderer.domElement.addEventListener('pointerup', onPointerUp)
+    renderer.domElement.addEventListener('wheel', cancelCameraTransition, { passive: true })
+    renderer.domElement.addEventListener('touchstart', cancelCameraTransition, { passive: true })
+    renderer.domElement.addEventListener('touchmove', cancelCameraTransition, { passive: true })
 
     // Animation & Screen Coordinates Projection Loop
     let animId = 0
     const animate = () => {
       animId = requestAnimationFrame(animate)
 
-      // Smooth camera transition when focusing/zooming on a pump card
+      // Smooth camera transition when focusing/zooming on a pump card;
+      // immediately stops if user scrolls/drags or once settled
       if (isTransitioningRef.current && controlsRef.current && cameraRef.current) {
-        camera.position.lerp(targetCameraPosRef.current, 0.075)
-        controls.target.lerp(targetLookAtRef.current, 0.075)
+        transitionFramesRef.current += 1
+        camera.position.lerp(targetCameraPosRef.current, 0.085)
+        controls.target.lerp(targetLookAtRef.current, 0.085)
         if (
-          camera.position.distanceTo(targetCameraPosRef.current) < 0.03 &&
-          controls.target.distanceTo(targetLookAtRef.current) < 0.03
+          transitionFramesRef.current > 50 ||
+          (camera.position.distanceTo(targetCameraPosRef.current) < 0.08 &&
+            controls.target.distanceTo(targetLookAtRef.current) < 0.08)
         ) {
           isTransitioningRef.current = false
         }
@@ -835,6 +888,11 @@ export default function InteriorBombeoView({
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', handleResize)
       renderer.domElement.removeEventListener('pointerdown', onPointerDown)
+      renderer.domElement.removeEventListener('pointermove', onPointerMove)
+      renderer.domElement.removeEventListener('pointerup', onPointerUp)
+      renderer.domElement.removeEventListener('wheel', cancelCameraTransition)
+      renderer.domElement.removeEventListener('touchstart', cancelCameraTransition)
+      renderer.domElement.removeEventListener('touchmove', cancelCameraTransition)
       renderer.dispose()
       if (renderer.domElement.parentElement === container) {
         container.removeChild(renderer.domElement)
@@ -899,6 +957,8 @@ export default function InteriorBombeoView({
                 setActivePump(pump.id)
                 setActiveWorkerId(null)
                 setSelectedSump(false)
+                prevSelectedPumpRef.current = pump.id
+                focusPumpCamera(pump.id)
                 onSelectPump?.(pump.id)
               }}
               onMouseEnter={() => onHelp?.({
