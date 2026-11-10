@@ -4032,13 +4032,9 @@ export default function App() {
             title="Simular escenario"
             open={openSection === 'ana' || openSection === 'simulaciones'}
             onToggle={() => toggle('ana')}
-            onHover={showHelp('Simular escenario', 'Entradas del escenario precargadas desde el plan de turnos y contrato CFE con ejecución en Bit IA.')}
+            onHover={showHelp('Simular escenario', 'Configuración de variables operativas y cálculo con Bit IA.')}
           >
             <div className="whatif-config-box">
-              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.45 }}>
-                Entradas del escenario: precargadas desde el plan de turnos y contrato CFE.
-              </div>
-
               {/* 1. ¿Dónde debe ocurrir la perforación pesada? */}
               <label className="field-label">¿Dónde debe ocurrir la perforación pesada?</label>
               <div style={{ position: 'relative' }}>
@@ -4070,9 +4066,6 @@ export default function App() {
                   </div>
                 )}
               </div>
-              <small style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 4, lineHeight: 1.35 }}>
-                Plan actual: 4 jumbos perforan 4 h en cada turno de 8 h (los turnos comienzan a las 06:00, 14:00, 22:00).
-              </small>
 
               {/* 2. Temporada de tarifas */}
               <label className="field-label" style={{ marginTop: 12 }}>Temporada de tarifas</label>
@@ -4124,9 +4117,6 @@ export default function App() {
                   ['--range-progress' as any]: `${haulagePeak}%`,
                 }}
               />
-              <small style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 2, lineHeight: 1.35 }}>
-                Las horas punta se utilizan para merienda (crib), inspecciones y cambio de turno en lugar de acarreo.
-              </small>
 
               {/* 4. Checkboxes */}
               <div className="whatif-axes-check-list" style={{ marginTop: 10 }}>
