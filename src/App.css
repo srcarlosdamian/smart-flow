@@ -5389,6 +5389,11 @@ select:focus,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-lineal,
 .app[data-theme="dark"] .consultar-nexo-btn.ia-outline,
 .app[data-theme="dark"] .bombeo-pump-card-v2 .consultar-nexo-btn {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
   color: #f1f5f9 !important;
 }
 .app[data-theme="dark"] .consultar-nexo-btn.ia-secondary::before,
