@@ -66,8 +66,10 @@ import {
   Target,
   X,
   Droplets,
+  WifiOff,
+  HardDrive,
 } from 'lucide-react'
-import { BitLogo } from './App'
+import { BitLogo, type NotificationItem, INITIAL_NOTIFICATIONS } from './App'
 import logoUrl from './assets/smartflow-logo.png'
 import type { Theme } from './Scene3D'
 
@@ -116,6 +118,8 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
   const [selectedZoom, setSelectedZoom] = useState<number>(50)
   const [whatIfTarget, setWhatIfTarget] = useState<string>('Ventilador principal V-PH-01')
   const [shiftStart, setShiftStart] = useState<string>('06:00')
+  const [dsNotifications, setDsNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS)
+  const [dsNotifTab, setDsNotifTab] = useState<'unread' | 'all'>('unread')
   const [checkedPeople, setCheckedPeople] = useState<Record<string, boolean>>({
     p1: true,
     p2: true,
@@ -952,7 +956,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                 </h2>
               </div>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 0 0 0' }}>
-                Haz clic en cualquier disparador (<code>.dd-trigger</code>, <code>.section-action-btn</code>) para abrir/cerrar su menú flotante real (<code>.dd-menu</code>, <code>.zoom-menu</code>, <code>.track-add-menu</code>, <code>.sim-add-menu</code>, <code>.personal-checklist-menu</code>).
+                Haz clic en cualquier disparador (<code>.dd-trigger</code>, <code>.section-action-btn</code>, <code>.topbar-bell-btn</code>) para abrir/cerrar su menú flotante real (<code>.dd-menu</code>, <code>.zoom-menu</code>, <code>.track-add-menu</code>, <code>.sim-add-menu</code>, <code>.personal-checklist-menu</code>, <code>.notifications-dropdown</code>).
               </p>
             </div>
 
@@ -1440,6 +1444,130 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', marginTop: 6 }}>
                       Vista interior del lugar
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2.6 Dropdown de Notificaciones con Fill Tabs (media_1794271379718_f95c102c.png) */}
+              <div className="glass" style={{ ...cardSurfaceStyle, minHeight: 410, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div style={labelTagStyle}>
+                  <span>2.6 DROPDOWN DE NOTIFICACIONES (FILL TABS)</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={codePillStyle}>.notifications-dropdown</span>
+                    {onNavigateToLocation && (
+                      <button
+                        className="ds-open-app-btn"
+                        onClick={() => onNavigateToLocation('notificaciones')}
+                        title="Abrir notificaciones en SmartFlow"
+                      >
+                        <SquareArrowOutUpRight size={12} />
+                        <span>Abrir en app</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Topbar trigger demo */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
+                  <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>Disparador con badge numérico:</span>
+                  <button
+                    type="button"
+                    className="topbar-bell-btn active"
+                    style={{ position: 'relative' }}
+                    title="Campana de notificaciones con contador"
+                  >
+                    <Bell size={20} />
+                    {dsNotifications.filter((n) => n.unread).length > 0 && (
+                      <span className="notif-badge-count">
+                        {dsNotifications.filter((n) => n.unread).length}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                {/* Dropdown container */}
+                <div
+                  className="dd-menu notifications-dropdown"
+                  style={{
+                    position: 'relative',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    padding: 0,
+                    boxShadow: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  {/* Fill Tabs exactos al estilo SmartFlow */}
+                  <div className="notif-tab-wrap">
+                    <button
+                      type="button"
+                      className={`notif-fill-tab ${dsNotifTab === 'unread' ? 'active' : ''}`}
+                      onClick={() => setDsNotifTab('unread')}
+                    >
+                      No leídas ({dsNotifications.filter((n) => n.unread).length})
+                    </button>
+                    <button
+                      type="button"
+                      className={`notif-fill-tab ${dsNotifTab === 'all' ? 'active' : ''}`}
+                      onClick={() => setDsNotifTab('all')}
+                    >
+                      Todas
+                    </button>
+                  </div>
+
+                  {/* List of Notification Items */}
+                  <div className="notif-items-list">
+                    {dsNotifications
+                      .filter((n) => (dsNotifTab === 'unread' ? n.unread : true))
+                      .map((item) => (
+                        <button
+                          type="button"
+                          key={item.id}
+                          className={`notif-item-row ${item.unread ? 'unread' : ''}`}
+                          onClick={() => {
+                            setDsNotifications((prev) =>
+                              prev.map((n) => (n.id === item.id ? { ...n, unread: false } : n))
+                            )
+                          }}
+                        >
+                          <div className={`notif-icon-circle ${item.type}`}>
+                            {item.type === 'warning' ? (
+                              <WifiOff size={18} />
+                            ) : item.type === 'info' ? (
+                              <HardDrive size={18} />
+                            ) : (
+                              <Activity size={18} />
+                            )}
+                          </div>
+                          <div className="notif-content">
+                            <div className="notif-title">{item.title}</div>
+                            <div className="notif-body">{item.body}</div>
+                            <div className="notif-time">{item.time}</div>
+                          </div>
+                          {item.unread && <span className="notif-unread-dot" />}
+                        </button>
+                      ))}
+
+                    {dsNotifications.filter((n) => (dsNotifTab === 'unread' ? n.unread : true)).length === 0 && (
+                      <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
+                        No hay notificaciones {dsNotifTab === 'unread' ? 'no leídas' : 'disponibles'}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="notif-footer">
+                    <button
+                      type="button"
+                      className="notif-footer-btn"
+                      onClick={() => {
+                        setDsNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
+                      }}
+                    >
+                      Marcar todas como leídas
+                    </button>
                   </div>
                 </div>
               </div>

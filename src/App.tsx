@@ -13,6 +13,7 @@ import {
   Droplets, Mountain, ArrowUpDown, CornerDownLeft,
   Play, Pause, ChevronsLeft, ChevronsRight, RotateCw, Bookmark, Repeat, Crosshair, Calendar,
   X, Target, Upload, Download, Camera, Palette, Copy,
+  WifiOff, HardDrive,
 } from 'lucide-react'
 import Scene3D, { type ViewMode, type Theme } from './Scene3D'
 import DiagramView from './DiagramView'
@@ -191,6 +192,42 @@ const PUMPS_SIDEBAR = [
   { id: 'BE-02', name: 'BE-02', flow: '75 L/s · 11.9 bar', hours: '2870 h de servicio', status: 'marcha', statusText: 'En marcha', temp: '59°C', barPercent: 75 },
   { id: 'BE-03', name: 'BE-03', flow: '0 L/s · 0.0 bar', hours: '1490 h de servicio', status: 'reserva', statusText: 'En reserva', temp: '24°C', barPercent: 0 },
   { id: 'BE-04', name: 'BE-04', flow: '0 L/s · 0.0 bar', hours: '4650 h de servicio', status: 'falla', statusText: 'En falla', temp: '81°C', barPercent: 100 },
+]
+
+export interface NotificationItem {
+  id: string
+  title: string
+  body: string
+  time: string
+  unread: boolean
+  type: 'warning' | 'info' | 'success'
+}
+
+export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: 'n1',
+    title: 'El sensor de CO del Nivel 3 quedó fuera de línea',
+    body: 'El dispositivo no ha reportado datos en los últimos 5 minutos.',
+    time: 'hace 2 horas',
+    unread: true,
+    type: 'warning',
+  },
+  {
+    id: 'n2',
+    title: 'Nuevo dispositivo detectado',
+    body: 'GPS-Tracker-Norte se correlacionó con el enrolamiento ENR-0047.',
+    time: 'hace 2 horas',
+    unread: true,
+    type: 'info',
+  },
+  {
+    id: 'n3',
+    title: 'Bomba BE-01 estabilizada',
+    body: 'Caudal en régimen continuo a 75 L/s en Sala de bombeo SB-01.',
+    time: 'hace 4 horas',
+    unread: false,
+    type: 'success',
+  },
 ]
 
 const TRACKING_CATALOG: { id: TrackingType; label: string; menuLabel: string; color: string; icon: typeof UserRoundSearch }[] = [
@@ -799,6 +836,21 @@ export default function App() {
   }, [])
   const [selectedPump, setSelectedPump] = useState<string>('BE-04')
   const [pumpAiDetail, setPumpAiDetail] = useState<string | null>(null)
+  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS)
+  const [notifOpen, setNotifOpen] = useState<boolean>(false)
+  const [notifTab, setNotifTab] = useState<'unread' | 'all'>('unread')
+  const notifRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!notifOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [notifOpen])
   const [selectedWorker, setSelectedWorker] = useState<WorkerData | null>(null)
   const [whatIfTarget] = useState('V-PH-01')
   const [whatIfHorizon] = useState(60)
@@ -1320,6 +1372,11 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
           setNexoOpen(true)
           break
 
+        case 'notificaciones':
+        case 'notif':
+          setNotifOpen(true)
+          break
+
         case 'checklist-personal':
         case 'buscar-personal':
           setOpenSection('tracking')
@@ -1474,12 +1531,106 @@ He desplegado la ficha de telemetría y el botón de arranque de BE-03 en el pan
           >
             <Search size={20} />
           </button>
-          <button
-            aria-label="Notificaciones"
-            {...showHelp('Tableros de comandos', 'Paneles visuales (dashboards) con indicadores clave de desempeño (KPIs) y resúmenes operativos.')}
-          >
-            <Bell size={20} />
-          </button>
+          <div ref={notifRef} style={{ position: 'relative' }}>
+            <button
+              type="button"
+              aria-label="Notificaciones"
+              className={`topbar-bell-btn ${notifOpen ? 'active' : ''}`}
+              onClick={() => setNotifOpen((v) => !v)}
+              {...showHelp('Notificaciones', 'Alertas y eventos en tiempo real de sensores y dispositivos.')}
+              title="Notificaciones"
+            >
+              <Bell size={20} />
+              {notifications.filter((n) => n.unread).length > 0 && (
+                <span className="notif-badge-count">
+                  {notifications.filter((n) => n.unread).length}
+                </span>
+              )}
+            </button>
+
+            {notifOpen && (
+              <div
+                className="dd-menu notifications-dropdown"
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  left: 'auto',
+                }}
+              >
+                {/* Fill Tabs (media_1794271379718_f95c102c.png) */}
+                <div className="notif-tab-wrap">
+                  <button
+                    type="button"
+                    className={`notif-fill-tab ${notifTab === 'unread' ? 'active' : ''}`}
+                    onClick={() => setNotifTab('unread')}
+                  >
+                    No leídas ({notifications.filter((n) => n.unread).length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`notif-fill-tab ${notifTab === 'all' ? 'active' : ''}`}
+                    onClick={() => setNotifTab('all')}
+                  >
+                    Todas
+                  </button>
+                </div>
+
+                {/* List of Notification Items */}
+                <div className="notif-items-list">
+                  {notifications
+                    .filter((n) => (notifTab === 'unread' ? n.unread : true))
+                    .map((item) => (
+                      <button
+                        type="button"
+                        key={item.id}
+                        className={`notif-item-row ${item.unread ? 'unread' : ''}`}
+                        onClick={() => {
+                          setNotifications((prev) =>
+                            prev.map((n) => (n.id === item.id ? { ...n, unread: false } : n))
+                          )
+                        }}
+                      >
+                        <div className={`notif-icon-circle ${item.type}`}>
+                          {item.type === 'warning' ? (
+                            <WifiOff size={18} />
+                          ) : item.type === 'info' ? (
+                            <HardDrive size={18} />
+                          ) : (
+                            <Activity size={18} />
+                          )}
+                        </div>
+                        <div className="notif-content">
+                          <div className="notif-title">{item.title}</div>
+                          <div className="notif-body">{item.body}</div>
+                          <div className="notif-time">{item.time}</div>
+                        </div>
+                        {item.unread && <span className="notif-unread-dot" />}
+                      </button>
+                    ))}
+
+                  {notifications.filter((n) => (notifTab === 'unread' ? n.unread : true)).length === 0 && (
+                    <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
+                      No hay notificaciones {notifTab === 'unread' ? 'no leídas' : 'disponibles'}
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="notif-footer">
+                  <button
+                    type="button"
+                    className="notif-footer-btn"
+                    onClick={() => {
+                      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
+                    }}
+                  >
+                    Marcar todas como leídas
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <button
             aria-label="Idioma"
             {...showHelp('Servicios Digitales de Mina', 'Suite de herramientas tecnológicas que integran la plataforma.')}
