@@ -837,6 +837,24 @@ export default function App() {
 
   // Evacuacion state
   const [evacuacionActiva, setEvacuacionActiva] = useState(false)
+  const [evacSeconds, setEvacSeconds] = useState(387) // 00:06:27 initial time
+
+  useEffect(() => {
+    let timer: any = null
+    if (evacuacionActiva || sidebarView?.type === 'evacuacion_alertas') {
+      timer = setInterval(() => {
+        setEvacSeconds((s) => s + 1)
+      }, 1000)
+    }
+    return () => clearInterval(timer)
+  }, [evacuacionActiva, sidebarView?.type])
+
+  const formatEvacTime = (sec: number) => {
+    const h = Math.floor(sec / 3600).toString().padStart(2, '0')
+    const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0')
+    const s = (sec % 60).toString().padStart(2, '0')
+    return `${h}:${m}:${s}`
+  }
 
   // Escenario alterno state
   const [escenarioCierres, setEscenarioCierres] = useState<string[]>(['Nivel 2 - Taller mecanico', 'Frente de voladura'])
@@ -1328,6 +1346,18 @@ export default function App() {
 
   return (
     <div className={`app ${nexoOpen ? 'nexo-open' : ''} ${interiorView ? 'in-interior' : ''}`} data-theme={theme}>
+      {/* Borde perimetral sutil de emergencia y tag de modo de evacuación en todo el sitio */}
+      {(evacuacionActiva || sidebarView?.type === 'evacuacion_alertas') && (
+        <div className="evacuacion-site-border">
+          <div className="evac-top-warning-pill">
+            <span className="evac-pulse-dot" />
+            <Siren size={13} />
+            <span>MODO DE EVACUACIÓN ACTIVO</span>
+            <span className="evac-pill-timer">{formatEvacTime(evacSeconds)}</span>
+          </div>
+        </div>
+      )}
+
       {interiorView ? (
         <InteriorBombeoView
           roomId={interiorView}
@@ -2921,12 +2951,35 @@ export default function App() {
                 </button>
               </div>
 
-              <div style={{ padding: '0 4px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <h2 className="user-detail-title" style={{ margin: '4px 0 6px 0', fontSize: 18, fontWeight: 700 }}>
-                  Evacuación en curso
-                </h2>
+              <div style={{ padding: '0 4px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {/* 1. Icono arriba */}
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 10,
+                    background: 'rgba(239, 68, 68, 0.12)',
+                    color: '#ef4444',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: 4,
+                  }}
+                >
+                  <Siren size={22} />
+                </div>
 
-                {/* Evacuation Status Box matching media_1793984790645_4b0c3ba0.png */}
+                {/* 2. Título "Evacuación en curso" y abajo descripción */}
+                <div>
+                  <h2 className="user-detail-title" style={{ margin: '0 0 4px 0', fontSize: 18, fontWeight: 700 }}>
+                    Evacuación en curso
+                  </h2>
+                  <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.4 }}>
+                    Área sin determinar · 33 sin contabilizar · Declarada por Operador
+                  </p>
+                </div>
+
+                {/* 3. Card con tiempo sobre una sola línea y detalles operativos */}
                 <div
                   className="evac-info-card"
                   style={{
@@ -2935,65 +2988,43 @@ export default function App() {
                     background: 'var(--panel-bg)',
                     border: '1px solid var(--line)',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
+                    flexDirection: 'column',
+                    gap: 10,
                   }}
                 >
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 8,
-                      background: 'rgba(239, 68, 68, 0.12)',
-                      color: '#ef4444',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Siren size={20} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 2 }}>
-                      EVACUACIÓN EN CURSO
-                    </div>
-                    <div style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.35 }}>
-                      Área: Área sin determinar · 33 sin contabilizar
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                      Declarada por Operador
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
-                      498329:06:27
+                  <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Tiempo transcurrido</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: '#ef4444' }}>
+                      {formatEvacTime(evacSeconds)}
                     </span>
                   </div>
-                </div>
 
-                {/* Operational Details */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 0' }}>
-                  <div className="row between" style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
+                  <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
                     <span style={{ color: 'var(--muted)' }}>Estado</span>
-                    <span style={{ color: '#ef4444', fontWeight: 600 }}>Activa</span>
+                    <span style={{ color: '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
+                      Activa
+                    </span>
                   </div>
-                  <div className="row between" style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
+
+                  <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
                     <span style={{ color: 'var(--muted)' }}>Personal sin contabilizar</span>
                     <b style={{ color: 'var(--text)' }}>33 trabajadores</b>
                   </div>
-                  <div className="row between" style={{ fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
+
+                  <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
                     <span style={{ color: 'var(--muted)' }}>Puntos de encuentro</span>
                     <span style={{ color: 'var(--text)', fontWeight: 500 }}>Refugio R-01, Superficie</span>
                   </div>
-                  <div className="row between" style={{ fontSize: 13, padding: '4px 0' }}>
+
+                  <div className="row between" style={{ fontSize: 13 }}>
                     <span style={{ color: 'var(--muted)' }}>Ruta principal</span>
                     <span style={{ color: 'var(--text)', fontWeight: 500 }}>Rampa Norte N02</span>
                   </div>
                 </div>
 
                 {/* Bottom Red Finalize Button */}
-                <div style={{ marginTop: 16 }}>
+                <div style={{ marginTop: 8 }}>
                   <button
                     className="cta full no-shadow"
                     style={{

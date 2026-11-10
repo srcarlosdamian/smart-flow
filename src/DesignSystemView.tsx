@@ -2571,7 +2571,33 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                   </div>
                 </div>
 
-                {/* Evacuación en Curso Box matching media_1793984790645_4b0c3ba0.png */}
+                {/* 1. Icono arriba */}
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 10,
+                    background: 'rgba(239, 68, 68, 0.12)',
+                    color: '#ef4444',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Siren size={22} />
+                </div>
+
+                {/* 2. Título y descripción */}
+                <div>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>
+                    Evacuación en curso
+                  </h3>
+                  <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.4 }}>
+                    Área sin determinar · 33 sin contabilizar · Declarada por Operador
+                  </p>
+                </div>
+
+                {/* 3. Card con tiempo sobre una sola línea y detalles operativos */}
                 <div
                   className="evac-info-card"
                   style={{
@@ -2580,40 +2606,38 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                     background: 'var(--panel-bg)',
                     border: '1px solid var(--line)',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
+                    flexDirection: 'column',
+                    gap: 10,
                   }}
                 >
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 8,
-                      background: 'rgba(239, 68, 68, 0.12)',
-                      color: '#ef4444',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Siren size={20} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 2 }}>
-                      EVACUACIÓN EN CURSO
-                    </div>
-                    <div style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.35 }}>
-                      Área: Área sin determinar · 33 sin contabilizar
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                      Declarada por Operador
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
-                      498329:06:27
+                  <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Tiempo transcurrido</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: '#ef4444' }}>
+                      00:06:27
                     </span>
+                  </div>
+
+                  <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Estado</span>
+                    <span style={{ color: '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
+                      Activa
+                    </span>
+                  </div>
+
+                  <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Personal sin contabilizar</span>
+                    <b style={{ color: 'var(--text)' }}>33 trabajadores</b>
+                  </div>
+
+                  <div className="row between" style={{ fontSize: 13, paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Puntos de encuentro</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 500 }}>Refugio R-01, Superficie</span>
+                  </div>
+
+                  <div className="row between" style={{ fontSize: 13 }}>
+                    <span style={{ color: 'var(--muted)' }}>Ruta principal</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 500 }}>Rampa Norte N02</span>
                   </div>
                 </div>
 
@@ -2635,6 +2659,7 @@ export default function DesignSystemView({ theme, onToggleTheme, onBackToApp, on
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
+                    onClick={() => onNavigateToLocation && onNavigateToLocation('evacuacion')}
                   >
                     <span>Finalizar evacuación</span>
                   </button>
